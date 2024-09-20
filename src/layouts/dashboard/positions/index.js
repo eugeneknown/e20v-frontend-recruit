@@ -52,6 +52,7 @@ import { dataServicePrivate } from "global/function";
 
 import moment from "moment";
 
+import BadgePopper from "../dynamic/badge-popper";
 
 function Positions() {
 
@@ -84,6 +85,29 @@ function Positions() {
     const [action, setAction] = useState('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
+
+    const status = [
+        {
+            'id': 1,
+            'title': 'active',
+            'color': 'success',
+        },
+        {
+            'id': 2,
+            'title': 'close',
+            'color': 'error',
+        },
+        {
+            'id': 3,
+            'title': 'hold',
+            'color': 'warning',
+        },
+        {
+            'id': 4,
+            'title': 'paused',
+            'color': 'grey',
+        },
+    ]
 
     const handleCloseModal = () => {
         setConfirmModal(false)
@@ -130,6 +154,26 @@ function Positions() {
         return moment( date ).format( output );
     }
 
+    const handleBadgePopperData = (data, career) => {
+        console.log('debug handle badge popper data:', data, career);
+        career['status'] = data['title']
+        dataServicePrivate('POST', 'hr/careers/define', career).then((result) => {
+            console.log('debug submit career status result', result);
+            init()
+        }).catch((err) => {
+            console.log('debug submit career status error result', err);
+
+        })
+    }
+
+    const statusColor = (status, list) => {
+        for ( var i=0; i<Object.keys(list).length; i++ ) {
+            if (status == list[i].title) return list[i].color
+        }
+
+        return 'light_grey'
+    }
+
     const init = async () => {
         try {
             const response = await axiosPrivate.post('hr/careers/all', {
@@ -155,12 +199,18 @@ function Positions() {
                         ),
                         created: (
                             <MDTypography variant="caption" color="text" fontWeight="medium">
-                                {formatDateTime(result[key].created_at)}
+                                {formatDateTime(result[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
                             </MDTypography>
                         ),
                         status: (
                             <MDBox ml={-1}>
-                                <MDBadge badgeContent={result[key].status} color={result[key].status == 'active' ? 'success' : 'white'} variant="gradient" size="sm" />
+                                <BadgePopper
+                                    badgeContent={result[key].status} 
+                                    color={statusColor(result[key].status, status)} 
+                                    variant="gradient" 
+                                    content={status}
+                                    data={(e) => handleBadgePopperData(e, result[key])}
+                                />
                             </MDBox>
                         ),
                         actions: (
@@ -266,6 +316,7 @@ function Positions() {
             result = result.data
             snackBar('Position Successfully '.concat(value.action == 'create' ? 'Created' : 'Edited'), 'success')
             handleClose()
+            init()
         }).catch((err) => {
             console.log("debug positions submit error:", err);
             snackBar('Error', 'error')
@@ -328,6 +379,7 @@ function Positions() {
             open={open}
             onClose={handleClose}
             closeAfterTransition
+            scroll='body'
             slots={{ backdrop: Backdrop }}
             slotProps={{
                 backdrop: {

@@ -46,19 +46,21 @@ import FilterDialog from "./filter-dialog";
 
 import PersonIcon from "@mui/icons-material/Person";
 import BadgePopper from "./badge-popper";
-import Notifications from "../../notifications/dynamic-notification";
 
 import { useSnackbar } from "notistack";
 import ImgsViewer from 'react-images-viewer';
+import { dataServicePrivate } from "global/function";
+import { ChromePicker } from 'react-color'
+import ConfirmDialog from "../dynamic/confirm-dialog";
 
 
 function Employee() {
 
     const [recruit, setRecruit] = useState({});
-    const [tags, setTags] = useState({})
+    const [tags, setTags] = useState()
+    const [platforms, setPlatforms] = useState()
     const [selectedTag, setSelectedTag] = useState(0)
     const [recruitID, setRecruitID] = useState(0)
-    const [notif, setNotif] = useState()
 
     const [rows, setRows] = useState([]);
     const [open, setOpen] = useState(false);
@@ -81,6 +83,17 @@ function Employee() {
     const fileOpenEvent = () => {
         console.log('w3w')
     } 
+
+    // add data
+    const [openAddData, setOpenAddData] = useState(false)
+    const [addData, setAddData] = useState()
+    const [addDataColor, setAddDataColor] = useState()
+
+    // region confirm modal
+    const [confirmModal, setConfirmModal] = useState(false)
+    const [idDelete, setIdDelete] = useState()
+    const [confirmContent, setConfirmContent] = useState()
+    const [contentURL, setContentURL] = useState()
 
     const handlePopOpen = (e, data) => {
         setRecruitID(data)
@@ -196,7 +209,7 @@ function Employee() {
                 {key.split('_').join(' ')}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="text">
-                &nbsp;{value}
+                &nbsp;{moment(value).isValid() ? formatDateTime(value, 'MM-DD-YYYY') : value}
             </MDTypography>
         </MDBox>
     )
@@ -216,18 +229,31 @@ function Employee() {
     }
 
     useEffect(() => {
-        const getInit = () => {
-            getRecruit({
-                'order': {
-                    'target': 'created_at',
-                    'value': 'desc',
-                }
-            })
-            getTags()
-        }
+        getInit()
+        getTags()
+        getPlatforms()
 
-        getInit();
     },[]);
+
+    const getInit = () => {
+        getRecruit({
+            'order': {
+                'target': 'created_at',
+                'value': 'desc',
+            }
+        })
+    }
+
+    const getPlatforms = () => {
+        dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
+            console.log('debug platform result:', result);
+            result = result.data['career_platforms']
+            setPlatforms(result)
+        }).catch((err) => {
+            console.log('debug platform error result:', err);
+            
+        })
+    }
 
     const getRecruit = async (data = {}) => {
         await axiosPrivate.post('hr/careers/entity/all', data).then((result) => {
@@ -241,29 +267,99 @@ function Employee() {
     const getTags = async (data = {}) => {
         await axiosPrivate.post('hr/careers/tags/all', data).then((result) => {
             console.log("debug career tags", result.data);
-            setTags(result.data['career_tags'])
+            result = result.data['career_tags']
+            var tags = [{
+                id: null,
+                title: 'unnasigned',
+                color: 'light_grey',
+            }]
+            for (let i=0; i<Object.keys(result).length; i++) {
+                tags[i+1] = {
+                    id: result[i].id,
+                    title: result[i].title,
+                    color: result[i].color,
+                }
+            }
+            console.log("debug career tags result", tags);
+            setTags(tags)
+
         }, (err) => {
             console.log("debug career tags error", err);
         });
     }
 
-    const handleBadgePopperData = async (id, tags_id) => {
-        console.log('debug badge popper data:', id, tags_id)
+    const handleTagsData = async (data) => {
+        console.log('debug badge popper tags data:', data)
 
-        await axiosPrivate.post('hr/careers/entity/define', { id, tags_id }).then((result) => {
-            console.log("debug update career tag", result.data);
-            getRecruit(selectedTag != 0 ? {
-                'filter': [
-                    {
-                        target: 'tags',
-                        operator: '=',
-                        value: selectedTag != 'null' ? selectedTag : null
-                    }
-                ]
-            } : {})
-        }, (err) => {
-            console.log("debug update career tag error", err);
-        });
+        if ( data.action == 'select' ) {
+            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, tags_id: data.data_id }).then((result) => {
+                console.log("debug update career tag", result.data);
+                getInit();
+            }, (err) => {
+                console.log("debug update career tag error", err);
+            });
+        }
+
+        if ( data.action == 'add' || data.action == 'edit' ) {
+            dataServicePrivate('POST', 'hr/careers/tags/define', data).then((result) => {
+                console.log("debug define tag", result.data);
+                getTags();
+            }, (err) => {
+                console.log("debug define tag error", err);
+            });
+        }
+
+        if ( data.action == 'delete' ) {
+            setConfirmModal(true)
+            setIdDelete(data.id)
+            setContentURL('hr/careers/tags/delete')
+            setConfirmContent('Are you sure to Delete this Tag?')
+        }
+
+    }
+
+    const handlePlatformData = (data) => {
+        console.log('debug handle platform data:', data);
+
+        if ( data.action == 'select' ) {
+            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, platforms_id: data.data_id }).then((result) => {
+                console.log("debug update career platform", result.data);
+                getInit();
+            }, (err) => {
+                console.log("debug update career platform error", err);
+            });
+        }
+
+        if ( data.action == 'add' || data.action == 'edit' ) {
+            dataServicePrivate('POST', 'hr/careers/platform/define', data).then((result) => {
+                console.log("debug define platform", result.data);
+                getPlatforms()
+            }, (err) => {
+                console.log("debug define platform error", err);
+            });
+
+        } 
+
+        if (data.action == 'delete') {
+            setConfirmModal(true)
+            setIdDelete(data.id)
+            setContentURL('hr/careers/platform/delete')
+            setConfirmContent('Are you sure to Delete this Plaform?')
+        }
+
+    }
+
+    const handleDeleteData = (data) => {
+        if (data) {
+            dataServicePrivate('POST', contentURL, {id: idDelete}).then((result) => {
+                console.log("debug delete platform", result.data);
+                getPlatforms()
+                getTags()
+                setConfirmModal(false)
+            }, (err) => {
+                console.log("debug delete platform error", err);
+            });
+        }
     }
 
     useEffect(() => {
@@ -273,10 +369,23 @@ function Employee() {
                 {
                     name: <Employee image={team3} name={recruit[key]['entity_data'].full_name} email={recruit[key]['entity_data'].email} />,
                     career: <Career title={recruit[key]['careers_data'].title} />,
-                    platform: <Career title={recruit[key]['platforms_data'].title} />,
+                    platform: (
+                        <MDBox ml={-1}>
+                            <BadgePopper
+                                id={recruit[key].id}
+                                badgeContent={recruit[key]['platforms_data'].title} 
+                                color={recruit[key]['platforms_data'].color} 
+                                variant="customGradient" 
+                                content={platforms}
+                                data={handlePlatformData}
+                                editable={true}
+                                deletable={true}
+                            />
+                        </MDBox>
+                    ),
                     applied: (
                         <MDTypography variant="caption" color="text" fontWeight="medium">
-                            {formatDateTime(recruit[key].created_at)}
+                            {formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
                         </MDTypography>
                     ),
                     status: (
@@ -287,7 +396,9 @@ function Employee() {
                                 color={recruit[key].tags != null ? recruit[key]['tags_data'].color : 'light_grey'} 
                                 variant="gradient" 
                                 content={tags}
-                                data={handleBadgePopperData}
+                                data={handleTagsData}
+                                editable={true}
+                                deletable={true}
                             />
                         </MDBox>
                     ),
@@ -307,12 +418,12 @@ function Employee() {
 
         if (rows) setRows(rows)
 
-    },[recruit, tags])
+    },[recruit, tags, platforms])
 
     const columns = [
         { Header: "name", accessor: "name", width: "45%", align: "left" },
         { Header: "career", accessor: "career", align: "left" },
-        { Header: "platform", accessor: "platform", align: "left" },
+        { Header: "platform", accessor: "platform", align: "center" },
         { Header: "applied", accessor: "applied", align: "center" },
         { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
         // { Header: "profile", accessor: "profile", align: "center" },
@@ -343,18 +454,27 @@ function Employee() {
         console.log('debug handle data modal', e, selectedTag)
 
         if (e) {
-            getRecruit(selectedTag != 0 ? {
-                'filter': [
-                    {
-                        target: 'tags',
-                        operator: '=',
-                        value: selectedTag != 'null' ? selectedTag : null
-                    }
-                ]
-            } : {})
+            if (selectedTag) {
+                getRecruit({
+                    'filter': [
+                        {
+                            target: 'tags',
+                            operator: '=',
+                            value: selectedTag != 'null' ? selectedTag : null
+                        }
+                    ]
+                })
+            } else {
+                getInit()
+            }
+            
         }
 
         handleCloseModal()
+    }
+
+    const handleDebugPicker = (e) => {
+        console.log('debug color picker:', e);
     }
 
     return (
@@ -416,8 +536,6 @@ function Employee() {
                 </MDBox>
             )} data={handleDataModal} /> }
 
-            <Notifications data={notif} />
-
             <Dialog
                 open={open}
                 onClose={handleClose}
@@ -442,6 +560,8 @@ function Employee() {
                     {content}
                 </DialogContent>
             </Dialog>
+
+            { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> }
         </DashboardLayout>
     );
 }

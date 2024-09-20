@@ -39,7 +39,7 @@ export default styled(TextField)(({ theme, ownerState }) => {
     },
 
     "& .MuiInputLabel-root.Mui-focused": {
-      color: colorError.main,
+      color: `${colorError.main}!important`,
     },
   });
 
@@ -58,7 +58,7 @@ export default styled(TextField)(({ theme, ownerState }) => {
     },
 
     "& .MuiInputLabel-root.Mui-focused": {
-      color: colorSuccess.main,
+      color: `${colorSuccess.main}!important`,
     },
   });
 

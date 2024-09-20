@@ -1,10 +1,10 @@
 import { Card, Container, Divider, Modal, Fade, Backdrop, FormControl, InputLabel, MenuItem, Select, NativeSelect, useTheme, 
     FormControlLabel, FormLabel, RadioGroup, Radio, FormGroup, Checkbox, Dialog, DialogTitle, DialogContent, DialogActions, CardContent, Button, Box, Alert, Stack, Icon,
     Link,
-    Slide} from "@mui/material";
-import Grid from "@mui/material/Unstable_Grid2";
-import { styled } from '@mui/material/styles';
-import { TransitionProps } from '@mui/material/transitions';
+    IconButton,
+    DialogContentText,
+    Tooltip} from "@mui/material";
+import Grid from "@mui/material/Grid";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
 import NavBar from "../nav_bar";
@@ -14,7 +14,7 @@ import MDButton from "components/MDButton";
 
 import useAuth from "hooks/useAuth";
 import { useNavigate, useLocation, useFetcher } from "react-router-dom";
-import { forwardRef, useEffect, useState, ReactElement, Ref } from "react";
+import { useEffect, useState } from "react";
 import axios from "api/axios";
 import MDInput from "components/MDInput";
 import { axiosPrivate } from "api/axios";
@@ -23,22 +23,15 @@ import Notifications from "../../notifications/dynamic-notification";
 import Sticky from 'react-sticky-el';
 import { useSnackbar } from "notistack";
 import MDAlert from "components/MDAlert";
-import moment from "moment";
+import moment, { ISO_8601 } from "moment";
 
 import e20logo from 'assets/images/e20/Eighty_20_shadow_2_transparent.png'
 import SwipeableViews from "react-swipeable-views";
 
+import FileUpload from "./file-upload";
+
 
 function Careers(){
-
-    const Transition = forwardRef(function Transition(
-        props: TransitionProps & {
-          children: ReactElement;
-        },
-        ref: Ref<unknown>,
-    ) {     
-        return <Slide direction="left" ref={ref} {...props} />;
-    });
 
     const { isAuth, auth } = useAuth();
 
@@ -58,6 +51,8 @@ function Careers(){
     const [error, setError] = useState([])
     const [platform, setPlatform] = useState({})
     const [platformCareer, setPlatformCareer] = useState()
+    const [responseOpen, setResponseOpen] = useState(false)
+    const [view, setView] = useState(true)
  
     // stepper
     const [activeStep, setActiveStep] = useState(0);
@@ -70,6 +65,10 @@ function Careers(){
 
     // snackbar nostick
     const { enqueueSnackbar } = useSnackbar()
+
+    // custom validation
+    const [entityCustomValidation, setEntityCustomValidation] = useState({})
+    const [questionsCustomValidation, setQuestionsCustomValidation] = useState({})
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -84,297 +83,6 @@ function Careers(){
         return moment( date ).format( output );
     }
 
-    const entityHandle = (key, data) => {
-        if (key == 'birthday') {
-            data = formatDateTime(data, 'YYYY-MM-DD')
-        }
-
-        setEntity(prev => ({
-            ...prev,
-            [key]: data
-        }));
-
-        console.log('debug submit entity data:', entity)
-    }
-
-    const entityContent = (
-        <MDBox>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput
-                        id='First Name'
-                        type="text" 
-                        label='First Name'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => entityHandle('first_name', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Middle Name'
-                        type="text" 
-                        label='Middle Name'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => entityHandle('middle_name', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Last Name'
-                        type="text" 
-                        label='Last Name'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => entityHandle('last_name', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput
-                        id='Civil Status'
-                        select 
-                        label='Civil Status'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => entityHandle('civil_status', e.target.value)}
-                        
-                    >
-                        <MenuItem value="single">Single</MenuItem>
-                        <MenuItem value="married">Married</MenuItem>
-                        <MenuItem value="widowed">Widowed</MenuItem>
-                    </MDInput>
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Contact Number'
-                        inputProps={{ type: 'number' }}
-                        type="number" 
-                        label='Contact Number'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => entityHandle('contact_number', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Gender'
-                        select 
-                        label='Gender'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => entityHandle('gender', e.target.value)}
-                        
-                    >
-                        <MenuItem value="male">Male</MenuItem>
-                        <MenuItem value="female">Female</MenuItem>
-                        <MenuItem value="others">Others</MenuItem>
-                    </MDInput>
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id="Age" 
-                        inputProps={{ type: 'number' }}
-                        type="number" 
-                        label='Age'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => entityHandle('age', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Email'
-                        type="email" 
-                        label='Email'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => entityHandle('email', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Birth Place'
-                        type="text" 
-                        label='Birth Place'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => entityHandle('birth_place', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <DatePicker 
-                        label='Birthday' 
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }} 
-                        slotProps={{
-                            textField: {
-                                id: 'Birthday',
-                                variant: 'standard',
-                                fullWidth: true,
-                                // required: true,
-                                InputLabelProps: {
-                                    style: {
-                                        color: 'black'
-                                    }
-                                }
-                            }
-                        }}
-                        onChange={e => entityHandle('birthday', e)} 
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Permanent Address'
-                        type="text" 
-                        label='Permanent Address'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => entityHandle('permanent_address', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Present Address'
-                        type="text" 
-                        label='Present Address'
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => entityHandle('present_address', e.target.value)}
-                        
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent>
-                    <MDInput 
-                        id='Where did you hear about us?'
-                        type="text" 
-                        label='Where did you hear about us?'
-                        select
-                        fullWidth
-                        InputLabelProps={{
-                            style: {
-                                color: 'black'
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => setPlatformCareer(e.target.value)}
-                        
-                    >
-                        {
-                            platform && Object.keys(platform).map((item, key) => (
-                                <MenuItem sx={{ textTransform: 'capitalize' }} key={key} value={platform[item].id}>{platform[item].title}</MenuItem>
-                            ))
-                        }
-                    </MDInput>
-                </CardContent>
-            </Card>
-        </MDBox>
-    )
-
-    useEffect(() => {
-        console.log('debug platform career:', platformCareer);
-        setEntityCareer(prev => ({
-            ...prev, 'platforms_id': platformCareer
-        }))
-    }, [platformCareer])
-
     useEffect(() => {
         setEntity({
             'id': auth['id'],
@@ -383,7 +91,14 @@ function Careers(){
         const getCareers = async () => {
             try {
                 const response = await axios.post('hr/careers/all', {
-                    relations: ["has", "questions"]
+                    filter: [
+                        {
+                            target: 'status',
+                            operator: '=',
+                            value: 'active',
+                        }
+                    ],
+                    relations: ["has", "questions"],
                 });
                 setCareers(response.data['careers'])
                 console.log("debug careers", response.data);
@@ -407,75 +122,518 @@ function Careers(){
 
         SetSwipeContent({ 0: entityContent })
 
+        for (let i=0;i<13;i++) { //13
+            setEntityCustomValidation(prev => ({
+                ...prev,
+                [i]: {
+                    id: i+1,
+                    index: 0,
+                    invalid: true,
+                }
+            }))
+        }
+
     }, [])
+
+    const entityHandle = (key, data) => {
+        if (key == 'birthday') {
+            data = formatDateTime(data, 'YYYY-MM-DD')
+        }
+
+        setEntity(prev => ({
+            ...prev,
+            [key]: data
+        }));
+
+        console.log('debug submit entity data:', entity)
+    }
+
+    const responseOpenHandle = () => setResponseOpen(true)
+    const responseCloseHandle = () => setResponseOpen(false)
+
+    const customValidation = (value, type) => {
+        console.log('debug custom validation:', value, type);
+        
+        switch (type) {
+            case 'input':
+                if (value) return false
+
+            case 'number':
+                if (value.match(/^\d+$/)) return false
+
+            case 'email':
+                if (value.match(
+                    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                )) return false
+
+            case 'date':
+                if (moment(value).isValid()) return false
+
+        }
+
+        return true
+    }
+
+    const entityContent = (
+        <MDBox>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">1.</MDTypography>
+                    <MDInput
+                        id='First Name'
+                        type="text" 
+                        label='First Name'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle('first_name', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [0]: {
+                                    ...prev[0],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                <MDTypography fontWeight="bold">2.</MDTypography>
+                    <MDInput 
+                        id='Middle Name'
+                        type="text" 
+                        label='Middle Name'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle('middle_name', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [1]: {
+                                    ...prev[1],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">3.</MDTypography>
+                    <MDInput 
+                        id='Last Name'
+                        type="text" 
+                        label='Last Name'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle('last_name', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [2]: {
+                                    ...prev[2],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">4.</MDTypography>
+                    <MDInput
+                        id='Civil Status'
+                        select 
+                        label='Civil Status'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        multiline
+                        onChange={e => {
+                            entityHandle('civil_status', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [3]: {
+                                    ...prev[3],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    >
+                        <MenuItem value="single">Single</MenuItem>
+                        <MenuItem value="married">Married</MenuItem>
+                        <MenuItem value="widowed">Widowed</MenuItem>
+                    </MDInput>
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">5.</MDTypography>
+                    <MDInput 
+                        id='Contact Number'
+                        inputProps={{ type: 'number' }}
+                        type="number" 
+                        label='Contact Number'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle('contact_number', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [4]: {
+                                    ...prev[4],
+                                    invalid: customValidation(e.target.value, 'number'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">6.</MDTypography>
+                    <MDInput 
+                        id='Gender'
+                        select 
+                        label='Gender'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        multiline
+                        onChange={e => {
+                            entityHandle('gender', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [5]: {
+                                    ...prev[5],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    >
+                        <MenuItem value="male">Male</MenuItem>
+                        <MenuItem value="female">Female</MenuItem>
+                        <MenuItem value="others">Others</MenuItem>
+                    </MDInput>
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">7.</MDTypography>
+                    <MDInput 
+                        id="Age" 
+                        inputProps={{ type: 'number' }}
+                        type="number" 
+                        label='Age'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle('age', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [6]: {
+                                    ...prev[6],
+                                    invalid: customValidation(e.target.value, 'number'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">8.</MDTypography>
+                    <MDInput 
+                        id='Email'
+                        type="text" 
+                        label='Email'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle('email', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [7]: {
+                                    ...prev[7],
+                                    invalid: customValidation(e.target.value, 'email'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">9.</MDTypography>
+                    <MDInput 
+                        id='Birth Place'
+                        type="text" 
+                        label='Birth Place'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        multiline
+                        onChange={e => {
+                            entityHandle('birth_place', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [8]: {
+                                    ...prev[8],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">10.</MDTypography>
+                    <DatePicker 
+                        label='Birthday' 
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }} 
+                        slotProps={{
+                            textField: {
+                                id: 'Birthday',
+                                variant: 'standard',
+                                fullWidth: true,
+                                // required: true,
+                                InputLabelProps: {
+                                    style: {
+                                        color: 'black'
+                                    }
+                                }
+                            }
+                        }}
+                        onChange={e => {
+                            entityHandle('birthday', e);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [9]: {
+                                    ...prev[9],
+                                    invalid: customValidation(e, 'date'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">11.</MDTypography>
+                    <MDInput 
+                        id='Permanent Address'
+                        type="text" 
+                        label='Permanent Address'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        multiline
+                        onChange={e => {
+                            entityHandle('permanent_address', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [10]: {
+                                    ...prev[10],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">12.</MDTypography>
+                    <MDInput 
+                        id='Present Address'
+                        type="text" 
+                        label='Present Address'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        multiline
+                        onChange={e => {
+                            entityHandle('present_address', e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [11]: {
+                                    ...prev[11],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    />
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                    <MDTypography fontWeight="bold">13.</MDTypography>
+                    <MDInput 
+                        id='Where did you hear about us?'
+                        type="text" 
+                        label='Where did you hear about us?'
+                        select
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        multiline
+                        onChange={e => {
+                            setPlatformCareer(e.target.value);
+                            setEntityCustomValidation(prev => ({
+                                ...prev,
+                                [12]: {
+                                    ...prev[12],
+                                    invalid: customValidation(e.target.value, 'input'),
+                                }
+                            }))
+                        }}
+                    >
+                        {
+                            platform && Object.keys(platform).map((item, key) => (
+                                <MenuItem sx={{ textTransform: 'capitalize' }} key={key} value={platform[item].id}>{platform[item].title}</MenuItem>
+                            ))
+                        }
+                    </MDInput>
+                </CardContent>
+            </Card>
+            <Card sx={{ my: 2 }}>
+                <CardContent></CardContent>
+            </Card>
+        </MDBox>
+    )
+
+    useEffect(() => {
+        console.log('debug platform career:', platformCareer);
+        setEntityCareer(prev => ({
+            ...prev, 'platforms_id': platformCareer
+        }))
+    }, [platformCareer])
+
+    useEffect(() => {
+        console.log('debug entity custom validation use effect:', entityCustomValidation);
+    }, [entityCustomValidation])
+
+    useEffect(() => {
+        console.log('debug questions custom validation use effect:', questionsCustomValidation);
+    }, [questionsCustomValidation])
 
     const handleValidation = (e) => {
         e.preventDefault();
         console.log('debug submit target data:', e)
 
-        if (e.target.checkValidity()) {
-            console.log("Form is valid! Submitting the form...", Object.keys(questions).length, swipeIndex);
-            if ( Object.keys(questions).length == swipeIndex ) {
-                handleSubmit()
-            } else {
-                setSwipeIndex(swipeIndex+1)
-            }
-            setError([])
-        } else {
-            console.log("Form is invalid! Please check the fields...");
-            var errorList = []
-            setError([])
-            for (var i=0; i<e.target.length; i++) {
-                console.log("Form is invalid! data:", e.target[i].checkValidity(), i, (e.target[i].type == 'textarea' && e.target[i].id == ''));
-                if ( !e.target[i].checkValidity() && e.target[i].type != 'button' ) {
-                    // console.log("error list:", e.target[i].labels[0].innerText);
-                    if (e.target[i].type == 'textarea' && e.target[i].id == '') continue
+        console.log('debug custom entity validation:', entityCustomValidation)
+        console.log('debug custom questions validation:', questionsCustomValidation)
 
-                    if ( e.target[i].id != '' ) {
-                        errorList.push('Invalid ' + e.target[i].id)
+        var validations = {
+            [0]: entityCustomValidation,
+            [1]: questionsCustomValidation,
+        }
 
-                    } else {
-                        errorList.push('Invalid ' + e.target[i].previousSibling.id)
-
-                    }
-                } 
-
-            }
-            setError(errorList)
-
-            console.log("error list:", errorList);
-
-            enqueueSnackbar('Form is invalid! Please check the fields...', {
-                variant: 'error',
-                preventDuplicate: true,
-                anchorOrigin: {
-                    horizontal: 'right',
-                    vertical: 'top',
+        let valid = true
+        i: for (let i in validations) {
+            for (let j in validations[i]) {
+                if (validations[i][j].invalid) {
+                    console.log('debug validation', i, j, validations[i][j])
+    
+                    valid = false
+                    setSwipeIndex(validations[i][j].index)
+                    enqueueSnackbar(`Form is invalid! Please check the Question ${i==0 ? validations[i][j].id : j}`, {
+                        variant: 'error',
+                        preventDuplicate: true,
+                        anchorOrigin: {
+                            horizontal: 'right',
+                            vertical: 'top',
+                        }
+                    })
+    
+                    break i
                 }
-            })
+            }
+        }
+
+        console.log('debug submit validity:', valid)
+        // if (valid) handleSubmit()
+        if (valid) {
+            responseOpenHandle()
+            handleSubmit()
         }
 
         console.log('debug submit entity data:', entity)
         console.log('debug submit question data:', questions)
     }
 
-    const VisuallyHiddenInput = styled('input')({
-        clip: 'rect(0 0 0 0)',
-        clipPath: 'inset(50%)',
-        height: 1,
-        overflow: 'hidden',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        whiteSpace: 'nowrap',
-        width: 1,
-    });
-
     useEffect(() => {
         console.log("debug effect questions", questions);
         // console.log("debug effect questions", Object.keys(questions).length);
 
         SetSwipeContent({ 0: entityContent })
+        setQuestionsCustomValidation()
+        var count = 13
+        var id_count = 13
 
         Object.keys(questions).map((item, key) => {
             var tempContent
@@ -484,33 +642,58 @@ function Careers(){
                 <MDBox>
                     {
                         Object.keys(questions[key]).map((_item, _key) => {
+
+                            console.log('debug', questions[key][_key].type, questions[key][_key].type != 'link');
+                            if ( questions[key][_key].type != 'link' && questions[key][_key].type != 'label' ) {
+                                setQuestionsCustomValidation(prev => ({
+                                    ...prev,
+                                    [count+=1]: {
+                                        index: key+1,
+                                        invalid: true,
+                                        id: questions[key][_key]?.id,
+                                    }
+                                }))
+                            }
+
                             if ( questions[key][_key].type == 'input' ) {
+                                var qCount = id_count+=1
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
-                                        <CardContent>
+                                        <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
                                             <MDInput 
                                                 id={questions[key][_key]?.title}
                                                 type="text" 
-                                                label={questions[key][_key]?.title}
+                                                label={`${key} `+questions[key][_key]?.title}
                                                 variant="standard"
                                                 fullWidth
-                                                InputLabelProps={{
-                                                    style: {
-                                                        color: 'black'
+                                                sx={{
+                                                    '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                                        color: 'black!important',
                                                     }
                                                 }}
                                                 autoComplete="off"
-                                                onChange={e => handleAnswer(key, _key, questions[key][_key], e.target.value)}
-                                                
+                                                onChange={e => {
+                                                    handleAnswer(key, _key, questions[key][_key], e.target.value);
+                                                    setQuestionsCustomValidation(prev => ({
+                                                        ...prev,
+                                                        [qCount]: {
+                                                            ...prev[qCount],
+                                                            invalid: customValidation(e.target.value, 'input'),
+                                                        }
+                                                    }))
+                                                }}
                                             />
                                         </CardContent>
                                     </Card>
                                 )
                             } 
                             else if ( questions[key][_key].type == 'select' ) {
+                                var qCount = id_count+=1
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
-                                        <CardContent>
+                                        <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
                                             <MDInput
                                                 id={questions[key][_key]?.title}
                                                 label={questions[key][_key]?.title}
@@ -520,12 +703,25 @@ function Careers(){
                                                         color: 'black'
                                                     }
                                                 }}
-                                                sx={{ height: "44px" }}
+                                                sx={{
+                                                    height: "44px",
+                                                    '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                                        color: 'black!important',
+                                                    }
+                                                }}
                                                 fullWidth
                                                 multiline
-                                                onChange={e => handleAnswer(key, _key, questions[key][_key], e.target.value)}
-                                                
                                                 variant="standard"
+                                                onChange={e => {
+                                                    handleAnswer(key, _key, questions[key][_key], e.target.value);
+                                                    setQuestionsCustomValidation(prev => ({
+                                                        ...prev,
+                                                        [qCount]: {
+                                                            ...prev[qCount],
+                                                            invalid: customValidation(e.target.value, 'input'),
+                                                        }
+                                                    }))
+                                                }}
                                             >
                                                 {
                                                     questions[key][_key]?.value?.split(', ').map((_item, _key) => (
@@ -538,9 +734,11 @@ function Careers(){
                                 )
                             } 
                             else if ( questions[key][_key].type == 'check' ) {
+                                var qCount = id_count+=1
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
-                                        <CardContent>
+                                        <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
+                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
                                             <FormControl fullWidth>
                                                 <FormLabel>{questions[key][_key]?.title}</FormLabel>
                                                     <FormGroup>
@@ -548,7 +746,18 @@ function Careers(){
                                                             questions[key][_key]?.value?.split(', ').map((__item, __key) => {
                                                                 return (
                                                                     <FormControlLabel key={__key} control={
-                                                                        <Checkbox onChange={e => handleAnswer(key, _key, questions[key][_key], __item)} />
+                                                                        <Checkbox 
+                                                                            onChange={e => {
+                                                                                handleAnswer(key, _key, questions[key][_key], __item);
+                                                                                setQuestionsCustomValidation(prev => ({
+                                                                                    ...prev,
+                                                                                    [qCount]: {
+                                                                                        ...prev[qCount],
+                                                                                        invalid: customValidation(__item, 'input'),
+                                                                                    }
+                                                                                }))
+                                                                            }}
+                                                                        />
                                                                     } label={__item} />
                                                                 );
                                                             })
@@ -560,13 +769,24 @@ function Careers(){
                                 )
                             }
                             else if ( questions[key][_key].type == 'radio' ) {
+                                var qCount = id_count+=1
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
-                                        <CardContent>
+                                        <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
+                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
                                             <FormControl fullWidth>
                                                 <FormLabel sx={{ color: 'black' }}>{questions[key][_key]?.title}</FormLabel>
                                                 <RadioGroup
-                                                    onChange={e => handleAnswer(key, _key, questions[key][_key], e.target.value)}
+                                                    onChange={e => {
+                                                        handleAnswer(key, _key, questions[key][_key], e.target.value);
+                                                        setQuestionsCustomValidation(prev => ({
+                                                            ...prev,
+                                                            [qCount]: {
+                                                                ...prev[qCount],
+                                                                invalid: customValidation(e.target.value, 'input'),
+                                                            }
+                                                        }))
+                                                    }}
                                                 >
                                                     {
                                                         questions[key][_key]?.value?.split(', ').map((__item, __key) => (
@@ -580,28 +800,26 @@ function Careers(){
                                 )
                             }
                             else if (questions[key][_key].type == 'file') {
+                                var qCount = id_count+=1
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
-                                        <CardContent>
-                                            <MDTypography sx={{ fontSize: 14 }} color="black" gutterBottom>{questions[key][_key]?.title}</MDTypography>
-                                            <Button 
-                                                id={questions[key][_key]?.title}
-                                                component="label"
-                                                role={undefined}
-                                                variant="standard"
-                                                fullWidth
-                                                autoComplete="off"
-                                                tabIndex={-1}
-                                                startIcon={<Icon >cloudupload</Icon>}
-                                            >
-                                                Upload File
-                                                <VisuallyHiddenInput 
-                                                    type="file" 
-                                                    accept={questions[key][_key]?.value} 
-                                                    onChange={e => handleAnswer(key, _key, questions[key][_key], e.target.files[0])} 
-                                                     
+                                        <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
+                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
+                                            <MDBox>
+                                                <MDTypography sx={{ fontSize: 14 }} color="black" gutterBottom>{questions[key][_key]?.title}</MDTypography>
+                                                <FileUpload question={questions[key][_key]} 
+                                                    data={e => {
+                                                        handleAnswer(key, _key, questions[key][_key], e);
+                                                        setQuestionsCustomValidation(prev => ({
+                                                            ...prev,
+                                                            [qCount]: {
+                                                                ...prev[qCount],
+                                                                invalid: customValidation(e, 'input'),
+                                                            }
+                                                        }))
+                                                    }} 
                                                 />
-                                            </Button>
+                                            </MDBox>
                                         </CardContent>
                                     </Card>
                                 )
@@ -643,24 +861,6 @@ function Careers(){
 
         })
 
-
-
-        // const key = swipeIndex-1
-        // if (swipeIndex == 0) {
-        //     setComponent(
-        //         <DialogContent>
-                    
-        //         </DialogContent>
-        //     )
-        // } else if (Object.keys(questions).length != 0) {
-        //     setComponent(
-        //         <DialogContent sx={{ bgcolor: 'grey.200' }}>
-        //         {
-                    
-        //         }
-        //         </DialogContent>
-        //     )
-        // }
     },[questions])
 
     const careerHandle = (key) => {
@@ -882,8 +1082,9 @@ function Careers(){
     const submitDataSync = (data) => {
         dataService('POST', 'hr/careers/entity/submit', data).then((result) => {
             console.log('debug answer response:', result);
-            snackBar('Form Successfully Submitted', 'success')
-            handleClose()
+            // snackBar('Form Successfully Submitted', 'success')
+            // handleClose()
+            // responseOpenHandle()
         }, (err) => {
             console.log('debug answer error response:', err);
             var response = err?.response?.data ? err.response.data : 'Error Request'
@@ -958,17 +1159,34 @@ function Careers(){
                 <Dialog
                     open={open}
                     onClose={handleClose}
-                    onLoad={() => setSwipeIndex(swipeIndex+1)}
                     maxWidth="md"
                     scroll='body'
                     fullWidth
-                    // fullScreen
+                    fullScreen
                 >
-                    <MDBox >
+                    <MDBox display='flex' justifyContent='center'>
                         <MDBox component='form' onSubmit={handleValidation}>
                             <DialogTitle align="center">Please fill out this form</DialogTitle>
+                            <IconButton
+                                aria-label="close"
+                                onClick={handleClose}
+                                sx={(theme) => ({
+                                    position: 'absolute',   
+                                    right: 8,
+                                    top: 8,
+                                })}
+                            >
+                                <Icon>close</Icon>
+                            </IconButton>
                             <DialogContent>
-                                <SwipeableViews axis={swipeDirection} index={swipeIndex} animateHeight >
+                                <SwipeableViews  
+                                    axis={swipeDirection} 
+                                    index={swipeIndex} 
+                                    animateHeight
+                                    style={{
+                                        maxWidth: 'min-content',
+                                    }}
+                                >
                                     {
                                         swipeContent && Object.keys(swipeContent).map((item, key) => (
                                             swipeContent[key]
@@ -976,34 +1194,51 @@ function Careers(){
                                     }
                                 </SwipeableViews>
                             </DialogContent>
-                            <DialogActions>
+                            <DialogActions sx={{ justifyContent: swipeIndex == Object.keys(questions).length && view ? 'space-between' : 'end' }}>
+                                <MDBox display={swipeIndex == Object.keys(questions).length && view ? 'flex' : 'none'} alignItems="center">
+                                    <Checkbox required />
+                                    <MDTypography
+                                        variant="button"
+                                        fontWeight="regular"
+                                        color="text"
+                                        sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+                                    >
+                                        &nbsp;&nbsp;I agree the&nbsp;
+                                    </MDTypography>
+                                    <Tooltip 
+                                        title='I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
+                                        and that any dishonesty or falsification may jeopardize my employment application.'
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    maxWidth: 500
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        <MDTypography
+                                            component="a"
+                                            href="#"
+                                            variant="button"
+                                            fontWeight="bold"
+                                            color="info"
+                                            textGradient
+                                        >
+                                            Terms and Conditions
+                                        </MDTypography>
+                                    </Tooltip>
+                                </MDBox>
                                 { swipeIndex == Object.keys(questions).length ?
                                     (
-                                        <MDBox sx={{ display: 'flex' }}>
-                                            <FormControlLabel
-                                            sx={{
-                                                display: 'flex',
-                                                fontWeight: '400',
-                                                fontSize: '.75rem',
-                                                lineHeight: 1.66,
-                                                letterSpacing: '0.03333em',
-                                                '& .MuiFormControlLabel-asterisk': {
-                                                    display: 'none',
-                                                }
-                                            }}
-                                            disableTypography
-                                            required
-                                            control={<Checkbox  />}
-                                            label="I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
-                                            and that any dishonesty or falsification may jeopardize my employment application.*"
-                                            />
+                                        <MDBox>
                                             <MDBox sx={{ display: 'flex' }}>
                                                 <MDButton onClick={ () => setSwipeIndex(swipeIndex-1) }>
                                                     Back
                                                 </MDButton>
+                                                { view && 
                                                 <MDButton sx={{ mx: 1 }} type='submit' color="info">
                                                     Submit
-                                                </MDButton>
+                                                </MDButton> }
                                             </MDBox>
                                         </MDBox>
                                     ) :
@@ -1012,7 +1247,7 @@ function Careers(){
                                             <MDButton sx={{ mx: 1, display: swipeIndex == 0 && 'none' }} onClick={ () => setSwipeIndex(swipeIndex-1) }>
                                                 Back
                                             </MDButton>
-                                            <MDButton sx={{ mx: 1 }} color="info" onClick={ () => setSwipeIndex(swipeIndex+1)}>
+                                            <MDButton sx={{ mx: 1 }} color="info" onClick={ () => setSwipeIndex(swipeIndex+1) }>
                                                 Next
                                             </MDButton>
                                         </MDBox>
@@ -1022,6 +1257,60 @@ function Careers(){
                         </MDBox>
                     </MDBox>
                 </Dialog>
+                <Dialog
+                    open={responseOpen} 
+                    onClose={responseCloseHandle}
+                    maxWidth='sm'
+                    fullWidth
+                >
+                    <DialogTitle align="center">Thank you for filling out the form.</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            We have received your application and will get back to you soon.
+                            Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">@facebook</Link> for updates.
+                        </DialogContentText>
+                        <MDButton color='info' variant='text' sx={{ mt: 2 }} onClick={() => {
+                            setView(false);
+                            responseCloseHandle();
+                            setSwipeIndex(0);
+                        }}>
+                            View Response
+                        </MDButton>
+                    </DialogContent>
+                    <DialogActions>
+                        <MDButton onClick={() => {
+                            responseCloseHandle();
+                            handleClose();
+                        }}>Close</MDButton>
+                    </DialogActions>
+                </Dialog>
+                {/* <Dialog
+                    open={responseOpen} 
+                    onClose={responseCloseHandle}
+                    TransitionComponent={Transition}
+                    fullWidth
+                    fullScreen
+                    hideBackdrop                
+                >
+                    <IconButton
+                        aria-label="close"
+                        onClick={responseCloseHandle}
+                        sx={(theme) => ({
+                            position: 'absolute',   
+                            right: 8,
+                            top: 8,
+                        })}
+                    >
+                        <Icon>close</Icon>
+                    </IconButton>
+                    <Grid container>
+                        <Grid item sx={4}></Grid>
+                        <Grid item sx={6} display='flex' justifyContent="center" alignItems="center">
+                            w3w
+                        </Grid>
+                        <Grid item sx={4}></Grid>
+                    </Grid>
+                </Dialog> */}
             </Container>
             <Notifications data={notif} />
         </PageLayout>

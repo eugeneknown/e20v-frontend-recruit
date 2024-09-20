@@ -43,7 +43,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Grid, StepContent, TextField } from "@mui/material";
+import { breadcrumbsClasses, Grid, Icon, IconButton, StepContent, TextField } from "@mui/material";
 
 import { dataService } from "global/function";
 
@@ -53,6 +53,8 @@ import { useSnackbar } from "notistack";
 function Cover() {
 
     const [credentials, setCredentials] = useState({});
+    const [visiblePass, setVisiblePass] = useState(false)
+    const [visibleConfPass, setVisibleConfPass] = useState(false)
     const [errMsg, setErrMsg] = useState('');
 
     // snackbar nostick
@@ -83,14 +85,32 @@ function Cover() {
             navigate(from, { replace: true });
         }, (err) => {
             console.log('debug entity register error response', err)
-            enqueueSnackbar(err.message, {
-                variant: 'error',
-                preventDuplicate: true,
-                anchorOrigin: {
-                    horizontal: 'right',
-                    vertical: 'top',
+            Object.keys(err.response.data).map((item, index) => {
+                console.log('debug error:', item, index);
+                var field = ''
+                switch (item) {
+                    case 'username':
+                        field = 'Username'
+                        break
+
+                    case 'password':
+                        if (!credentials.password.length) field = 'Password'
+                        break
+                    
+                    case 'confirm_password':
+                        field = 'Confirm Password'
+                        break
+
                 }
+                enqueueSnackbar(`${field} `+err.response.data[item][0], {
+                    variant: 'error',
+                    anchorOrigin: {
+                        horizontal: 'right',
+                        vertical: 'top',
+                    }
+                })
             })
+            
         })
 
     }
@@ -124,13 +144,34 @@ function Cover() {
                 <MDBox pt={4} pb={3} px={3}>
                     <MDBox component="form" role="form">
                         <MDBox mb={2}>
-                        <TextField onChange={(e) => credentialsHandle({username: e.target.value})} value={credentials.username} type="text" label="Username" variant="standard" fullWidth />
+                        <TextField onChange={(e) => credentialsHandle({username: e.target.value})} value={credentials.username} type="text" label="Username" variant="standard" fullWidth autoComplete="off" />
                         </MDBox>
                         <MDBox mb={2}>
-                        <TextField onChange={(e) => credentialsHandle({password: e.target.value})} value={credentials.password} type="password" label="Password" variant="standard" fullWidth />
+                        <TextField 
+                            onChange={(e) => credentialsHandle({password: e.target.value})} 
+                            value={credentials.password} 
+                            type={visiblePass ? 'text' : "password"}
+                            label="Password" 
+                            variant="standard" 
+                            fullWidth 
+                            InputProps={{
+                                endAdornment: <IconButton size="small" onClick={e => setVisiblePass(!visiblePass)}><Icon>{visiblePass ? 'visibility' : 'visibility_off'}</Icon></IconButton>,
+                                autoComplete: 'new-password'
+                            }}
+                        />
                         </MDBox>
                         <MDBox mb={2}>
-                        <TextField onChange={(e) => credentialsHandle({confirm_password: e.target.value})} value={credentials.confirm_password} type="password" label="Confirm Password" variant="standard" fullWidth />
+                        <TextField 
+                            onChange={(e) => credentialsHandle({confirm_password: e.target.value})} 
+                            value={credentials.confirm_password} 
+                            type={visibleConfPass ? 'text' : "password"}
+                            label="Confirm Password" 
+                            variant="standard" 
+                            fullWidth 
+                            InputProps={{
+                                endAdornment: <IconButton size="small" onClick={e => setVisibleConfPass(!visibleConfPass)}><Icon>{visibleConfPass ? 'visibility' : 'visibility_off'}</Icon></IconButton>,
+                            }}
+                        />
                         </MDBox>
                         <MDBox display="flex" alignItems="center" ml={-1}>
                             <Checkbox required />

@@ -81,6 +81,16 @@ export default styled(Badge)(({ theme, ownerState }) => {
     };
   };
 
+  // styles for the badge with variant="gradient"
+  const customGradientStyles = (colorProp) => {
+    const colorValue = colorProp === "light" ? dark.main : white.main;
+
+    return {
+      background: colorProp,
+      color: colorValue,
+    };
+  };
+
   // styles for the badge with variant="contained"
   const containedStyles = (colorProp) => {
     const backgroundValue = badgeColors[colorProp]
@@ -126,6 +136,7 @@ export default styled(Badge)(({ theme, ownerState }) => {
       borderRadius: borderRadiusValue,
       ...(indicator && indicatorStyles(size)),
       ...(variant === "gradient" && gradientStyles(color)),
+      ...(variant === "customGradient" && customGradientStyles(color)),
       ...(variant === "contained" && containedStyles(color)),
       ...(!children && !container && standAloneStyles(color)),
       ...(container && containerStyles(color)),

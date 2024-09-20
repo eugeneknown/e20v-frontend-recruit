@@ -146,7 +146,7 @@ function Questions() {
                             type: (<MDTypography textTransform="capitalize" display="block" variant="caption" color="text" fontWeight="medium">{result[key].type}</MDTypography>),
                             created: (
                                 <MDTypography variant="caption" color="text" fontWeight="medium">
-                                    {formatDateTime(result[key].created_at)}
+                                    {formatDateTime(result[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
                                 </MDTypography>
                             ),
                             status: (
@@ -456,7 +456,7 @@ function Questions() {
                                             question.type != 'file' ?
                                             (<MDBox display="flex">
                                                 <MDInput value={inputOption} onChange={(e) => setInputOption(e.target.value)} size="small" label="Option" sx={{ mr: '3px' }} />
-                                                <MDButton onClick={handleAddOptionSubmit} size="small" color='secondary' variant="outlined" >Add</MDButton>
+                                                <MDButton onClick={() => handleAddOptionSubmit()} size="small" color='secondary' variant="outlined" >Add</MDButton>
                                             </MDBox>)
                                             :
                                             (<MDBox display='flex'>

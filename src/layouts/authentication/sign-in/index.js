@@ -44,6 +44,8 @@ import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
 import axios from "api/axios";
 import useAuth from "hooks/useAuth";
+import { useSnackbar } from "notistack";
+import { Icon, IconButton } from "@mui/material";
 
 
 function Basic() {
@@ -61,7 +63,11 @@ function Basic() {
 
   const [ user, setUser ] = useState('');
   const [ pwd, setPwd ] = useState('');
+  const [ visible, setVisible ] = useState(false);
   const [ errMsg, setErrMsg ] = useState('');
+
+  // snackbar nostick
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
     userRef.current.focus();
@@ -103,6 +109,15 @@ function Basic() {
       navigate(is_admin ? '/dashboard' : from, { replace: true });
     } catch (err) {
       setErrMsg(err);
+      console.log('debug err login:', err);
+      enqueueSnackbar('Invalid Username or Password.', {
+        variant: 'error',
+        preventDuplicate: true,
+        anchorOrigin: {
+          horizontal: 'right',
+          vertical: 'top',
+        }
+      })
       // errRef.current.focus();
     }
   }
@@ -167,13 +182,16 @@ function Basic() {
             </MDBox>
             <MDBox mb={2}>
               <MDInput 
-              type="password" 
+              type={visible ? 'text' : 'password'} 
               label="Password" 
               fullWidth 
               id="password"
               onChange={(e) => setPwd(e.target.value)}
               value={pwd}
               required
+              InputProps={{
+                endAdornment: <IconButton size="small" onClick={e => setVisible(!visible)}><Icon>{visible ? 'visibility' : 'visibility_off'}</Icon></IconButton>,
+              }}
               />
             </MDBox>
             <MDBox display="flex" alignItems="center" ml={-1}>

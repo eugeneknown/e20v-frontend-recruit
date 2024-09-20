@@ -392,22 +392,18 @@ function Questions({data={}}) {
     }
 
     const getListStyle = isDraggingOver => ({
-        background: isDraggingOver ? "lightblue" : "inherit",
-        // padding: 8,
-        // width: 250
+        background: isDraggingOver ? "lightblue" : "lightgrey",
+        padding: 8,
+        width: 250
     });
 
     const getItemStyle = (isDragging, draggableStyle) => ({
-        // some basic styles to make the items look a bit nicer
-        userSelect: "none",
-        // padding: 8 * 2,
-        // margin: `0 0 ${8}px 0`,
-      
-        // change background colour if dragging
-        background: isDragging ? "lightgreen" : "inherit",
-      
-        // styles we need to apply on draggables
-        ...draggableStyle
+        ...draggableStyle,
+        userSelect: 'none',
+        position: 'static',
+        padding: 8 * 2,
+        margin: `0 0 8px 0`,
+        background: isDragging ? 'lightgreen' : 'red',   
     });
 
     const onDragEnd = (result) => {
@@ -449,8 +445,8 @@ function Questions({data={}}) {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <DragDropContext onDragEnd={onDragEnd}>
-                                        <Droppable droppableId="droppable">
-                                            {(provided, snapshot) => (
+                                        <Droppable style={{ transform: "none" }} droppableId="droppable">
+                                            {(provided, snapshot) => {
                                                 <div
                                                     {...provided.droppableProps}
                                                     ref={provided.innerRef}
@@ -458,25 +454,26 @@ function Questions({data={}}) {
                                                 >
                                                     {questions[key] && Object.keys(questions[key]).map((_item, _key) => (
                                                         <Draggable
-                                                            key={questions[key][_key]?.order}
-                                                            draggableId={questions[key][_key]?.order}
+                                                            key={questions[key][_key]?.id}
+                                                            draggableId={questions[key][_key]?.id}
                                                             index={_key}
                                                         >
                                                             {(provided, snapshot) => (
-                                                                <MDBox
+                                                                <div
                                                                     ref={provided.innerRef}
                                                                     {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}
                                                                     style={getItemStyle(
                                                                         snapshot.isDragging,
                                                                         provided.draggableProps.style
                                                                     )}
-                                                                    display="flex"
                                                                 >
-                                                                    <div {...provided.dragHandleProps}><Icon>reorder</Icon></div>
                                                                     <Accordion
+                                                                        key={_key}
                                                                         sx={{
                                                                             mb: '1rem',
                                                                         }}
+                                                                        
                                                                     >
                                                                         <AccordionSummary
                                                                             expandIcon={<ExpandMoreIcon />}
@@ -517,7 +514,7 @@ function Questions({data={}}) {
                                                                             </MDBox>
                                                                         </AccordionDetails>
                                                                     </Accordion>
-                                                                </MDBox>
+                                                                </div>
                                                             )}
                                                         </Draggable>
                                                     ))}
@@ -526,7 +523,7 @@ function Questions({data={}}) {
                                                         handlePopOpenQuestion(e);
                                                     }} variant="outlined" size="large" color="secondary" fullWidth>Add Question</MDButton> }
                                                 </div>
-                                            )}
+                                            }}
                                         </Droppable>
                                     </DragDropContext>
                                 </AccordionDetails>

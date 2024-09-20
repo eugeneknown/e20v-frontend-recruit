@@ -50,7 +50,7 @@ import ProgressLineChart from "examples/Charts/LineCharts/ProgressLineChart";
 import MDButton from "components/MDButton";
 import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
-import { Card, Paper } from "@mui/material";
+import { Card, colors, Paper } from "@mui/material";
 
 
 function Dashboard() {
@@ -104,13 +104,13 @@ function Dashboard() {
     return await axiosPrivate.post('hr/careers/tags/all', data)
   }
 
+  // var weekStart = moment().startOf('week')
+  // var weekEnd = moment().endOf('week')
+  var weekStart = moment('2024-08-03T16:00:00.000Z')
+  var weekEnd = moment('2024-08-10T15:59:59.999Z')
+
   const weeklyReportSequence = () => {
     // console.log('debug report data:', data)
-
-    // var weekStart = moment().startOf('week')
-    // var weekEnd = moment().endOf('week')
-    var weekStart = moment('2024-08-03T16:00:00.000Z')
-    var weekEnd = moment('2024-08-10T15:59:59.999Z')
 
     var count = weekEnd.diff(weekStart, 'days')
     console.log('debug moment week:', weekStart, weekEnd, count);
@@ -154,23 +154,7 @@ function Dashboard() {
               dataSeries.push({
                 'dataKey': result[item]['platform_id'],
                 'label': result[item]['platform_data']['title'],
-                valueFormatter: (value, context) => {
-                  console.log('debug value formatter series', value, context);
-                  // if ( weeklyReport ) {
-                  //   var total = weeklyReport['dataSets'][context.dataIndex].total
-                  //   if (!total) return `0 0%`
-  
-                  //   var percentage = (value/total)*100
-                  //   if (Number(percentage) === percentage && percentage % 1 !== 0) {
-                  //     return `${value} ${percentage.toFixed(2)}%`
-                  //   } else {
-                  //     return `${value} ${percentage}%`
-                  //   }
-                  // } else {
-                  //   return `${value}`
-                  // }
-                  
-                },
+                'color': result[item]['platform_data']['color'],
               })
             }
 
@@ -550,7 +534,8 @@ function Dashboard() {
                         valueFormatter: (value, context) => {
                           // console.log('debug value formatter:', value, context);
                           if ( context.location == 'tick' ) {
-                            return `${formatDateTime(value, 'MMM DD')} \n${formatDateTime(value, 'ddd')}`
+                            // return `${formatDateTime(value, 'MMM DD')} \n${formatDateTime(value, 'ddd')}`
+                            return `${formatDateTime(value, 'MMM DD')}`
                           } else {
                             return value
                           }
@@ -561,10 +546,14 @@ function Dashboard() {
                         disableTicks: true,
                         valueFormatter: (value, context) => {
                           // console.log('debug top axis value formatter', value, context);
-                          if ( context.location == 'tick' ) {
-                            var total = weeklyReport['dataSets'].find((item) => item.date == value).total
-                            // console.log('debug top axis value formatter get total', total);
-                            return `Total: ${total}`
+                          // if ( context.location == 'tick' ) {
+                          //   var total = weeklyReport['dataSets'].find((item) => item.date == value).total
+                          //   // console.log('debug top axis value formatter get total', total);
+                          //   return `Total: ${total}`
+                          // }
+
+                          if (context.location == 'tick') {
+                            return `${formatDateTime(value, 'ddd')}`
                           }
                         }
                       }}
@@ -573,15 +562,44 @@ function Dashboard() {
                           // console.log('debug bar yaxis', value, index)
                         }
                       }]}
-                      barLabel={(item, context) => {
-                        // console.log('debug bar label', item, context);
-                        var total = weeklyReport['dataSets'][item.dataIndex].total
-                        var percentage = Math.round((item.value/total)*100)
-                        return context.bar.height < 60 || context.bar.width < 30 ? null : `${percentage}%`
+                      // barLabel={(item, context) => {
+                      //   // console.log('debug bar label', item, context);
+                      //   var total = weeklyReport['dataSets'][item.dataIndex].total
+                      //   var percentage = Math.round((item.value/total)*100)
+                      //   return context.bar.height < 60 || context.bar.width < 30 ? null : `${percentage}%`
+                      // }}
+                      slotProps={{
+                        legend: {
+                          position: { vertical: 'bottom' },
+                        },
                       }}
-                      series={weeklyReport['dataSeries']}
+                      sx={{
+                        '& .MuiBarLabel-root': {
+                          fill: 'white',
+                        },
+                        '& .MuiChartsLegend-series text': {
+                          fontSize: '1rem!important'
+                        }
+                      }}
+                      series={
+                        Object.keys(weeklyReport['dataSeries']).map((item, key) => {
+                          // console.log('debug series data', item, key, weeklyReport);
+                          var series = {
+                            ...weeklyReport['dataSeries'][item],
+                            valueFormatter: (value, context) => {
+                              // console.log('debug series value formatter:', value, context);
+                              var total = weeklyReport['dataSets'][context.dataIndex].total
+                              var percentage = total != 0 ? Math.round((value/total)*100) : 0
+                              // return `Total ${value} -> ${percentage}%`
+                              return `${percentage}%`
+                            }
+                          }
+                          console.log('series data', series);
+                          return series
+                        })
+                      }
                       height={300}
-                      margin={{ top: 50 }}
+                      margin={{ bottom: 70 }}
                     />
                   }
                   <MDBox pt={3} pb={1} px={1}>
