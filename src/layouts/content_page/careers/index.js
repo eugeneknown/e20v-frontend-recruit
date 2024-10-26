@@ -3,7 +3,8 @@ import { Card, Container, Divider, Modal, Fade, Backdrop, FormControl, InputLabe
     Link,
     IconButton,
     DialogContentText,
-    Tooltip} from "@mui/material";
+    Tooltip,
+    LinearProgress} from "@mui/material";
 import Grid from "@mui/material/Grid";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -14,7 +15,7 @@ import MDButton from "components/MDButton";
 
 import useAuth from "hooks/useAuth";
 import { useNavigate, useLocation, useFetcher } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "api/axios";
 import MDInput from "components/MDInput";
 import { axiosPrivate } from "api/axios";
@@ -26,9 +27,11 @@ import MDAlert from "components/MDAlert";
 import moment, { ISO_8601 } from "moment";
 
 import e20logo from 'assets/images/e20/Eighty_20_shadow_2_transparent.png'
+import e20logo_black from 'assets/images/e20/EIGHT 20 LOGO.jpg'
 import SwipeableViews from "react-swipeable-views";
 
 import FileUpload from "./file-upload";
+import { dataServicePrivate } from "global/function";
 
 
 function Careers(){
@@ -53,7 +56,10 @@ function Careers(){
     const [platformCareer, setPlatformCareer] = useState()
     const [responseOpen, setResponseOpen] = useState(false)
     const [view, setView] = useState(true)
- 
+    const [disabled, setDisabled] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [hasCareers, setHasCareers] = useState({})
+
     // stepper
     const [activeStep, setActiveStep] = useState(0);
     const [component, setComponent] = useState(null);
@@ -72,6 +78,24 @@ function Careers(){
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    // progress
+    const [progress, setProgress] = useState(0)
+    const timer = useRef()
+    const startTimer = () => {
+        timer.current = setInterval(() => {
+            console.log('debug progress', progress);
+
+            const diff = Math.random() * 40;
+            setProgress(oldProgress => Math.min(oldProgress + diff, 100))
+        }, 500)
+    }   
+    useEffect(() => {
+        console.log('debug progress', progress);
+        if (progress >= 100) {
+            clearInterval(timer.current)
+        }
+    },[progress])
 
     const handleRedirection = (e) =>{
         e.preventDefault();
@@ -133,7 +157,29 @@ function Careers(){
             }))
         }
 
+        entityCareers()
+
     }, [])
+
+    const entityCareers = () => {
+        if (isAuth) {
+            dataServicePrivate('POST', 'hr/careers/entity/all', {
+                filter: [
+                    {
+                        'operator': '=',
+                        'target': 'entity_id',
+                        'value': auth['id'],
+                    },
+                ],
+            }).then((result) => {
+                console.log('debug careers entity result', result);
+                setHasCareers(result.data['entity_career'])
+            }).catch((err) => {
+                console.log('debug carrrers entity error result', err);
+                
+            })
+        }
+    }
 
     const entityHandle = (key, data) => {
         if (key == 'birthday') {
@@ -152,25 +198,29 @@ function Careers(){
     const responseCloseHandle = () => setResponseOpen(false)
 
     const customValidation = (value, type) => {
-        console.log('debug custom validation:', value, type);
+        console.log('debug custom validation:', value, type, value.length);
         
-        switch (type) {
-            case 'input':
+            if (type == 'input') {
                 if (value) return false
-
-            case 'number':
+            }
+            else if (type == 'number') {
                 if (value.match(/^\d+$/)) return false
 
-            case 'email':
+            }
+            else if (type == 'tel') {
+                if (value.length == 11) return false
+            }
+            else if (type == 'email') {
                 if (value.match(
                     /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
                 )) return false
 
-            case 'date':
+            }
+            else if (type == 'date') {
                 if (moment(value).isValid()) return false
 
-        }
-
+            }
+            
         return true
     }
 
@@ -200,6 +250,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -227,6 +278,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -254,6 +306,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -282,6 +335,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     >
                         <MenuItem value="single">Single</MenuItem>
                         <MenuItem value="married">Married</MenuItem>
@@ -310,10 +364,11 @@ function Careers(){
                                 ...prev,
                                 [4]: {
                                     ...prev[4],
-                                    invalid: customValidation(e.target.value, 'number'),
+                                    invalid: customValidation(e.target.value, 'tel'),
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -342,6 +397,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     >
                         <MenuItem value="male">Male</MenuItem>
                         <MenuItem value="female">Female</MenuItem>
@@ -374,6 +430,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -401,6 +458,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -429,6 +487,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -453,7 +512,8 @@ function Careers(){
                                     style: {
                                         color: 'black'
                                     }
-                                }
+                                },
+                                disabled: disabled,
                             }
                         }}
                         onChange={e => {
@@ -494,6 +554,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -522,6 +583,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     />
                 </CardContent>
             </Card>
@@ -551,6 +613,7 @@ function Careers(){
                                 }
                             }))
                         }}
+                        disabled={disabled}
                     >
                         {
                             platform && Object.keys(platform).map((item, key) => (
@@ -583,6 +646,8 @@ function Careers(){
 
     const handleValidation = (e) => {
         e.preventDefault();
+        // responseOpenHandle()
+        // setSwipeIndex(swipeIndex+1)
         console.log('debug submit target data:', e)
 
         console.log('debug custom entity validation:', entityCustomValidation)
@@ -605,7 +670,7 @@ function Careers(){
                         variant: 'error',
                         preventDuplicate: true,
                         anchorOrigin: {
-                            horizontal: 'right',
+                            horizontal: 'left',
                             vertical: 'top',
                         }
                     })
@@ -618,7 +683,6 @@ function Careers(){
         console.log('debug submit validity:', valid)
         // if (valid) handleSubmit()
         if (valid) {
-            responseOpenHandle()
             handleSubmit()
         }
 
@@ -635,6 +699,7 @@ function Careers(){
         var count = 13
         var id_count = 13
 
+        var swipecount = 0
         Object.keys(questions).map((item, key) => {
             var tempContent
 
@@ -683,6 +748,7 @@ function Careers(){
                                                         }
                                                     }))
                                                 }}
+                                                disabled={disabled}
                                             />
                                         </CardContent>
                                     </Card>
@@ -722,6 +788,7 @@ function Careers(){
                                                         }
                                                     }))
                                                 }}
+                                                disabled={disabled}
                                             >
                                                 {
                                                     questions[key][_key]?.value?.split(', ').map((_item, _key) => (
@@ -740,7 +807,12 @@ function Careers(){
                                         <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
                                             <MDTypography fontWeight="bold">{qCount}.</MDTypography>
                                             <FormControl fullWidth>
-                                                <FormLabel>{questions[key][_key]?.title}</FormLabel>
+                                                <FormLabel sx={{
+                                                    fontWeight: 400,
+                                                    letterSpacing: '0.00938em',
+                                                    color: 'black !important',
+                                                    fontSize: '0.875rem',
+                                                }}>{questions[key][_key]?.title}</FormLabel>
                                                     <FormGroup>
                                                         {
                                                             questions[key][_key]?.value?.split(', ').map((__item, __key) => {
@@ -757,6 +829,7 @@ function Careers(){
                                                                                     }
                                                                                 }))
                                                                             }}
+                                                                            disabled={disabled}
                                                                         />
                                                                     } label={__item} />
                                                                 );
@@ -775,7 +848,12 @@ function Careers(){
                                         <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
                                             <MDTypography fontWeight="bold">{qCount}.</MDTypography>
                                             <FormControl fullWidth>
-                                                <FormLabel sx={{ color: 'black' }}>{questions[key][_key]?.title}</FormLabel>
+                                                <FormLabel sx={{
+                                                    fontWeight: 400,
+                                                    letterSpacing: '0.00938em',
+                                                    color: 'black !important',
+                                                    fontSize: '0.875rem',
+                                                }}>{questions[key][_key]?.title}</FormLabel>
                                                 <RadioGroup
                                                     onChange={e => {
                                                         handleAnswer(key, _key, questions[key][_key], e.target.value);
@@ -790,7 +868,7 @@ function Careers(){
                                                 >
                                                     {
                                                         questions[key][_key]?.value?.split(', ').map((__item, __key) => (
-                                                            <FormControlLabel key={__key} value={__item} control={<Radio />} label={__item} />
+                                                            <FormControlLabel key={__key} value={__item} control={<Radio />} label={__item} disabled={disabled} />
                                                         ))
                                                     }
                                                 </RadioGroup>
@@ -817,7 +895,8 @@ function Careers(){
                                                                 invalid: customValidation(e, 'input'),
                                                             }
                                                         }))
-                                                    }} 
+                                                    }}
+                                                    disabled={disabled}
                                                 />
                                             </MDBox>
                                         </CardContent>
@@ -858,10 +937,51 @@ function Careers(){
                 ...prev,
                 [key+1]: tempContent
             }))
+            swipecount = key+1
 
         })
 
-    },[questions])
+        SetSwipeContent(prev => ({
+            ...prev,
+            [swipecount+1]: (
+                <MDBox 
+                position='relative'
+                sx={{ bgcolor: 'transparent' }}
+                >
+                    <Card display='flex' sx={{ height: '90vh', justifyContent: 'end' }}>
+                        <MDBox m='auto' component='img'  src={e20logo} width="75%" height="75%" opacity=".1" />
+                        <MDBox 
+                        position='absolute' 
+                        sx={{ 
+                            mx: 2, p: 5, border: 1, borderColor: 'secondary.main', borderRadius: '16px', borderTop: '5px solid #00a8cd', bgcolor: 'white'
+                        }}
+                        >
+                            <MDTypography variant='h2' sx={{ mb: 3 }}>Thank you for filling out the form! 😊</MDTypography>
+                            <MDBox>
+                                <MDTypography vairant='body1' gutterBottom>
+                                    We have received your application and will get back to you soon.
+                                    Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">@Facebook</Link> for updates.
+                                </MDTypography>
+                                <MDBox display='flex' justifyContent="space-between">
+                                    <Link 
+                                    color='info' 
+                                    href={`/careers/response?entity=${entityCareer.entity_id}&careers=${entityCareer.careers_id}`} 
+                                    sx={{ my: 'auto' }} 
+                                    target='_blank'
+                                    variant="text"
+                                    >
+                                        View Response
+                                    </Link>
+                                    <MDButton color='info' onClick={handleClose}>Return to page</MDButton>
+                                </MDBox>
+                            </MDBox>
+                        </MDBox>
+                    </Card>
+                </MDBox>
+            )
+        }))
+
+    },[questions, disabled])
 
     const careerHandle = (key) => {
 
@@ -872,6 +992,27 @@ function Careers(){
 
         setSwipeIndex(0)
         setQuestions({})
+        setProgress(0)
+
+        var button = (<MDButton onClick={isAuth ? () => {
+            handleOpen();
+            startTimer();
+        } : handleRedirection} variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
+            Apply
+        </MDButton>)
+        var exist = false
+        Object.keys(hasCareers).map((item, index) => {
+            console.log('id', hasCareers[item], careers[key]);
+            if (hasCareers[item].careers == careers[key].id) {
+                exist = true
+            }
+        })
+
+        if (exist) {
+            button = (<MDButton disabled variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
+                Applied
+            </MDButton>)
+        }
 
         setContent(
             <MDBox px="2rem">
@@ -882,11 +1023,7 @@ function Careers(){
                     <MDTypography>Full-time hours: {careers[key].benifits}</MDTypography>
                     <MDTypography>Experience: {careers[key].experience}</MDTypography>
                     <MDTypography>Salary: {careers[key].salary}</MDTypography>
-                    <MDBox mt="2rem">
-                        <MDButton onClick={isAuth ? handleOpen : handleRedirection} variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
-                            Apply
-                        </MDButton>
-                    </MDBox>
+                    <MDBox mt="2rem">{button}</MDBox>
                 </MDBox>
                 <MDTypography><div dangerouslySetInnerHTML={{__html: careers[key].descriptions}} /></MDTypography>
             </MDBox>
@@ -965,6 +1102,7 @@ function Careers(){
                         [answer.key1] : {
                             [answer.key2]: {
                                 entity_id: auth['id'],
+                                careers_id: entityCareer.careers_id,
                                 question_id: answer.data.id,
                                 value: value,
                             }
@@ -993,6 +1131,7 @@ function Careers(){
                             ...prev[answer.key1],
                             [answer.key2]: {
                                 entity_id: auth['id'],
+                                careers_id: entityCareer.careers_id,
                                 question_id: answer.data.id,
                                 value: value,
                             }
@@ -1039,6 +1178,7 @@ function Careers(){
                 console.log('debug here2',item, key, fileAnswers[item]);
                 let formData = new FormData()
                 formData.append('entity_id', fileAnswers[item].entity_id)
+                formData.append('careers_id', entityCareer.careers_id)
                 formData.append('question_id', fileAnswers[item].question_id)
                 formData.append('type', fileAnswers[item].type)
                 formData.append('file', fileAnswers[item].value)
@@ -1051,6 +1191,7 @@ function Careers(){
                     console.log('debug upload file response:', result);
                     submitAnswers['answers'][item] = {
                         'entity_id': fileAnswers[item].entity_id,
+                        'careers_id': entityCareer.careers_id,
                         'question_id': fileAnswers[item].question_id,
                         'files_id': result['data']['entity_career'].files_id,
                         'type': fileAnswers[item]['value'].type,
@@ -1060,8 +1201,8 @@ function Careers(){
                     syncCount += 1
                     if ( Object.keys(fileAnswers).length == syncCount ) {
                         console.log('debug submit here1:', submitAnswers);
+                        // submit all answers
                         submitDataSync(submitAnswers)
-
                     }
                 }, (err) => {
                     console.log('debug upload file error response:', err);
@@ -1073,6 +1214,7 @@ function Careers(){
 
         } else {
             console.log('debug submit here2:', submitAnswers);
+            // submit file type answers
             submitDataSync(submitAnswers)
         }
 
@@ -1082,9 +1224,9 @@ function Careers(){
     const submitDataSync = (data) => {
         dataService('POST', 'hr/careers/entity/submit', data).then((result) => {
             console.log('debug answer response:', result);
-            // snackBar('Form Successfully Submitted', 'success')
-            // handleClose()
-            // responseOpenHandle()
+            setSwipeIndex(swipeIndex+1)
+            entityCareers()
+            setContent()
         }, (err) => {
             console.log('debug answer error response:', err);
             var response = err?.response?.data ? err.response.data : 'Error Request'
@@ -1164,9 +1306,17 @@ function Careers(){
                     fullWidth
                     fullScreen
                 >
-                    <MDBox display='flex' justifyContent='center'>
+                    <LinearProgress sx={{ width: '100%', display: progress >= 100 ? 'none' : 'block' }} />
+                    <MDBox 
+                    display='flex' 
+                    sx={{ 
+                        visibility: progress >= 100 ? '' : 'hidden', 
+                        // backgroundImage: `url('${e20logo}')`,
+                        // backgroundColor: 'rgba(0,0,0,.1)',
+                    }} 
+                    justifyContent='center'>
                         <MDBox component='form' onSubmit={handleValidation}>
-                            <DialogTitle align="center">Please fill out this form</DialogTitle>
+                            <DialogTitle align="center" hidden={swipeIndex > Object.keys(questions).length}>Please fill out this form</DialogTitle>
                             <IconButton
                                 aria-label="close"
                                 onClick={handleClose}
@@ -1197,120 +1347,79 @@ function Careers(){
                             <DialogActions sx={{ justifyContent: swipeIndex == Object.keys(questions).length && view ? 'space-between' : 'end' }}>
                                 <MDBox display={swipeIndex == Object.keys(questions).length && view ? 'flex' : 'none'} alignItems="center">
                                     <Checkbox required />
-                                    <MDTypography
-                                        variant="button"
-                                        fontWeight="regular"
-                                        color="text"
-                                        sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-                                    >
-                                        &nbsp;&nbsp;I agree the&nbsp;
-                                    </MDTypography>
-                                    <Tooltip 
-                                        title='I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
-                                        and that any dishonesty or falsification may jeopardize my employment application.'
-                                        componentsProps={{
-                                            tooltip: {
-                                                sx: {
-                                                    maxWidth: 500
+                                    <Grid container>
+                                        <Grid item xs={12}>
+                                        <Tooltip 
+                                            title='I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
+                                            and that any dishonesty or falsification may jeopardize my employment application.'
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        maxWidth: 500
+                                                    }
                                                 }
-                                            }
-                                        }}
-                                    >
-                                        <MDTypography
-                                            component="a"
-                                            href="#"
-                                            variant="button"
-                                            fontWeight="bold"
-                                            color="info"
-                                            textGradient
+                                            }}
                                         >
-                                            Terms and Conditions
+                                            <MDTypography
+                                                component="a"
+                                                href="#"
+                                                variant="button"
+                                                fontWeight="bold"
+                                                color="info"
+                                                textGradient
+                                            >
+                                                Terms and Conditions
+                                            </MDTypography>
+                                        </Tooltip>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                        <MDTypography
+                                            variant="button"
+                                            fontWeight="regular"
+                                            color="text"
+                                        >
+                                            I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
+                                            and that any dishonesty or falsification may jeopardize my employment application.
                                         </MDTypography>
-                                    </Tooltip>
-                                </MDBox>
-                                { swipeIndex == Object.keys(questions).length ?
-                                    (
-                                        <MDBox>
-                                            <MDBox sx={{ display: 'flex' }}>
-                                                <MDButton onClick={ () => setSwipeIndex(swipeIndex-1) }>
-                                                    Back
-                                                </MDButton>
-                                                { view && 
-                                                <MDButton sx={{ mx: 1 }} type='submit' color="info">
-                                                    Submit
-                                                </MDButton> }
-                                            </MDBox>
-                                        </MDBox>
-                                    ) :
-                                    (
-                                        <MDBox >
-                                            <MDButton sx={{ mx: 1, display: swipeIndex == 0 && 'none' }} onClick={ () => setSwipeIndex(swipeIndex-1) }>
-                                                Back
-                                            </MDButton>
-                                            <MDButton sx={{ mx: 1 }} color="info" onClick={ () => setSwipeIndex(swipeIndex+1) }>
-                                                Next
-                                            </MDButton>
-                                        </MDBox>
-                                    )
+                                        </Grid>
+                                    </Grid>
+                                </MDBox> 
+                                {
+                                    swipeIndex <= Object.keys(questions).length ? 
+                                    <MDBox>
+                                        { swipeIndex == Object.keys(questions).length ?
+                                            (
+                                                <MDBox>
+                                                    <MDBox sx={{ display: 'flex' }}>
+                                                        <MDButton onClick={ () => setSwipeIndex(swipeIndex-1) }>
+                                                            Back
+                                                        </MDButton>
+                                                        { view && 
+                                                        <MDButton sx={{ mx: 1 }} type='submit' color="info">
+                                                            Submit
+                                                        </MDButton> }
+                                                    </MDBox>
+                                                </MDBox>
+                                            ) :
+                                            (
+                                                <MDBox >
+                                                    <MDButton sx={{ mx: 1, display: swipeIndex == 0 && 'none' }} onClick={ () => setSwipeIndex(swipeIndex-1) }>
+                                                        Back
+                                                    </MDButton>
+                                                    <MDButton sx={{ mx: 1 }} color="info" onClick={ () => setSwipeIndex(swipeIndex+1) }>
+                                                        Next
+                                                    </MDButton>
+                                                </MDBox>
+                                            )
+                                        }
+                                    </MDBox>
+                                    :
+                                    <></>
                                 }
                             </DialogActions>
                         </MDBox>
                     </MDBox>
                 </Dialog>
-                <Dialog
-                    open={responseOpen} 
-                    onClose={responseCloseHandle}
-                    maxWidth='sm'
-                    fullWidth
-                >
-                    <DialogTitle align="center">Thank you for filling out the form.</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            We have received your application and will get back to you soon.
-                            Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">@facebook</Link> for updates.
-                        </DialogContentText>
-                        <MDButton color='info' variant='text' sx={{ mt: 2 }} onClick={() => {
-                            setView(false);
-                            responseCloseHandle();
-                            setSwipeIndex(0);
-                        }}>
-                            View Response
-                        </MDButton>
-                    </DialogContent>
-                    <DialogActions>
-                        <MDButton onClick={() => {
-                            responseCloseHandle();
-                            handleClose();
-                        }}>Close</MDButton>
-                    </DialogActions>
-                </Dialog>
-                {/* <Dialog
-                    open={responseOpen} 
-                    onClose={responseCloseHandle}
-                    TransitionComponent={Transition}
-                    fullWidth
-                    fullScreen
-                    hideBackdrop                
-                >
-                    <IconButton
-                        aria-label="close"
-                        onClick={responseCloseHandle}
-                        sx={(theme) => ({
-                            position: 'absolute',   
-                            right: 8,
-                            top: 8,
-                        })}
-                    >
-                        <Icon>close</Icon>
-                    </IconButton>
-                    <Grid container>
-                        <Grid item sx={4}></Grid>
-                        <Grid item sx={6} display='flex' justifyContent="center" alignItems="center">
-                            w3w
-                        </Grid>
-                        <Grid item sx={4}></Grid>
-                    </Grid>
-                </Dialog> */}
             </Container>
             <Notifications data={notif} />
         </PageLayout>

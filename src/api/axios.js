@@ -1,7 +1,8 @@
 import { isInternalTimeView } from '@mui/x-date-pickers/internals';
 import axios from 'axios';
-const BASE_URL = 'http://localhost:8000/api/';
+// const BASE_URL = 'http://localhost:8000/api/';
 // const BASE_URL = 'http://192.168.88.29:8000/api/'; // mikrotic
+const BASE_URL = 'http://192.168.113.147:8000/api/'; // mikrotic 5G 
 // const BASE_URL = 'http://192.168.254.112:8000/api/'; //globe
 
 export default axios.create({

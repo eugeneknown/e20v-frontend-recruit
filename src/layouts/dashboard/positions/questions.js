@@ -65,7 +65,7 @@ import linkImg from 'assets/images/link-light.png';
 
 import ConfirmDialog from "../dynamic/confirm-dialog";
 import { useSnackbar } from "notistack";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import DragQuestions from "./new-questions";
 
 // todo migrate the data that has question and constant questions
 function Questions({data={}}) {
@@ -391,32 +391,11 @@ function Questions({data={}}) {
         }))
     }
 
-    const getListStyle = isDraggingOver => ({
-        background: isDraggingOver ? "lightblue" : "inherit",
-        // padding: 8,
-        // width: 250
-    });
-
-    const getItemStyle = (isDragging, draggableStyle) => ({
-        // some basic styles to make the items look a bit nicer
-        userSelect: "none",
-        // padding: 8 * 2,
-        // margin: `0 0 ${8}px 0`,
-      
-        // change background colour if dragging
-        background: isDragging ? "lightgreen" : "inherit",
-      
-        // styles we need to apply on draggables
-        ...draggableStyle
-    });
-
-    const onDragEnd = (result) => {
-        // dropped outside the list
-        if (!result.destination) {
-          return;
-        }
-    
-    };
+    const dragOnCloseHandle = (e) => {
+        getCareerHasQuestion().then((result) => {
+            setQuestions(sortQuestions(result))
+        })
+    }
 
     return (
         <MDBox>
@@ -448,87 +427,64 @@ function Questions({data={}}) {
                                     </MDTypography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <DragDropContext onDragEnd={onDragEnd}>
-                                        <Droppable droppableId="droppable">
-                                            {(provided, snapshot) => (
-                                                <div
-                                                    {...provided.droppableProps}
-                                                    ref={provided.innerRef}
-                                                    style={getListStyle(snapshot.isDraggingOver)}
-                                                >
-                                                    {questions[key] && Object.keys(questions[key]).map((_item, _key) => (
-                                                        <Draggable
-                                                            key={questions[key][_key]?.order}
-                                                            draggableId={questions[key][_key]?.order}
-                                                            index={_key}
-                                                        >
-                                                            {(provided, snapshot) => (
-                                                                <MDBox
-                                                                    ref={provided.innerRef}
-                                                                    {...provided.draggableProps}
-                                                                    style={getItemStyle(
-                                                                        snapshot.isDragging,
-                                                                        provided.draggableProps.style
-                                                                    )}
-                                                                    display="flex"
-                                                                >
-                                                                    <div {...provided.dragHandleProps}><Icon>reorder</Icon></div>
-                                                                    <Accordion
-                                                                        sx={{
-                                                                            mb: '1rem',
-                                                                        }}
-                                                                    >
-                                                                        <AccordionSummary
-                                                                            expandIcon={<ExpandMoreIcon />}
-                                                                            >
-                                                                            <MDTypography 
-                                                                            variant="h6" 
-                                                                            noWrap 
-                                                                            py=".5rem"
-                                                                            sx={{ 
-                                                                                textOverflow: 'ellipsis', 
-                                                                                overflow: 'hidden', 
-                                                                                width: '15rem',
-                                                                            }}>
-                                                                                {questions[key][_key]?.title}
-                                                                            </MDTypography>
-                                                                        </AccordionSummary>
-                                                                        <AccordionDetails>
-                                                                            <MDInput label="Title" value={questions[key][_key]?.title} fullWidth readOnly sx={{ mb: '1rem' }} />
-                                                                            <MDInput label="Type"  value={questions[key][_key]?.type} fullWidth readOnly sx={{ mb: '1rem' }} />
-                                                                            <MDTypography sx={{ display: questions[key][_key]?.type == 'input' ? 'none' : 'block' }} fontWeight="bold" variant="caption">Options:</MDTypography>
-                                                                            {
-                                                                                questions[key][_key]?.type != 'input' && questions[key][_key]?.value && questions[key][_key]?.value?.split(', ').map((item, key) => (
-                                                                                    <Chip key={key} label={item} variant="outlined" sx={{ m: "5px" }} />
-                                                                                ))
-                                                                            }
-                                                                            <MDBox
-                                                                            display='flex'
-                                                                            justifyContent="end"
-                                                                            my={1}
-                                                                            >
-                                                                                { data.action != 'view' && <MDButton onClick={() => {
-                                                                                    setModalData({ key: _key, id: questions[key][_key]?.has_id })
-                                                                                    setActionHandle('deleteQuestion')
-                                                                                    setTitle('Confirm Delete Question')
-                                                                                    setContent('Are you sure to Delete this Question?')
-                                                                                    setConfirmModal(true)
-                                                                                }} sx={{ mx: "3px" }} color="error" variant="outlined">Delete</MDButton> }
-                                                                            </MDBox>
-                                                                        </AccordionDetails>
-                                                                    </Accordion>
-                                                                </MDBox>
-                                                            )}
-                                                        </Draggable>
-                                                    ))}
-                                                    {provided.placeholder}
-                                                    { data.action != 'view' && <MDButton onClick={(e) => {
-                                                        handlePopOpenQuestion(e);
-                                                    }} variant="outlined" size="large" color="secondary" fullWidth>Add Question</MDButton> }
-                                                </div>
-                                            )}
-                                        </Droppable>
-                                    </DragDropContext>
+                                {questions[key] && Object.keys(questions[key]).map((_item, _key) => (
+                                    <Accordion
+                                        sx={{
+                                            mb: '1rem',
+                                        }}
+                                    >
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            >
+                                            <MDTypography 
+                                            variant="h6" 
+                                            noWrap 
+                                            py=".5rem"
+                                            sx={{ 
+                                                textOverflow: 'ellipsis', 
+                                                overflow: 'hidden', 
+                                                width: '15rem',
+                                            }}>
+                                                {questions[key][_key]?.title}
+                                            </MDTypography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <MDInput label="Title" value={questions[key][_key]?.title} fullWidth readOnly sx={{ mb: '1rem' }} />
+                                            <MDInput label="Type"  value={questions[key][_key]?.type} fullWidth readOnly sx={{ mb: '1rem' }} />
+                                            <MDTypography sx={{ display: questions[key][_key]?.type == 'input' ? 'none' : 'block' }} fontWeight="bold" variant="caption">Options:</MDTypography>
+                                            {
+                                                questions[key][_key]?.type != 'input' && questions[key][_key]?.value && questions[key][_key]?.value?.split(', ').map((item, key) => (
+                                                    <Chip key={key} label={item} variant="outlined" sx={{ m: "5px" }} />
+                                                ))
+                                            }
+                                            <MDBox
+                                            display='flex'
+                                            justifyContent="end"
+                                            my={1}
+                                            >
+                                                { data.action != 'view' && <MDButton onClick={() => {
+                                                    setModalData({ key: _key, id: questions[key][_key]?.has_id })
+                                                    setActionHandle('deleteQuestion')
+                                                    setTitle('Confirm Delete Question')
+                                                    setContent('Are you sure to Delete this Question?')
+                                                    setConfirmModal(true)
+                                                }} sx={{ mx: "3px" }} color="error" variant="outlined">Delete</MDButton> }
+                                            </MDBox>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                ))}
+                                
+                                { data.action != 'view' && 
+                                <Grid container spacing={1}>
+                                    <Grid item xs={6}><MDButton onClick={(e) => {
+                                        handlePopOpenQuestion(e);
+                                    }} variant="outlined" size="large" color="secondary" fullWidth
+                                    >
+                                        Add Question
+                                    </MDButton></Grid>
+                                    <Grid item xs={6}><DragQuestions id={data['questions'].id} section={key} onClose={dragOnCloseHandle} /></Grid>
+                                </Grid>
+                                }
                                 </AccordionDetails>
                             </Accordion>
                         ))

@@ -213,6 +213,9 @@ function Positions() {
                                 />
                             </MDBox>
                         ),
+                        // questions: (
+                        //     <Questions id={result[key].id} />
+                        // ),
                         actions: (
                             <MDBox>
                                 <Grid container spacing={.5}>
@@ -250,6 +253,7 @@ function Positions() {
         { Header: "title", accessor: "title", width: "45%", align: "left" },
         { Header: "created", accessor: "created", align: "center" },
         { Header: "status", accessor: "status", align: "center" },
+        // { Header: "questions", accessor: "questions", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },
     ]
 

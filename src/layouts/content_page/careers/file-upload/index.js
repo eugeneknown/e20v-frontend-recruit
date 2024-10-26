@@ -5,7 +5,7 @@ import MDBox from "components/MDBox";
 import { useState } from "react";
 import { MuiFileInput } from 'mui-file-input'
 
-function FileUpload({question, data}) {
+function FileUpload({question, data, disabled}) {
 
     const [ file, setFile ] = useState(null)
 
@@ -29,6 +29,7 @@ function FileUpload({question, data}) {
                 placeholder="Attach File"
                 value={file}
                 onChange={handleFile}
+                disabled={disabled}
             />
         </MDBox>
     );

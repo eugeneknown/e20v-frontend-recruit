@@ -44,6 +44,8 @@ import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import ResetPassword from "layouts/authentication/reset-password/cover";
+import ChangePassword from "layouts/authentication/change-password";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -52,8 +54,17 @@ import Icon from "@mui/material/Icon";
 import Employee from "layouts/dashboard/employee";
 import Positions from "layouts/dashboard/positions";
 import Questions from "layouts/dashboard/questions";
+import MainPage from "layouts/content_page/main";
+import Careers from "layouts/content_page/careers";
+import Response from "layouts/content_page/careers/response";
 
 const routes = [
+  {
+    type: "hidden",
+    key: "dashboard",
+    route: "/",
+    component: <MainPage />,
+  },
   {
     type: "collapse",
     name: "Dashboard",
@@ -149,6 +160,34 @@ const routes = [
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/authentication/sign-up",
     component: <SignUp />,
+  },
+  {
+    type: "collapse", //hidden
+    name: "Reset Password",
+    key: "reset-password",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/authentication/reset-password",
+    component: <ResetPassword />,
+  },
+  {
+    type: "collapse", //hidden
+    name: "Change Password",
+    key: "change-password",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/authentication/change-password",
+    component: <ChangePassword />,
+  },
+  {
+    type: "hidden", //hidden
+    key: "careers",
+    route: "/careers",
+    component: <Careers />,
+  },
+  {
+    type: "collapse", //hidden
+    key: "response",
+    route: "/careers/response",
+    component: <Response />,
   },
   // {
   //   type: "collapse",

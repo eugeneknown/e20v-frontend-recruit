@@ -13,6 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import rgba from "../functions/rgba";
+
 /**
  * The base colors for the Material Dashboard 2 React.
  * You can add new color using this file.
@@ -30,7 +32,7 @@ const colors = {
   },
 
   transparent: {
-    main: "transparent",
+    main: rgba(0, 0, 0, 0.0),
   },
 
   white: {

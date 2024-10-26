@@ -51,6 +51,7 @@ import MDButton from "components/MDButton";
 import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
 import { Card, colors, Paper } from "@mui/material";
+import { dataServicePrivate } from "global/function";
 
 
 function Dashboard() {
@@ -104,10 +105,10 @@ function Dashboard() {
     return await axiosPrivate.post('hr/careers/tags/all', data)
   }
 
-  // var weekStart = moment().startOf('week')
-  // var weekEnd = moment().endOf('week')
-  var weekStart = moment('2024-08-03T16:00:00.000Z')
-  var weekEnd = moment('2024-08-10T15:59:59.999Z')
+  var weekStart = moment().startOf('week')
+  var weekEnd = moment().endOf('week')
+  // var weekStart = moment('2024-10-14T16:00:00.000Z')
+  // var weekEnd = moment('2024-10-18T15:59:59.999Z')
 
   const weeklyReportSequence = () => {
     // console.log('debug report data:', data)
@@ -132,10 +133,25 @@ function Dashboard() {
       console.log('weekly report data:', result.data)
       result = result.data['entity_career']
 
-      var dataSets = []
-      var dataSeriesId = [] // data series id confirmation
       var dataSeries = []
+      // platform
+      dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
+        console.log('debug plaform result', result);
+        result = result.data['career_platforms']
+        for (i in result) {
+          dataSeries.push({
+            'dataKey': result[i]['id'],
+            'label': result[i]['title'],
+            'color': result[i]['color'],
+          })
+        }
 
+      }).catch((err) => {
+        console.log('debug plaform error result', err);
+
+      })
+
+      var dataSets = []
       var tempDataSet = {}
       var totalCount = 0
       for ( var i=0; i<=count; i++ ) {
@@ -149,14 +165,6 @@ function Dashboard() {
             // console.log('debug report success:', data[item])
             tempDataSet[result[item]['platform_id']] = result[item]['count']
             totalCount += result[item]['count']
-            if (dataSeriesId.indexOf(result[item]['platform_id']) == -1) {
-              dataSeriesId.push(result[item]['platform_id'])
-              dataSeries.push({
-                'dataKey': result[item]['platform_id'],
-                'label': result[item]['platform_data']['title'],
-                'color': result[item]['platform_data']['color'],
-              })
-            }
 
             delete result[item]
           }
@@ -170,7 +178,7 @@ function Dashboard() {
         tempDataSet = {}
       }
 
-      console.log('debug report data array:', dataSets, dataSeriesId, dataSeries)
+      console.log('debug report data array:', dataSets, dataSeries)
       setWeeklyReport({ dataSets, dataSeries })
     }).catch((err) => {
       console.log('weekly report error data:', err)

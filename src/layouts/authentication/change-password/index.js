@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -52,35 +52,23 @@ import { useSnackbar } from "notistack";
 
 function Cover() {
 
-    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirm_password, setConfirmPassword] = useState('');
     const [visiblePass, setVisiblePass] = useState(false)
     const [visibleConfPass, setVisibleConfPass] = useState(false)
-    const [errMsg, setErrMsg] = useState('');
+    const [params, setParams] = useSearchParams('');
 
     // snackbar nostick
     const { enqueueSnackbar } = useSnackbar()
 
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
         // data validation
-        if (!username.length) {
-            enqueueSnackbar(`Username field is blank`, {
-                variant: 'error',
-                anchorOrigin: {
-                    horizontal: 'right',
-                    vertical: 'top',
-                }
-            })
-            return
-
-        } else if (!password.length) {
+        if (!password.length) {
             enqueueSnackbar(`Password field is blank`, {
                 variant: 'error',
                 anchorOrigin: {
@@ -102,13 +90,23 @@ function Cover() {
 
         }
 
-        dataService('POST', 'entity/register',{
-            username: username,
-            password: password,
-            confirm_password: confirm_password,
+        if ( password != confirm_password ) {
+            enqueueSnackbar(`Confirm Password is different from Password`, {
+                variant: 'error',
+                anchorOrigin: {
+                    horizontal: 'right',
+                    vertical: 'top',
+                }
+            })
+            return
+        }
+
+        dataService('POST', 'entity/password_reset/confirm/',{
+            password,
+            token: params.get('token'),
         }).then((result) => {
-            console.log('debug entity register response', result)
-            enqueueSnackbar('User successfully created', {
+            console.log('debug entity change password response', result)
+            enqueueSnackbar('User password successfully change', {
                 variant: 'success',
                 preventDuplicate: true,
                 anchorOrigin: {
@@ -117,44 +115,29 @@ function Cover() {
                 }
             })
 
-            navigate(from, { replace: true });
+            navigate('authentication/sign-in', { replace: true });
         }, (err) => {
-            console.log('debug entity register error response', err)
+            console.log('debug entity change password error response', err)
             var err = err.response.data
 
-            console.log(typeof err);
-            if (typeof err === 'object') {
-                if ('password' in err) {
-                    Object.keys(err.password).map((item, index) => {
-                        enqueueSnackbar(err.password[item], {
-                            variant: 'error',
-                            preventDuplicate: true,
-                            anchorOrigin: {
-                                horizontal: 'right',
-                                vertical: 'top',
-                            }
-                        })
-                    })
-    
-                } else if ('Authentication' in err) {
-                    enqueueSnackbar(err.Authentication[0], {
-                        variant: 'error',
-                        preventDuplicate: true,
-                        anchorOrigin: {
-                            horizontal: 'right',
-                            vertical: 'top',
-                        }
-                    })
-                }
-
-            } else {
-                enqueueSnackbar(`Username is already exists`, {
+            if ('detail' in err) {
+                enqueueSnackbar(`Token is expired`, {
                     variant: 'error',
-                    preventDuplicate: true,
                     anchorOrigin: {
                         horizontal: 'right',
                         vertical: 'top',
                     }
+                })
+            }
+            else if ('password' in err) {
+                Object.keys(err.password).map((item, index) => {
+                    enqueueSnackbar(err.password[item], {
+                        variant: 'error',
+                        anchorOrigin: {
+                            horizontal: 'right',
+                            vertical: 'top',
+                        }
+                    })  
                 })
             }
 
@@ -182,24 +165,14 @@ function Cover() {
                     textAlign="center"
                 >
                     <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-                    Join us today
+                    Password Reset
                     </MDTypography>
                     <MDTypography display="block" variant="button" color="white" my={1}>
-                    Enter your username and password to register
+                    Enter your new password
                     </MDTypography>
                 </MDBox>
                 <MDBox pt={4} pb={3} px={3}>
                     <MDBox component="form" role="form">
-                        <MDBox mb={2}>
-                        <TextField 
-                            onChange={(e) => setUsername(e.target.value)} 
-                            value={username} 
-                            type="text" 
-                            label="Username" 
-                            variant="standard" 
-                            fullWidth autoComplete="off" 
-                        />
-                        </MDBox>
                         <MDBox mb={2}>
                         <TextField 
                             onChange={(e) => setPassword(e.target.value)} 
@@ -227,30 +200,9 @@ function Cover() {
                             }}
                         />
                         </MDBox>
-                        <MDBox display="flex" alignItems="center" ml={-1}>
-                            <Checkbox required />
-                            <MDTypography
-                                variant="button"
-                                fontWeight="regular"
-                                color="text"
-                                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-                            >
-                                &nbsp;&nbsp;I agree the&nbsp;
-                            </MDTypography>
-                            <MDTypography
-                                component="a"
-                                href="#"
-                                variant="button"
-                                fontWeight="bold"
-                                color="info"
-                                textGradient
-                            >
-                                Terms and Conditions
-                            </MDTypography>
-                        </MDBox>
                         <MDBox mt={4} mb={1}>
                             <MDButton onClick={handleSubmit} variant="gradient" color="info" fullWidth>
-                                sign up
+                                change password
                             </MDButton>
                         </MDBox>
                         <MDBox mt={3} mb={1} textAlign="center">

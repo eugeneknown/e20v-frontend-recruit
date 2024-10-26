@@ -52,6 +52,9 @@ import ImgsViewer from 'react-images-viewer';
 import { dataServicePrivate } from "global/function";
 import { ChromePicker } from 'react-color'
 import ConfirmDialog from "../dynamic/confirm-dialog";
+import ImageView from "./image-viewer";
+import AudioPlayer from "material-ui-audio-player";
+import GenerateExel from "./generate-exel";
 
 
 function Employee() {
@@ -109,7 +112,20 @@ function Employee() {
     const formHandle = (entity_id, careers_id, readOnly=true) => {
         console.log('debug employee formHandle:', entity_id +' '+ careers_id);
 
-        dataService('POST', 'hr/careers/answers/all', {entity_id, careers_id}).then((result) => {
+        dataService('POST', 'hr/careers/answers/all', {
+            filter: [
+                {
+                    operator: '=',
+                    target: 'entity_id',
+                    value: entity_id,
+                },
+                {
+                    operator: '=',
+                    target: 'careers_id',
+                    value: careers_id,
+                },
+            ]
+        }).then((result) => {
             console.log('debug employee formHandle response', result)
             result = result.data['career_answers']
 
@@ -117,6 +133,7 @@ function Employee() {
             var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users']
 
             const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].entity_data
+            const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
 
             setContent((
                 <Grid container>
@@ -131,6 +148,7 @@ function Employee() {
                                 }
                             })
                         }
+                        <GenerateExel data={{entity, platform}} />
                     </Grid>
                     <Grid item xs={6} px={2} style={{maxHeight: '100vh', overflow: 'auto'}}>
                         {
@@ -157,14 +175,34 @@ function Employee() {
                                                             <MDBox
                                                             display="flex"
                                                             justifyContent='center'>
-                                                                <Link href={result[item]['files_url']} target="_blank">
-                                                                    Open File
-                                                                    {/* <MDBox
-                                                                        component="img"
-                                                                        src={result[item]['files_url']}
-                                                                        sx={{ width: 140, cursor: 'pointer' }}
-                                                                    /> */}
-                                                                </Link>
+                                                                {
+                                                                    String(result[item]['files']['file_type']).split('/')[1] == 'pdf' &&
+                                                                    <Link href={result[item]['files_url']} target="_blank">
+                                                                        Open File
+                                                                    </Link>
+                                                                }
+                                                                {
+                                                                    String(result[item]['files']['file_type']).split('/')[0] == 'image' &&
+                                                                    <ImageView data={result[item]} />
+                                                                }
+                                                                {
+                                                                    String(result[item]['files']['file_type']).split('/')[0] == 'audio' &&
+                                                                    <MDBox width='100%'>
+                                                                        <AudioPlayer 
+                                                                            elevation={1}
+                                                                            src={[result[item]['files_url']]} 
+                                                                            width="100%"
+                                                                        />
+                                                                        {/* <MDButton sx={{ width: '100%', marginTop: '15px' }}>
+                                                                            <Link variant="button" href={result[item]['files_url']} target="_blank">
+                                                                                <MDTypography variant='button'>Download</MDTypography>
+                                                                            </Link>
+                                                                        </MDButton> */}
+                                                                        <Link href={result[item]['files_url']} target="_blank">
+                                                                            <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
+                                                                        </Link>
+                                                                    </MDBox>
+                                                                }
                                                             </MDBox>
                                                         ) 
                                                     :
@@ -203,13 +241,17 @@ function Employee() {
 
     }
 
+    // const audioPlayer = () => (
+
+    // )
+
     const renderEntityInfo = (key, value) => (
         <MDBox key={key} display="flex" py={1} pr={2}>
             <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
                 {key.split('_').join(' ')}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="text">
-                &nbsp;{moment(value).isValid() ? formatDateTime(value, 'MM-DD-YYYY') : value}
+                &nbsp;{moment(value).isValid() && typeof value != 'number' ? formatDateTime(value, 'MM-DD-YYYY') : value}
             </MDTypography>
         </MDBox>
     )
@@ -407,11 +449,21 @@ function Employee() {
                     //     View
                     // </MDTypography>
                     // ),
-                    form: (
-                    <MDTypography onClick={() => formHandle(recruit[key].entity, recruit[key].careers)} component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                        View
-                    </MDTypography>
-                    ),
+                    actions: (
+                        <MDBox>
+                            <Grid container spacing={.5}>
+                                <Grid item>
+                                    <MDButton onClick={() => formHandle(recruit[key].entity, recruit[key].careers)} color='secondary'>View</MDButton>
+                                </Grid> 
+                                <Grid item>
+                                    <MDButton color='primary'>Download</MDButton>
+                                </Grid> 
+                                <Grid item>
+                                    <MDButton onClick={() => handleDeleteRecruit(recruit[key].id)} color='error'>Delete</MDButton>
+                                </Grid> 
+                            </Grid>
+                        </MDBox>
+                    )
                 }
             )
         })
@@ -426,8 +478,7 @@ function Employee() {
         { Header: "platform", accessor: "platform", align: "center" },
         { Header: "applied", accessor: "applied", align: "center" },
         { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
-        // { Header: "profile", accessor: "profile", align: "center" },
-        { Header: "form", accessor: "form", align: "center" },
+        { Header: "actions", accessor: "actions", align: "center" },
     ]
 
     const Employee = ({ image, name, email }) => (
@@ -449,6 +500,15 @@ function Employee() {
             </MDTypography>
         </MDBox>
     );
+
+    const handleDeleteRecruit = (id) => {
+        dataServicePrivate('POST', 'hr/careers/entity/delete', {id}).then((result) => {
+            console.log('debug recruit delete', result);
+            getRecruit()
+        }).catch((err) => {
+            console.log('debug recruit error delete', err);
+        })
+    }
 
     const handleDataModal = (e) => {
         console.log('debug handle data modal', e, selectedTag)

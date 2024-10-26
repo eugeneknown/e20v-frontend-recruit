@@ -1,6 +1,7 @@
 import axios from "api/axios";
 import { axiosPrivate } from "api/axios";
 import propTypes from 'prop-types'
+import moment from "moment";
 
 
 export const dataService = async (method, url, data) => {
@@ -21,6 +22,10 @@ export const dataServicePrivate = async (method, url, data) => {
         case 'POST':
             return await axiosPrivate.post(url, data)
     }
+}
+
+export const formatDateTime = (date='', output = 'YYYY-MM-DD HH:mm:ss') => {
+    return moment( date ).format( output );
 }
 
 dataService.propTypes = {

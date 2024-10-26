@@ -151,6 +151,7 @@ export default function App() {
     </MDBox>
   );
 
+  // fix the side nav on non authenticated users
   return direction === "rtl" ? (
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
