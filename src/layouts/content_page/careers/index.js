@@ -31,7 +31,7 @@ import e20logo_black from 'assets/images/e20/EIGHT 20 LOGO.jpg'
 import SwipeableViews from "react-swipeable-views";
 
 import FileUpload from "./file-upload";
-import { dataServicePrivate } from "global/function";
+import { dataServicePrivate, dataService } from "global/function";
 
 
 function Careers(){
@@ -647,7 +647,7 @@ function Careers(){
     const handleValidation = (e) => {
         e.preventDefault();
         // responseOpenHandle()
-        // setSwipeIndex(swipeIndex+1)
+        setSwipeIndex(swipeIndex+1)
         console.log('debug submit target data:', e)
 
         console.log('debug custom entity validation:', entityCustomValidation)
@@ -659,26 +659,26 @@ function Careers(){
         }
 
         let valid = true
-        i: for (let i in validations) {
-            for (let j in validations[i]) {
-                if (validations[i][j].invalid) {
-                    console.log('debug validation', i, j, validations[i][j])
+        // i: for (let i in validations) {
+        //     for (let j in validations[i]) {
+        //         if (validations[i][j].invalid) {
+        //             console.log('debug validation', i, j, validations[i][j])
     
-                    valid = false
-                    setSwipeIndex(validations[i][j].index)
-                    enqueueSnackbar(`Form is invalid! Please check the Question ${i==0 ? validations[i][j].id : j}`, {
-                        variant: 'error',
-                        preventDuplicate: true,
-                        anchorOrigin: {
-                            horizontal: 'left',
-                            vertical: 'top',
-                        }
-                    })
+        //             valid = false
+        //             setSwipeIndex(validations[i][j].index)
+        //             enqueueSnackbar(`Form is invalid! Please check the Question ${i==0 ? validations[i][j].id : j}`, {
+        //                 variant: 'error',
+        //                 preventDuplicate: true,
+        //                 anchorOrigin: {
+        //                     horizontal: 'left',
+        //                     vertical: 'top',
+        //                 }
+        //             })
     
-                    break i
-                }
-            }
-        }
+        //             break i
+        //         }
+        //     }
+        // }
 
         console.log('debug submit validity:', valid)
         // if (valid) handleSubmit()
@@ -707,7 +707,6 @@ function Careers(){
                 <MDBox>
                     {
                         Object.keys(questions[key]).map((_item, _key) => {
-
                             console.log('debug', questions[key][_key].type, questions[key][_key].type != 'link');
                             if ( questions[key][_key].type != 'link' && questions[key][_key].type != 'label' ) {
                                 setQuestionsCustomValidation(prev => ({
@@ -911,7 +910,7 @@ function Careers(){
                                             <MDBox display="grid">
                                                 {
                                                     questions[key][_key]?.value?.split(', ').map((_item, _key) => (
-                                                        <Link key={_key} color="blue" href={_item} target="_blank">{_item}</Link>
+                                                        <Link key={_key} color="blue" href={_item} target="_blank">{String(_item).split('/')[2]}</Link>
                                                     ))
                                                 }
                                             </MDBox>
@@ -948,12 +947,22 @@ function Careers(){
                 position='relative'
                 sx={{ bgcolor: 'transparent' }}
                 >
-                    <Card display='flex' sx={{ height: '90vh', justifyContent: 'end' }}>
-                        <MDBox m='auto' component='img'  src={e20logo} width="75%" height="75%" opacity=".1" />
+                    <MDBox display='flex' sx={{ height: '90vh', justifyContent: 'center' }}>
+                        <MDBox component='img' src={e20logo}
+                        sx={{
+                            position: 'absolute',
+                            margin: 'auto',
+                            width: '75%',
+                            opacity: '.1',
+                            left: '50%',
+                            top: '50%',
+                            transform: 'translate(-50%, -50%)',
+                        }}
+                        />
                         <MDBox 
-                        position='absolute' 
                         sx={{ 
-                            mx: 2, p: 5, border: 1, borderColor: 'secondary.main', borderRadius: '16px', borderTop: '5px solid #00a8cd', bgcolor: 'white'
+                            mx: 2, p: 5
+                            // border: 1, borderColor: 'secondary.main', borderRadius: '16px', borderTop: '5px solid #00a8cd', bgcolor: 'white'
                         }}
                         >
                             <MDTypography variant='h2' sx={{ mb: 3 }}>Thank you for filling out the form! 😊</MDTypography>
@@ -976,7 +985,7 @@ function Careers(){
                                 </MDBox>
                             </MDBox>
                         </MDBox>
-                    </Card>
+                    </MDBox>
                 </MDBox>
             )
         }))
@@ -1235,16 +1244,6 @@ function Careers(){
         })
     }
 
-    const dataService = async (method, url, data, options={}) =>{
-        switch (method) {
-            case 'GET':
-                return await axiosPrivate.get(url, data, options)
-
-            case 'POST':
-                return await axiosPrivate.post(url, data, options)
-        }
-    }
-
     const snackBar = (title, error) => {
         enqueueSnackbar(title, {
             variant: error,
@@ -1311,10 +1310,12 @@ function Careers(){
                     display='flex' 
                     sx={{ 
                         visibility: progress >= 100 ? '' : 'hidden', 
-                        // backgroundImage: `url('${e20logo}')`,
-                        // backgroundColor: 'rgba(0,0,0,.1)',
+                        minWidth: { lg: '50rem', md: '40rem', xs: '20rem' },
+                        maxWidth: 'min-content',
+                        margin: 'auto',
                     }} 
-                    justifyContent='center'>
+                    justifyContent='center'
+                    >
                         <MDBox component='form' onSubmit={handleValidation}>
                             <DialogTitle align="center" hidden={swipeIndex > Object.keys(questions).length}>Please fill out this form</DialogTitle>
                             <IconButton
@@ -1333,9 +1334,6 @@ function Careers(){
                                     axis={swipeDirection} 
                                     index={swipeIndex} 
                                     animateHeight
-                                    style={{
-                                        maxWidth: 'min-content',
-                                    }}
                                 >
                                     {
                                         swipeContent && Object.keys(swipeContent).map((item, key) => (
@@ -1345,20 +1343,13 @@ function Careers(){
                                 </SwipeableViews>
                             </DialogContent>
                             <DialogActions sx={{ justifyContent: swipeIndex == Object.keys(questions).length && view ? 'space-between' : 'end' }}>
-                                <MDBox display={swipeIndex == Object.keys(questions).length && view ? 'flex' : 'none'} alignItems="center">
+                                <MDBox display={swipeIndex == Object.keys(questions).length && view ? 'flex' : 'none'}>
                                     <Checkbox required />
                                     <Grid container>
                                         <Grid item xs={12}>
                                         <Tooltip 
                                             title='I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
                                             and that any dishonesty or falsification may jeopardize my employment application.'
-                                            componentsProps={{
-                                                tooltip: {
-                                                    sx: {
-                                                        maxWidth: 500
-                                                    }
-                                                }
-                                            }}
                                         >
                                             <MDTypography
                                                 component="a"

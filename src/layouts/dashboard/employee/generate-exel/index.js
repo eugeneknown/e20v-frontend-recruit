@@ -113,7 +113,6 @@ function GenerateExel({
     }
     for ( var item in cell ) {
         var cellCount = 53
-        console.log('item', item);
         for ( var _item in cell[item] ) {
             sheet.getCell(`${item}${cellCount}`).font = {
                 name: 'Calibri',
@@ -136,7 +135,31 @@ function GenerateExel({
     }
 
     // checkbox disclaimer
-    
+    sheet.getCell('A64').font = {
+        name: defaultFont,
+        bold: true,
+        size: 10,
+    }
+    sheet.getCell('A64').dataValidation = {
+        type: 'list',
+        allowBlank: true,
+        formulae: ['"Agree, Disagree"']
+    }
+    sheet.getCell('A64').alignment = {
+        horizontal: 'right'
+    }
+    sheet.getCell('A64').value = 'Select here to Agree'
+
+    sheet.mergeCells('B64:R64')
+    sheet.getCell('B64').font = {
+        name: defaultFont,
+        bold: true,
+        italic: true,
+        size: 10,
+        color: { argb: 'fffe0000'},
+    }
+    sheet.getCell('B64').value = 'I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, and that any dishonesty or falsification may jeopardize my employment application.'
+
 
     useEffect(() => {
         console.log('debug generate data', data);

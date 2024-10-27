@@ -394,12 +394,13 @@ function Employee() {
     const handleDeleteData = (data) => {
         if (data) {
             dataServicePrivate('POST', contentURL, {id: idDelete}).then((result) => {
-                console.log("debug delete platform", result.data);
+                console.log("debug delete", result.data);
                 getPlatforms()
                 getTags()
+                getRecruit()
                 setConfirmModal(false)
             }, (err) => {
-                console.log("debug delete platform error", err);
+                console.log("debug delete error", err);
             });
         }
     }
@@ -502,12 +503,10 @@ function Employee() {
     );
 
     const handleDeleteRecruit = (id) => {
-        dataServicePrivate('POST', 'hr/careers/entity/delete', {id}).then((result) => {
-            console.log('debug recruit delete', result);
-            getRecruit()
-        }).catch((err) => {
-            console.log('debug recruit error delete', err);
-        })
+        setIdDelete(id)
+        setContentURL('hr/careers/platform/delete')
+        setConfirmContent('Are you sure to Delete this Candidate?')
+        setConfirmModal(true)
     }
 
     const handleDataModal = (e) => {
