@@ -4,7 +4,8 @@ import { Card, Container, Divider, Modal, Fade, Backdrop, FormControl, InputLabe
     IconButton,
     DialogContentText,
     Tooltip,
-    LinearProgress} from "@mui/material";
+    LinearProgress,
+    CardHeader} from "@mui/material";
 import Grid from "@mui/material/Grid";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -67,7 +68,9 @@ function Careers(){
     // swipeable views
     const [swipeIndex, setSwipeIndex] = useState(0)
     const [swipeDirection, setSwipeDirection] = useState('x') // 'x-reverse' : 'x'
-    const [ swipeContent, SetSwipeContent ] = useState()
+    const [swipeContent, SetSwipeContent] = useState()
+    const [tabIndex, setTabIndex] = useState(0)
+    const swipeableViewsRef = useRef(null)
 
     // snackbar nostick
     const { enqueueSnackbar } = useSnackbar()
@@ -96,6 +99,10 @@ function Careers(){
             clearInterval(timer.current)
         }
     },[progress])
+
+    // work experience
+    const [experience, setExperience] = useState({})
+    const [expCount, setExpCount] = useState(1)
 
     const handleRedirection = (e) =>{
         e.preventDefault();
@@ -224,287 +231,423 @@ function Careers(){
         return true
     }
 
-    const entityContent = (
-        <MDBox>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">1.</MDTypography>
-                    <MDInput
-                        id='First Name'
-                        type="text" 
-                        label='First Name'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => {
-                            entityHandle('first_name', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [0]: {
-                                    ...prev[0],
-                                    invalid: customValidation(e.target.value, 'input'),
+    const entityData = [
+        {
+            id: 'first_name',
+            label: 'First Name',
+            type: 'input',
+        },
+        {
+            id: 'middle_name',
+            label: 'Middle Name',
+            type: 'input',
+        },
+        {
+            id: 'Last_name',
+            label: 'Last Name',
+            type: 'input',
+        },
+        {
+            id: 'nickname',
+            label: 'Nickname',
+            type: 'input',
+        },
+        {
+            id: 'civil_status',
+            label: 'Civil Status',
+            type: 'select',
+            value: ['Single', 'Married', 'Widowed'],
+        },
+        {
+            id: 'contact_number',
+            label: 'Contact Number',
+            type: 'tel',
+        },
+        {
+            id: 'alternative_number',
+            label: 'Alternative Number',
+            type: 'tel',
+        },
+        {
+            id: 'gender',
+            label: 'Gender',
+            type: 'select',
+            value: ['Male', 'Female', 'Others'],
+        },
+        {
+            id: 'age',
+            label: 'Age',
+            type: 'number',
+        },
+        {
+            id: 'email',
+            label: 'Email',
+            type: 'email',
+        },
+        {
+            id: 'birth_place',
+            label: 'Birth Place',
+            type: 'input',
+        },
+        {
+            id: 'birth_order',
+            label: 'Birth Order',
+            type: 'number',
+        },
+        {
+            id: 'birthday',
+            label: 'Birth Day',
+            type: 'date',
+        },
+        {
+            id: 'children',
+            label: 'Children',
+            type: 'input',
+        },
+        {
+            id: 'permanent_address',
+            label: 'Permanent Address',
+            type: 'input',
+        },
+        {
+            id: 'present_address',
+            label: 'Present Address',
+            type: 'input',
+        },
+        {
+            id: 'education',
+            label: 'Educational Attainment',
+            type: 'select',
+            value: ['College Graduate', 'High School Graduate', 'Senio High', 'College Level', 'Master\'s Degree'],
+        },
+        {
+            id: 'course',
+            label: 'Course',
+            type: 'input',
+        },
+    ]
+
+    const formComponents = (data, count) => {
+        console.log('debug form component', data);
+        if (data['type'] == 'input') {
+            return (
+                <Card sx={{ my: 2 }}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        <MDInput
+                            id={data['label']}
+                            type="text" 
+                            label={data['label']}
+                            fullWidth
+                            sx={{
+                                '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                    color: 'black!important',
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                <MDTypography fontWeight="bold">2.</MDTypography>
-                    <MDInput 
-                        id='Middle Name'
-                        type="text" 
-                        label='Middle Name'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => {
-                            entityHandle('middle_name', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [1]: {
-                                    ...prev[1],
-                                    invalid: customValidation(e.target.value, 'input'),
+                            }}
+                            variant="standard"
+                            onChange={e => {
+                                entityHandle(data['id'], e.target.value);
+                                setEntityCustomValidation(prev => ({
+                                    ...prev,
+                                    [count]: {
+                                        ...prev[count],
+                                        invalid: customValidation(e.target.value, 'input'),
+                                    }
+                                }))
+                            }}
+                            disabled={disabled}
+                        />
+                    </CardContent>
+                </Card>
+            )
+        }
+        if (data['type'] == 'number') {
+            return (
+                <Card sx={{ my: 2 }}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        <MDInput
+                            id={data['label']}
+                            inputProps={{ type: 'number' }}
+                            type="number" 
+                            label={data['label']}
+                            fullWidth
+                            sx={{
+                                '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                    color: 'black!important',
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">3.</MDTypography>
-                    <MDInput 
-                        id='Last Name'
-                        type="text" 
-                        label='Last Name'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => {
-                            entityHandle('last_name', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [2]: {
-                                    ...prev[2],
-                                    invalid: customValidation(e.target.value, 'input'),
+                            }}
+                            variant="standard"
+                            onChange={e => {
+                                entityHandle(data['id'], e.target.value);
+                                setEntityCustomValidation(prev => ({
+                                    ...prev,
+                                    [count]: {
+                                        ...prev[count],
+                                        invalid: customValidation(e.target.value, 'number'),
+                                    }
+                                }))
+                            }}
+                            disabled={disabled}
+                        />
+                    </CardContent>
+                </Card>
+            )
+        }
+        if (data['type'] == 'tel') {
+            return (
+                <Card sx={{ my: 2 }}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        <MDInput
+                            id={data['label']}
+                            inputProps={{ type: 'number' }}
+                            type="number" 
+                            label={data['label']}
+                            fullWidth
+                            sx={{
+                                '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                    color: 'black!important',
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">4.</MDTypography>
-                    <MDInput
-                        id='Civil Status'
-                        select 
-                        label='Civil Status'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => {
-                            entityHandle('civil_status', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [3]: {
-                                    ...prev[3],
-                                    invalid: customValidation(e.target.value, 'input'),
+                            }}
+                            variant="standard"
+                            onChange={e => {
+                                entityHandle(data['id'], e.target.value);
+                                setEntityCustomValidation(prev => ({
+                                    ...prev,
+                                    [count]: {
+                                        ...prev[count],
+                                        invalid: customValidation(e.target.value, 'tel'),
+                                    }
+                                }))
+                            }}
+                            disabled={disabled}
+                        />
+                    </CardContent>
+                </Card>
+            )
+        }
+        if (data['type'] == 'email') {
+            return (
+                <Card sx={{ my: 2 }}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        <MDInput
+                            id={data['label']}
+                            type="text" 
+                            label={data['label']}
+                            fullWidth
+                            sx={{
+                                '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                    color: 'black!important',
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    >
-                        <MenuItem value="single">Single</MenuItem>
-                        <MenuItem value="married">Married</MenuItem>
-                        <MenuItem value="widowed">Widowed</MenuItem>
-                    </MDInput>
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">5.</MDTypography>
-                    <MDInput 
-                        id='Contact Number'
-                        inputProps={{ type: 'number' }}
-                        type="number" 
-                        label='Contact Number'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => {
-                            entityHandle('contact_number', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [4]: {
-                                    ...prev[4],
-                                    invalid: customValidation(e.target.value, 'tel'),
+                            }}
+                            variant="standard"
+                            onChange={e => {
+                                entityHandle(data['id'], e.target.value);
+                                setEntityCustomValidation(prev => ({
+                                    ...prev,
+                                    [count]: {
+                                        ...prev[count],
+                                        invalid: customValidation(e.target.value, 'email'),
+                                    }
+                                }))
+                            }}
+                            disabled={disabled}
+                        />
+                    </CardContent>
+                </Card>
+            )
+        }
+        if (data['type'] == 'select') {
+            return (
+                <Card sx={{ my: 2 }}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        <MDInput
+                            id={data['label']}
+                            select
+                            label={data['label']}
+                            fullWidth
+                            sx={{
+                                '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                    color: 'black!important',
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">6.</MDTypography>
-                    <MDInput 
-                        id='Gender'
-                        select 
-                        label='Gender'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
+                            }}
+                            variant="standard"
+                            multiline
+                            onChange={e => {
+                                entityHandle(data['id'], e.target.value);
+                                setEntityCustomValidation(prev => ({
+                                    ...prev,
+                                    [count]: {
+                                        ...prev[count],
+                                        invalid: customValidation(e.target.value, 'input'),
+                                    }
+                                }))
+                            }}
+                            disabled={disabled}
+                        >
+                            {
+                                Object.keys(data['value']).map((item, index) => (
+                                    <MenuItem sx={{ textTransform: 'capitalize' }} key={index} value={data['value'][item]}>{data['value'][item]}</MenuItem>
+                                ))
                             }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => {
-                            entityHandle('gender', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [5]: {
-                                    ...prev[5],
-                                    invalid: customValidation(e.target.value, 'input'),
+                        </MDInput>
+                    </CardContent>
+                </Card>
+            )
+        }
+        if (data['type'] == 'date') {
+            return (
+                <Card sx={{ my: 2 }}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
+                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        <DatePicker 
+                            label={data['label']} 
+                            fullWidth
+                            sx={{
+                                '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                    color: 'black!important',
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    >
-                        <MenuItem value="male">Male</MenuItem>
-                        <MenuItem value="female">Female</MenuItem>
-                        <MenuItem value="others">Others</MenuItem>
-                    </MDInput>
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">7.</MDTypography>
-                    <MDInput 
-                        id="Age" 
-                        inputProps={{ type: 'number' }}
-                        type="number" 
-                        label='Age'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => {
-                            entityHandle('age', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [6]: {
-                                    ...prev[6],
-                                    invalid: customValidation(e.target.value, 'number'),
+                            }} 
+                            slotProps={{
+                                textField: {
+                                    variant: 'standard',
+                                    fullWidth: true,
+                                    // required: true,
+                                    InputLabelProps: {
+                                        style: {
+                                            color: 'black'
+                                        }
+                                    },
+                                    disabled: disabled,
                                 }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">8.</MDTypography>
-                    <MDInput 
-                        id='Email'
-                        type="text" 
-                        label='Email'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        onChange={e => {
-                            entityHandle('email', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [7]: {
-                                    ...prev[7],
-                                    invalid: customValidation(e.target.value, 'email'),
-                                }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">9.</MDTypography>
-                    <MDInput 
-                        id='Birth Place'
-                        type="text" 
-                        label='Birth Place'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => {
-                            entityHandle('birth_place', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [8]: {
-                                    ...prev[8],
-                                    invalid: customValidation(e.target.value, 'input'),
-                                }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">10.</MDTypography>
+                            }}
+                            onChange={e => {
+                                entityHandle(data['id'], e);
+                                setEntityCustomValidation(prev => ({
+                                    ...prev,
+                                    [count]: {
+                                        ...prev[count],
+                                        invalid: customValidation(e, 'date'),
+                                    }
+                                }))
+                            }}
+                        />
+                    </CardContent>
+                </Card>
+            )
+        }
+    }
+
+    const experienceData = [
+        {
+            title: 'Last Company Details',
+        },
+        {
+            title: '2nd to the Last Company Details',
+        },
+        {
+            title: '3rd to the Last Company Details',
+        },
+    ]
+
+    const experienceComponent = (data, count) => (
+        <Card sx={{ my: 2 }}>
+            <CardHeader title={data['title']}/>
+            <CardContent>
+                <MDInput
+                    type="text" 
+                    label='Company'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => {
+                        entityHandle(data['id'], e.target.value);
+                    }}
+                    disabled={disabled}
+                />
+                <MDInput
+                    type="text" 
+                    label='Position Held'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => {
+                        entityHandle(data['id'], e.target.value);
+                    }}
+                    disabled={disabled}
+                />
+                <MDInput
+                    type="text" 
+                    label='Account/s Handled (if BPO experience)'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => {
+                        entityHandle(data['id'], e.target.value);
+                    }}
+                    disabled={disabled}
+                />
+                <MDInput
+                    type="text" 
+                    label='Reason of leaving'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => {
+                        entityHandle(data['id'], e.target.value);
+                    }}
+                    disabled={disabled}
+                />
+                <MDInput
+                    type="text" 
+                    label='Last Salary'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => {
+                        entityHandle(data['id'], e.target.value);
+                    }}
+                    disabled={disabled}
+                />
+                <MDBox display='flex' sx={{ my: 1, flexDirection: 'row' }}>
                     <DatePicker 
-                        label='Birthday' 
-                        fullWidth
+                        label='Start Date'
+                        views={['month', 'year']}
                         sx={{
                             '& .MuiInputLabel-root:not(.Mui-focused)': {
                                 color: 'black!important',
-                            }
+                            },
                         }} 
                         slotProps={{
                             textField: {
-                                id: 'Birthday',
                                 variant: 'standard',
                                 fullWidth: true,
                                 // required: true,
@@ -517,79 +660,56 @@ function Careers(){
                             }
                         }}
                         onChange={e => {
-                            entityHandle('birthday', e);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [9]: {
-                                    ...prev[9],
-                                    invalid: customValidation(e, 'date'),
-                                }
-                            }))
+                            entityHandle(data['id'], e);
                         }}
                     />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">11.</MDTypography>
-                    <MDInput 
-                        id='Permanent Address'
-                        type="text" 
-                        label='Permanent Address'
-                        fullWidth
+                    <DatePicker 
+                        label='End Date'
+                        views={['month', 'year']}
                         sx={{
                             '& .MuiInputLabel-root:not(.Mui-focused)': {
                                 color: 'black!important',
+                            },
+                            ml: 3,
+                        }} 
+                        slotProps={{
+                            textField: {
+                                variant: 'standard',
+                                fullWidth: true,
+                                // required: true,
+                                InputLabelProps: {
+                                    style: {
+                                        color: 'black'
+                                    }
+                                },
+                                disabled: disabled,
                             }
                         }}
-                        variant="standard"
-                        multiline
                         onChange={e => {
-                            entityHandle('permanent_address', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [10]: {
-                                    ...prev[10],
-                                    invalid: customValidation(e.target.value, 'input'),
-                                }
-                            }))
+                            entityHandle(data['id'], e);
                         }}
-                        disabled={disabled}
                     />
-                </CardContent>
-            </Card>
+                </MDBox>
+                <MDBox display='flex' my={1} justifyContent='space-between'>
+                    <FormControlLabel control={<Checkbox />} label="Present" />
+                    <MDTypography>Length of Stay:</MDTypography>
+                </MDBox>
+                { expCount < 3 && <MDButton color='info' onClick={() => setExpCount(expCount+1)}>{experienceData[count+1].title}</MDButton> }
+            </CardContent>
+        </Card>
+    )
+
+    const entityContent = (
+        <MDBox>
+            <MDTypography variant="h5" fontWeight="medium">Personal Information</MDTypography>
+            {
+                Object.keys(entityData).map((item, index) => (
+                    formComponents(entityData[item], index)
+                ))
+            }
             <Card sx={{ my: 2 }}>
                 <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">12.</MDTypography>
-                    <MDInput 
-                        id='Present Address'
-                        type="text" 
-                        label='Present Address'
-                        fullWidth
-                        sx={{
-                            '& .MuiInputLabel-root:not(.Mui-focused)': {
-                                color: 'black!important',
-                            }
-                        }}
-                        variant="standard"
-                        multiline
-                        onChange={e => {
-                            entityHandle('present_address', e.target.value);
-                            setEntityCustomValidation(prev => ({
-                                ...prev,
-                                [11]: {
-                                    ...prev[11],
-                                    invalid: customValidation(e.target.value, 'input'),
-                                }
-                            }))
-                        }}
-                        disabled={disabled}
-                    />
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">13.</MDTypography>
+                    <MDTypography fontWeight="bold">19.</MDTypography>
                     <MDInput 
                         id='Where did you hear about us?'
                         type="text" 
@@ -607,8 +727,8 @@ function Careers(){
                             setPlatformCareer(e.target.value);
                             setEntityCustomValidation(prev => ({
                                 ...prev,
-                                [12]: {
-                                    ...prev[12],
+                                [18]: {
+                                    ...prev[18],
                                     invalid: customValidation(e.target.value, 'input'),
                                 }
                             }))
@@ -623,9 +743,36 @@ function Careers(){
                     </MDInput>
                 </CardContent>
             </Card>
+            <Divider/>
+            <MDTypography variant="h5" fontWeight="medium">Work Experience</MDTypography>
             <Card sx={{ my: 2 }}>
+                <CardContent>
+                    <MDInput
+                        type="text" 
+                        label='Total Work Experience'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => {
+                            entityHandle(data['id'], e.target.value);
+                        }}
+                        disabled={disabled}
+                    />
+                </CardContent>
+            </Card>
+            {
+                Array.from({length: expCount}, (item, index) => (
+                    experienceComponent(experienceData[index], index)
+                ))
+            }
+            <Card sx={{ my: 2, border: 0, boxShadow: 0 }}>
                 <CardContent></CardContent>
             </Card>
+            {/* <MDBox my={2}></MDBox> */}
         </MDBox>
     )
 
@@ -695,6 +842,9 @@ function Careers(){
         // console.log("debug effect questions", Object.keys(questions).length);
 
         SetSwipeContent({ 0: entityContent })
+        swipeableViewsRef.current
+        .getChildContext()
+        .swipeableViews.slideUpdateHeight()
         setQuestionsCustomValidation()
         var count = 13
         var id_count = 13
@@ -990,7 +1140,7 @@ function Careers(){
             )
         }))
 
-    },[questions, disabled])
+    },[questions, disabled, expCount])
 
     const careerHandle = (key) => {
 
@@ -1334,6 +1484,7 @@ function Careers(){
                                     axis={swipeDirection} 
                                     index={swipeIndex} 
                                     animateHeight
+                                    ref={swipeableViewsRef}
                                 >
                                     {
                                         swipeContent && Object.keys(swipeContent).map((item, key) => (
