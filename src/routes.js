@@ -138,7 +138,7 @@ const routes = [
   //   component: <Notifications />,
   // },
   {
-    type: "collapse",
+    type: "hidden",
     name: "Profile",
     key: "profile",
     icon: <Icon fontSize="small">person</Icon>,
@@ -146,7 +146,7 @@ const routes = [
     component: <Profile />,
   },
   {
-    type: "collapse",
+    type: "hidden",
     name: "Sign In",
     key: "sign-in",
     icon: <Icon fontSize="small">login</Icon>,
@@ -154,7 +154,7 @@ const routes = [
     component: <SignIn />,
   },
   {
-    type: "collapse",
+    type: "hidden",
     name: "Sign Up",
     key: "sign-up",
     icon: <Icon fontSize="small">assignment</Icon>,
@@ -162,7 +162,7 @@ const routes = [
     component: <SignUp />,
   },
   {
-    type: "collapse", //hidden
+    type: "hidden", //hidden
     name: "Reset Password",
     key: "reset-password",
     icon: <Icon fontSize="small">assignment</Icon>,
@@ -170,7 +170,7 @@ const routes = [
     component: <ResetPassword />,
   },
   {
-    type: "collapse", //hidden
+    type: "hidden", //hidden
     name: "Change Password",
     key: "change-password",
     icon: <Icon fontSize="small">assignment</Icon>,
@@ -184,7 +184,7 @@ const routes = [
     component: <Careers />,
   },
   {
-    type: "collapse", //hidden
+    type: "hidden", //hidden
     key: "response",
     route: "/careers/response",
     component: <Response />,
