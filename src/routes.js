@@ -57,6 +57,8 @@ import Questions from "layouts/dashboard/questions";
 import MainPage from "layouts/content_page/main";
 import Careers from "layouts/content_page/careers";
 import Response from "layouts/content_page/careers/response";
+import PersonalInformation from "layouts/content_page/careers/personal-information";
+import PersonalForm from "layouts/content_page/careers/personal-information/personal";
 
 const routes = [
   {
@@ -188,6 +190,18 @@ const routes = [
     key: "response",
     route: "/careers/response",
     component: <Response />,
+  },
+  {
+    type: "collapse", //hidden
+    key: "personal",
+    route: "/personalinfo",
+    component: <PersonalInformation />,
+  },
+  {
+    type: "collapse", //hidden
+    key: "personalform",
+    route: "/personalinfo/personalform",
+    component: <PersonalForm />,
   },
   // {
   //   type: "collapse",

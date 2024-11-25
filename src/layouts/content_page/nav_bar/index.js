@@ -13,7 +13,7 @@ import { useEffect } from "react";
 import PropTypes from "prop-types";
 
 
-function NavBar({color}) {
+function NavBar({color, position}) {
     const axiosPrivate  = useAxiosPrivate();
     
     const pages = ['home', 'schedule', 'careers'];
@@ -42,7 +42,7 @@ function NavBar({color}) {
     // }, [])
     
     return (
-        <AppBar position="absolute">
+        <AppBar position={position}>
             <Container maxWidth='xl'>
             <Toolbar disableGutters>
                 <MDBox component="img" src={e20logo} width="20%" />
@@ -80,8 +80,13 @@ function NavBar({color}) {
     );
 }
 
+NavBar.defaultProps = {
+    position: 'absolute'
+}
+
 NavBar.propTypes = {
-    color: PropTypes.string
+    color: PropTypes.string,
+    position: PropTypes.string,
 };
 
 export default NavBar;
