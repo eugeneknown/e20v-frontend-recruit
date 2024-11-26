@@ -64,6 +64,7 @@ function Employee() {
     const [platforms, setPlatforms] = useState()
     const [selectedTag, setSelectedTag] = useState(0)
     const [recruitID, setRecruitID] = useState(0)
+    const [experience, setExperience] = useState()
 
     const [rows, setRows] = useState([]);
     const [open, setOpen] = useState(false);
@@ -112,6 +113,7 @@ function Employee() {
     const formHandle = (entity_id, careers_id, readOnly=true) => {
         console.log('debug employee formHandle:', entity_id +' '+ careers_id);
 
+        // entity_career_id for filtering
         dataService('POST', 'hr/careers/answers/all', {
             filter: [
                 {
@@ -124,7 +126,8 @@ function Employee() {
                     target: 'careers_id',
                     value: careers_id,
                 },
-            ]
+            ],
+            'relations': ['question']
         }).then((result) => {
             console.log('debug employee formHandle response', result)
             result = result.data['career_answers']
@@ -148,7 +151,7 @@ function Employee() {
                                 }
                             })
                         }
-                        <GenerateExel data={{entity, platform}} />
+                        <GenerateExel data={{entity_id, careers_id}} />
                     </Grid>
                     <Grid item xs={6} px={2} style={{maxHeight: '100vh', overflow: 'auto'}}>
                         {
@@ -193,11 +196,6 @@ function Employee() {
                                                                             src={[result[item]['files_url']]} 
                                                                             width="100%"
                                                                         />
-                                                                        {/* <MDButton sx={{ width: '100%', marginTop: '15px' }}>
-                                                                            <Link variant="button" href={result[item]['files_url']} target="_blank">
-                                                                                <MDTypography variant='button'>Download</MDTypography>
-                                                                            </Link>
-                                                                        </MDButton> */}
                                                                         <Link href={result[item]['files_url']} target="_blank">
                                                                             <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
                                                                         </Link>
@@ -210,9 +208,6 @@ function Employee() {
                                                             if (result[item]['value'].split(', ').includes(_key)) {
                                                                 return (<Chip key={_key} label={_key} sx={{ m: "5px" }} />)
                                                             } 
-                                                            // else {
-                                                            //     return (<Chip key={_key} label={_key} variant="outlined" sx={{ m: "5px" }} />)
-                                                            // }
                                                         }) 
                                                 }
                                             </CardContent>
@@ -276,6 +271,27 @@ function Employee() {
         getPlatforms()
 
     },[]);
+
+    // revice generate excel
+    const getEntityExperience = (id) => {
+        dataServicePrivate('POST', 'entity/experience/all', {
+            filter: [
+                {
+                    operator: '=',
+                    target: 'entity_id',
+                    value: id,
+                },
+            ],
+            relations: ['details']
+        }).then((result) => {
+            console.log('debug entity experience result:', result);
+            return result.data['experience']
+            
+        }).catch((err) => {
+            console.log('debug entity experience error result:', err);
+            
+        })
+    }
 
     const getInit = () => {
         getRecruit({
@@ -397,13 +413,19 @@ function Employee() {
                 console.log("debug delete", result.data);
                 getPlatforms()
                 getTags()
-                getRecruit()
+                getInit()
                 setConfirmModal(false)
             }, (err) => {
                 console.log("debug delete error", err);
             });
         }
     }
+
+    function formatPhoneNumber(data) {
+        var cleaned = ('' + data).replace(/\\D/g, '');
+        var match = cleaned.match(/(\d{4})(\d{3})(\d{4})/);
+        return match ? match[1] + '-' + match[2] + '-' + match[3] : 'Invalid Number'
+      }
 
     useEffect(() => {
         var rows = []
@@ -412,6 +434,16 @@ function Employee() {
                 {
                     name: <Employee image={team3} name={recruit[key]['entity_data'].full_name} email={recruit[key]['entity_data'].email} />,
                     career: <Career title={recruit[key]['careers_data'].title} />,
+                    number: (
+                        <MDTypography variant="caption" color="text" fontWeight="medium">
+                            {formatPhoneNumber(recruit[key]['entity_data'].contact_number)}
+                        </MDTypography>
+                    ),
+                    alternative: (
+                        <MDTypography variant="caption" color="text" fontWeight="medium">
+                            {formatPhoneNumber(recruit[key]['entity_data'].alternative_number)}
+                        </MDTypography>
+                    ),
                     platform: (
                         <MDBox ml={-1}>
                             <BadgePopper
@@ -445,20 +477,15 @@ function Employee() {
                             />
                         </MDBox>
                     ),
-                    // profile: (
-                    // <MDTypography onClick={() => profileHandle(recruit[key]['entity_data'])} component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                    //     View
-                    // </MDTypography>
-                    // ),
                     actions: (
                         <MDBox>
                             <Grid container spacing={.5}>
                                 <Grid item>
                                     <MDButton onClick={() => formHandle(recruit[key].entity, recruit[key].careers)} color='secondary'>View</MDButton>
                                 </Grid> 
-                                <Grid item>
+                                {/* <Grid item>
                                     <MDButton color='primary'>Download</MDButton>
-                                </Grid> 
+                                </Grid>  */}
                                 <Grid item>
                                     <MDButton onClick={() => handleDeleteRecruit(recruit[key].id)} color='error'>Delete</MDButton>
                                 </Grid> 
@@ -474,8 +501,10 @@ function Employee() {
     },[recruit, tags, platforms])
 
     const columns = [
-        { Header: "name", accessor: "name", width: "45%", align: "left" },
-        { Header: "career", accessor: "career", align: "left" },
+        { Header: "name", accessor: "name",  align: "left" },
+        { Header: "number", accessor: "number",  align: "left" },
+        { Header: "alternative", accessor: "alternative",  align: "left" },
+        { Header: "position", accessor: "career", align: "left" },
         { Header: "platform", accessor: "platform", align: "center" },
         { Header: "applied", accessor: "applied", align: "center" },
         { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
@@ -504,7 +533,7 @@ function Employee() {
 
     const handleDeleteRecruit = (id) => {
         setIdDelete(id)
-        setContentURL('hr/careers/platform/delete')
+        setContentURL('hr/careers/entity/delete')
         setConfirmContent('Are you sure to Delete this Candidate?')
         setConfirmModal(true)
     }

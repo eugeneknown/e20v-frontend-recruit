@@ -1,75 +1,35 @@
 const workExp = [
     {
-        key: '',
-        title: 'Total Work Experience',
+        key: 'company',
+        title: ['Last Company', '2nd to the Last Company', '3rd to the Last Company'],
     },
     {
-        key: '',
-        title: 'Last Company',
-    },
-    {
-        key: '',
+        key: 'position_held',
         title: 'Position Held'
     },
     {
-        key: '',
+        key: 'start_date',
         title: 'Start Date'
     },
     {
-        key: '',
+        key: 'end_date',
         title: 'End Date'
     },
     {
-        key: '',
+        key: 'handled',
         title: 'Account/s Handled (if BPO exp)'
     },
     {
-        key: '',
+        key: 'stay_length',
         title: 'Length of Stay'
     },
     {
-        key: '',
+        key: 'leave_reason',
         title: 'Reason for leaving'
     },
     {
-        key: '',
+        key: 'salary',
         title: 'Last Salary'
-    },
-    {
-        key: '',
-        title: '2nd to the Last Company'
-    },
-    {
-        key: '',
-        title: 'Position Held'
-    },
-    {
-        key: '',
-        title: 'Start Date'
-    },
-    {
-        key: '',
-        title: 'End Date'
-    },
-    {
-        key: '',
-        title: 'Account/s Handled'
-    },
-    {
-        key: '',
-        title: 'Length of Stay'
-    },
-    {
-        key: '',
-        title: 'Reason for leaving'
-    },
-    {
-        key: '',
-        title: 'Last Salary'
-    },
-    {
-        key: '',
-        title: 'Other Relevant Experience'
     },
 ]
 

@@ -3,6 +3,10 @@
 /tmp
 /out-tsc
 
+# build
+/build/*
+build.sh
+
 # dependencies
 /node_modules
 

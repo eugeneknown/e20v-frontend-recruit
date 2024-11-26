@@ -53,6 +53,7 @@ import { useSnackbar } from "notistack";
 function Cover() {
 
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirm_password, setConfirmPassword] = useState('');
     const [visiblePass, setVisiblePass] = useState(false)
@@ -104,6 +105,7 @@ function Cover() {
 
         dataService('POST', 'entity/register',{
             username: username,
+            email: email,
             password: password,
             confirm_password: confirm_password,
         }).then((result) => {
@@ -196,6 +198,16 @@ function Cover() {
                             value={username} 
                             type="text" 
                             label="Username" 
+                            variant="standard" 
+                            fullWidth autoComplete="off" 
+                        />
+                        </MDBox>
+                        <MDBox mb={2}>
+                        <TextField 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            value={email} 
+                            type="text" 
+                            label="Email" 
                             variant="standard" 
                             fullWidth autoComplete="off" 
                         />

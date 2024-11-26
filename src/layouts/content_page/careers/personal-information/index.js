@@ -7,13 +7,13 @@ import MDTypography from "components/MDTypography";
 
 import useAuth from "hooks/useAuth";
 import { useEffect, useState } from "react";
-import { dataServicePrivate, formatDateTime } from "global/function";
 import NavBar from "layouts/content_page/nav_bar";
 import moment from "moment";
 
 import CareersStepper from "../careers-stepper";
 import MDButton from "components/MDButton";
 import { useLocation, useNavigate } from "react-router-dom";
+import { dataService } from "global/function";
 
 
 function PersonalInformation(){
@@ -32,7 +32,7 @@ function PersonalInformation(){
         var entity_id = auth['id']
 
         // fetch entity
-        dataServicePrivate('POST', 'entity/entities/all', {
+        dataService('POST', 'entity/entities/all', {
             filter: [{
                 operator: '=',
                 target: 'id',
@@ -63,7 +63,7 @@ function PersonalInformation(){
         })
 
         // fetch experience
-        dataServicePrivate('POST', 'entity/experience/all', {
+        dataService('POST', 'entity/experience/all', {
             filter: [{
                 operator: '=',
                 target: 'entity_id',
@@ -84,7 +84,7 @@ function PersonalInformation(){
     }
     
     const InformationContent = ({title, data, url}) => (
-        <Card sx={{ m: 5 }}>
+        <Card sx={{ mx: 5, my: 3 }}>
             <CardContent>
                 <MDTypography variant='h6' color='info'>{title}</MDTypography>
                 <Divider />
@@ -112,7 +112,6 @@ function PersonalInformation(){
         </Card>
     )
 
-
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -122,7 +121,7 @@ function PersonalInformation(){
                         <Card variant="outlined">
                             <CardContent>
                                 <MDTypography variant='h4'>Informations</MDTypography>
-                                <InformationContent title='Personal Information' data={entity} url='/personalinfo/personalform' />
+                                <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
                             </CardContent>
                         </Card>
                     </MDBox>

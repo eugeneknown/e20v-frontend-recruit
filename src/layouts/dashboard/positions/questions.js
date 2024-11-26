@@ -62,6 +62,7 @@ import checkImg from 'assets/images/checkbox-light.png';
 import radioImg from 'assets/images/radio-group-light.png';
 import uploadImg from 'assets/images/snackbar-light.png';
 import linkImg from 'assets/images/link-light.png';
+import labelImg from 'assets/images/autocomplete-light.png';
 
 import ConfirmDialog from "../dynamic/confirm-dialog";
 import { useSnackbar } from "notistack";
@@ -344,11 +345,15 @@ function Questions({data={}}) {
         }
     }
 
-    const handleNewAnswerSubmit = () => {
+    const handleNewAnswerSubmit = (value=undefined) => {
         console.log('debug question new answer submit', inputAnswer)
 
-        setNewAnswer(prev => [...prev, inputAnswer])
-        setInputAnswer('')
+        if ( value != undefined ) {
+            setNewAnswer(prev => [...prev, value])
+        } else {
+            setNewAnswer(prev => [...prev, inputAnswer])
+        }
+        setInputOption('')
     }
 
     const handleDeleteNewAnswer = (item, data) => {
@@ -376,6 +381,7 @@ function Questions({data={}}) {
         { label: 'Radio Group', value: 'radio', img: radioImg },
         { label: 'Upload File', value: 'file', img: uploadImg },
         { label: 'Link', value: 'link', img: linkImg },
+        { label: 'Label', value: 'label', img: labelImg },
     ]
 
     const addSectionHandle = () => {
@@ -396,6 +402,29 @@ function Questions({data={}}) {
             setQuestions(sortQuestions(result))
         })
     }
+
+    const fileExtensionList = [
+        {
+            title: 'PDF',
+            value: '.pdf'
+        },
+        {
+            title: 'Images',
+            value: 'image/*'
+        },
+        {
+            title: 'DOC',
+            value: '.docx'
+        },
+        {
+            title: 'MP3',
+            value: '.mp3'
+        },
+        {
+            title: 'MP4',
+            value: '.mp4'
+        },
+    ]
 
     return (
         <MDBox>
@@ -598,11 +627,18 @@ function Questions({data={}}) {
                                 <Divider />
                                 <MDTypography sx={{ display: newQuestions.type == 'input' ? 'none' : 'block' }} fontWeight="bold" variant="caption">Options:</MDTypography>
                                 {
-                                    newAnswer && Object.keys(newAnswer).map((key) => (
+                                    newQuestions.type != 'input' && newQuestions.type != 'label' && newAnswer && Object.keys(newAnswer).map((key) => (
                                         <Chip key={key} label={newAnswer[key]} variant="outlined" sx={{ m: "5px" }} onDelete={() => handleDeleteNewAnswer(newAnswer[key], newAnswer)} />
                                     ))
                                 }
-                                <Chip icon={<Add fontSize="medium" />} label="Create" variant="outlined" sx={{ m: "5px", display: newQuestions.type == 'input' ? 'none' : 'inline-flex' }} onClick={handlePopOpen} />
+                                {
+                                    newQuestions.type != 'input' && newQuestions.type != 'label' &&
+                                    <Chip icon={<Icon fontSize="medium" >add</Icon>} label="Create" variant="outlined" sx={{ m: "5px" }} onClick={handlePopOpen} />
+                                }
+                                {
+                                    newQuestions.type == 'label' &&
+                                    <SimpleEditor readOnly={action == 'view'} onChange={e => handleLabelData(e)} content={newQuestions?.value} />
+                                }
                                 <Popover
                                 id={popId}
                                 open={openPop}
@@ -623,10 +659,23 @@ function Questions({data={}}) {
                                 }}
                                 // BackdropProps={{ invisible: false }}
                                 >
-                                    <MDBox display="flex">
-                                        <MDInput value={inputAnswer} onChange={(e) => setInputAnswer(e.target.value)} size="small" label="Answer" sx={{ mr: '3px' }} />
-                                        <MDButton onClick={handleNewAnswerSubmit} size="small" color='secondary' variant="outlined" >Add</MDButton>
-                                    </MDBox>
+                                    {
+                                        newQuestions.type != 'file' ?
+                                        (<MDBox display="flex">
+                                            <MDInput value={inputAnswer} onChange={(e) => setInputOption(e.target.value)} size="small" label="Option" sx={{ mr: '3px' }} />
+                                            <MDButton onClick={handleNewAnswerSubmit} size="small" color='secondary' variant="outlined" >Add</MDButton>
+                                        </MDBox>)
+                                        :
+                                        (<MDBox display='flex'>
+                                            {
+                                                Object.keys(fileExtensionList).map((item, key) => (
+                                                    <Chip variant="outlined" sx={{ m: "5px" }} label={fileExtensionList[key].title} onClick={() => {
+                                                        handleNewAnswerSubmit(fileExtensionList[key].value);
+                                                    }} />
+                                                ))
+                                            }
+                                        </MDBox>)
+                                    }
                                 </Popover>
                             </MDBox>
                         </MDBox>

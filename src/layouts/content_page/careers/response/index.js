@@ -11,6 +11,9 @@ import { useEffect, useState } from "react";
 import { dataServicePrivate, formatDateTime } from "global/function";
 import NavBar from "layouts/content_page/nav_bar";
 import moment from "moment";
+import ImageView from "layouts/dashboard/employee/image-viewer";
+import AudioPlayer from "material-ui-audio-player";
+import MDButton from "components/MDButton";
 
 
 function Response(){
@@ -48,7 +51,8 @@ function Response(){
                     target: 'careers_id',
                     value: careers_id,
                 },
-            ]
+            ],
+            relations: ['question'],
         }).then((result) => {
             console.log('debug answers result', result);
             setAnswers(result.data['career_answers'])
@@ -68,7 +72,7 @@ function Response(){
                 {key.split('_').join(' ')}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="text">
-                &nbsp;{moment(value).isValid() ? formatDateTime(value, 'MM-DD-YYYY') : value}
+                &nbsp;{moment(value).isValid() && typeof value != 'number' ? formatDateTime(value, 'MM-DD-YYYY') : value}
             </MDTypography>
         </MDBox>
     )
@@ -76,8 +80,8 @@ function Response(){
     return (
         <PageLayout>
             <Container maxWidth="xl">
-                <NavBar />
-                <MDBox pt="5rem">
+                {/* <NavBar /> */}
+                <MDBox pt="3rem">
                     <Grid container>
                         <Grid xs={4} style={{maxHeight: '100vh', overflow: 'auto'}}>
                         {
@@ -116,9 +120,29 @@ function Response(){
                                                             <MDBox
                                                             display="flex"
                                                             justifyContent='center'>
-                                                                <Link href={answers[item]['files_url']} target="_blank">
-                                                                    Open File
-                                                                </Link>
+                                                                {
+                                                                    String(answers[item]['files']['file_type']).split('/')[1] == 'pdf' &&
+                                                                    <Link href={answers[item]['files_url']} target="_blank">
+                                                                        Open File
+                                                                    </Link>
+                                                                }
+                                                                {
+                                                                    String(answers[item]['files']['file_type']).split('/')[0] == 'image' &&
+                                                                    <ImageView data={answers[item]} />
+                                                                }
+                                                                {
+                                                                    String(answers[item]['files']['file_type']).split('/')[0] == 'audio' &&
+                                                                    <MDBox width='100%'>
+                                                                        <AudioPlayer 
+                                                                            elevation={1}
+                                                                            src={[answers[item]['files_url']]} 
+                                                                            width="100%"
+                                                                        />
+                                                                        <Link href={answers[item]['files_url']} target="_blank">
+                                                                            <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
+                                                                        </Link>
+                                                                    </MDBox>
+                                                                }
                                                             </MDBox>
                                                         ) 
                                                     :

@@ -12,7 +12,7 @@ const personalInfo = [
         title: 'Nickname'
     },
     {
-        key: 'platform',
+        key: 'careers',
         title: 'Position Applied'
     },
     {
@@ -56,7 +56,7 @@ const personalInfo = [
         title: 'Children'
     },
     {
-        key: 'educational_attainment',
+        key: 'education',
         title: 'Educational Attainment'
     },
     {

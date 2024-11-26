@@ -478,6 +478,7 @@ function Questions() {
                         swipeIndex == 1 && 
                         <DialogActions>
                             <MDButton onClick={handleClose}>Close</MDButton>
+                            {/* <MDButton onClick={() => { setSwipeIndex(0); setAddOption([]); }} variant="gradient" color="warning">Back</MDButton> */}
                             <MDButton sx={{ display: action == 'view' ? 'none' : 'block' }} onClick={handleQuestionSubmit} variant="gradient" color="info">
                                 Submit
                             </MDButton>

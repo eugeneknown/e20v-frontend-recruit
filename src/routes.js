@@ -194,13 +194,13 @@ const routes = [
   {
     type: "collapse", //hidden
     key: "personal",
-    route: "/personalinfo",
+    route: "/careers/personalinfo",
     component: <PersonalInformation />,
   },
   {
     type: "collapse", //hidden
     key: "personalform",
-    route: "/personalinfo/personalform",
+    route: "/careers/personalinfo/personalform",
     component: <PersonalForm />,
   },
   // {

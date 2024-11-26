@@ -462,10 +462,10 @@ function Dashboard() {
           Upload file
           <VisuallyHiddenInput type="file" accept="image/*" onChange={(e) => upload(e.target.files[0])} />
         </Button> */}
-        <Grid container spacing={3}>
+        {/* <Grid container spacing={3}>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              {/* <MDButton onClick={addRandomShit}>Add Random Shit</MDButton> */}
+              <MDButton onClick={addRandomShit}>Add Random Shit</MDButton> // comment this out
               <ComplexStatisticsCard
                 icon="person_add"
                 title="Today's Applicants"
@@ -523,7 +523,7 @@ function Dashboard() {
               />
             </MDBox>
           </Grid>
-        </Grid>
+        </Grid> */}
         <MDBox mt={4.5}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={8}>

@@ -4,8 +4,8 @@ import { Card, Container, Divider, Modal, Fade, Backdrop, FormControl, InputLabe
     IconButton,
     DialogContentText,
     Tooltip,
-    LinearProgress,
-    CardHeader} from "@mui/material";
+    CardHeader,
+    CircularProgress} from "@mui/material";
 import Grid from "@mui/material/Grid";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -29,10 +29,14 @@ import moment, { ISO_8601 } from "moment";
 
 import e20logo from 'assets/images/e20/Eighty_20_shadow_2_transparent.png'
 import e20logo_black from 'assets/images/e20/EIGHT 20 LOGO.jpg'
-import SwipeableViews from "react-swipeable-views";
+import smiley1 from 'assets/images/icons/smiley icon1.png'
+import smiley2 from 'assets/images/icons/smiley icon2.png'
+import smiley3 from 'assets/images/icons/smiley icon3.png'
 
+import SwipeableViews from "react-swipeable-views";
 import FileUpload from "./file-upload";
 import { dataServicePrivate, dataService } from "global/function";
+
 
 
 function Careers(){
@@ -49,8 +53,8 @@ function Careers(){
     const [entityCareer, setEntityCareer] = useState({});
     const [answers, setAnswers] = useState();
     const [answer, setAnswer] = useState();
-    const [entity, setEntity] = useState({});
-    const [entityTemp, setEntityTemp] = useState();
+    const [entity, setEntity] = useState({'id': auth['id']});
+    const [otherDetails, setOtherDetails] = useState({'entity_id': auth['id']})
     const [notif, useNotif] = useState()
     const [error, setError] = useState([])
     const [platform, setPlatform] = useState({})
@@ -60,6 +64,8 @@ function Careers(){
     const [disabled, setDisabled] = useState(false)
     const [loading, setLoading] = useState(true)
     const [hasCareers, setHasCareers] = useState({})
+    const dialogRef = useRef()
+    const [valid, setValid] = useState(true)
 
     // stepper
     const [activeStep, setActiveStep] = useState(0);
@@ -69,8 +75,7 @@ function Careers(){
     const [swipeIndex, setSwipeIndex] = useState(0)
     const [swipeDirection, setSwipeDirection] = useState('x') // 'x-reverse' : 'x'
     const [swipeContent, SetSwipeContent] = useState()
-    const [tabIndex, setTabIndex] = useState(0)
-    const swipeableViewsRef = useRef(null)
+    const [currentIndex, setCurrentIndex] = useState(0)
 
     // snackbar nostick
     const { enqueueSnackbar } = useSnackbar()
@@ -83,26 +88,45 @@ function Careers(){
     const handleClose = () => setOpen(false);
 
     // progress
-    const [progress, setProgress] = useState(0)
+    const [progress, setProgress] = useState(true)
+    const [time, setTime] = useState(0)
     const timer = useRef()
     const startTimer = () => {
+        setProgress(true)
+        var tempTime = 0
         timer.current = setInterval(() => {
-            console.log('debug progress', progress);
-
-            const diff = Math.random() * 40;
-            setProgress(oldProgress => Math.min(oldProgress + diff, 100))
+            const diff = Math.random() * 40
+            tempTime = Math.min(tempTime + diff, 100)
+            if (tempTime >= 100) {
+                setTime(100)
+            }
         }, 500)
     }   
     useEffect(() => {
-        console.log('debug progress', progress);
-        if (progress >= 100) {
+        if (time > 25) setSwipeIndex(currentIndex)
+        if (time >= 100) {
+            console.log('debug scroll', scroll);
+            // window.scrollTo(0, scroll.y)
+            setProgress(false)
             clearInterval(timer.current)
         }
-    },[progress])
+    },[time])
 
     // work experience
-    const [experience, setExperience] = useState({})
+    const [experience, setExperience] = useState({0: {}, 1: {}, 2: {}})
+    const [stayLength, setStayLength] = useState({0: {start_date: '', end_date: ''}, 1: {start_date: '', end_date: ''}, 2: {start_date: '', end_date: ''}})
+    const [expPresent, setExpPresent] = useState(false)
+    const [stay1, setStay1] = useState()
+    const [stay2, setStay2] = useState()
+    const [stay3, setStay3] = useState()
     const [expCount, setExpCount] = useState(1)
+
+    // scroll event
+    const [scroll, setScroll] = useState({x: 0, y: 0})
+
+    // character reference
+    const [reference, setReference] = useState({0: {}, 1: {}, 2: {}})
+    const [refCount, setRefCount] = useState(2)
 
     const handleRedirection = (e) =>{
         e.preventDefault();
@@ -115,10 +139,6 @@ function Careers(){
     }
 
     useEffect(() => {
-        setEntity({
-            'id': auth['id'],
-        });
-
         const getCareers = async () => {
             try {
                 const response = await axios.post('hr/careers/all', {
@@ -153,7 +173,7 @@ function Careers(){
 
         SetSwipeContent({ 0: entityContent })
 
-        for (let i=0;i<13;i++) { //13
+        for (let i=0;i<Object.keys(entityData).length;i++) { //13
             setEntityCustomValidation(prev => ({
                 ...prev,
                 [i]: {
@@ -201,32 +221,147 @@ function Careers(){
         console.log('debug submit entity data:', entity)
     }
 
+    const workExpHandle = (data, key='') => {
+        var value = data['value']
+        if (key == 'date') {
+            value = formatDateTime(value, 'YYYY-MM-DD')
+
+            setStayLength(prev => ({
+                ...prev,
+                [data['index']]: {
+                    ...prev[data['index']],
+                    [data['item']]: value
+                }
+            }))
+        }
+
+        setExperience(prev => ({
+            ...prev,
+            [data['index']]: {
+                ...prev[data['index']],
+                [data['item']]: value
+            }
+        }));
+    }
+
+    const referenceHandle = (data, key='') => {
+        setReference(prev => ({
+            ...prev,
+            [data['index']]: {
+                ...prev[data['index']],
+                [data['item']]: data['value']
+            }
+        }));
+    }
+
+    useEffect(() => {
+        console.log('debug use effect stay length', stayLength);
+        console.log('debug use effect present', expPresent);
+
+        setExperience(prev => ({
+            ...prev,
+            [0]: {
+                ...prev[0],
+                present: expPresent
+            }
+        }));
+
+        if ( stayLength[0].start_date && stayLength[0].end_date && !stay1 ) {
+            var start = moment(stayLength[0].start_date)
+            var end = moment(stayLength[0].end_date)
+
+            var years = end.diff(start, 'year')
+            start.add(years, 'years')
+
+            var months = end.diff(start, 'months')
+            start.add(months, 'months')
+
+            console.log('debug here', `${years} years ${months} month`);
+            var stay = `${years} years ${months} month`
+            setStay1(stay)
+
+            setExperience(prev => ({
+                ...prev,
+                [0]: {
+                    ...prev[0],
+                    stay_length: stay
+                }
+            }));
+        }
+        if ( stayLength[1].start_date && stayLength[1].end_date ) {
+            var start = moment(stayLength[1].start_date)
+            var end = moment(stayLength[1].end_date)
+
+            var years = end.diff(start, 'year')
+            start.add(years, 'years')
+
+            var months = end.diff(start, 'months')
+            start.add(months, 'months')
+
+            console.log('debug here', `${years} years ${months} month`);
+            var stay = `${years} years ${months} month`
+            setStay1(stay)
+
+            setExperience(prev => ({
+                ...prev,
+                [1]: {
+                    ...prev[1],
+                    stay_length: stay
+                }
+            }));
+        }
+        if ( stayLength[2].start_date && stayLength[2].end_date ) {
+            var start = moment(stayLength[2].start_date)
+            var end = moment(stayLength[2].end_date)
+
+            var years = end.diff(start, 'year')
+            start.add(years, 'years')
+
+            var months = end.diff(start, 'months')
+            start.add(months, 'months')
+
+            console.log('debug here', `${years} years ${months} month`);
+            var stay = `${years} years ${months} month`
+            setStay1(stay)
+
+            setExperience(prev => ({
+                ...prev,
+                [2]: {
+                    ...prev[2],
+                    stay_length: stay
+                }
+            }));
+        }
+    },[stayLength, expPresent])
+
     const responseOpenHandle = () => setResponseOpen(true)
     const responseCloseHandle = () => setResponseOpen(false)
 
     const customValidation = (value, type) => {
         console.log('debug custom validation:', value, type, value.length);
         
-            if (type == 'input') {
-                if (value) return false
-            }
-            else if (type == 'number') {
-                if (value.match(/^\d+$/)) return false
+        if (type == 'input') {
+            if (value) return false
 
-            }
-            else if (type == 'tel') {
-                if (value.length == 11) return false
-            }
-            else if (type == 'email') {
-                if (value.match(
-                    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                )) return false
+        }
+        else if (type == 'number') {
+            if (value.match(/^\d+$/)) return false
 
-            }
-            else if (type == 'date') {
-                if (moment(value).isValid()) return false
+        }
+        else if (type == 'tel') {
+            if (value.match(/^09\d{9}$/)) return false
 
-            }
+        }
+        else if (type == 'email') {
+            if (value.match(
+                /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            )) return false
+
+        }
+        else if (type == 'date') {
+            if (moment(value).isValid()) return false
+
+        }
             
         return true
     }
@@ -243,7 +378,7 @@ function Careers(){
             type: 'input',
         },
         {
-            id: 'Last_name',
+            id: 'last_name',
             label: 'Last Name',
             type: 'input',
         },
@@ -260,12 +395,12 @@ function Careers(){
         },
         {
             id: 'contact_number',
-            label: 'Contact Number',
+            label: 'Mobile Number',
             type: 'tel',
         },
         {
             id: 'alternative_number',
-            label: 'Alternative Number',
+            label: 'Alternative Mobile Number',
             type: 'tel',
         },
         {
@@ -296,12 +431,12 @@ function Careers(){
         },
         {
             id: 'birthday',
-            label: 'Birth Day',
+            label: 'Date of Birth',
             type: 'date',
         },
         {
             id: 'children',
-            label: 'Children',
+            label: 'Children (if applicable)',
             type: 'input',
         },
         {
@@ -318,7 +453,7 @@ function Careers(){
             id: 'education',
             label: 'Educational Attainment',
             type: 'select',
-            value: ['College Graduate', 'High School Graduate', 'Senio High', 'College Level', 'Master\'s Degree'],
+            value: ['College Graduate', 'High School Graduate', 'Senior High', 'College Level', 'Master\'s Degree'],
         },
         {
             id: 'course',
@@ -327,13 +462,56 @@ function Careers(){
         },
     ]
 
+    const otherData = [
+        {
+            id: 'salary',
+            label: 'Salary Expectation (in PHP)?',
+            type: 'input',
+        },
+        {
+            id: 'us_time',
+            label: 'Amenable to work in a US time?',
+            type: 'input',
+        },
+        {
+            id: 'work_in_office',
+            label: 'Amenable to work in the office (Matina Davao City)?',
+            type: 'input',
+        },
+        {
+            id: 'transpo',
+            label: 'If YES, do you have own transportation or commute?',
+            type: 'input',
+        },        
+        {
+            id: 'application',
+            label: 'Pending Application with other Company?',
+            type: 'input',
+        },
+        {
+            id: 'start',
+            label: 'Availability to Start?',
+            type: 'input',
+        },
+        {
+            id: 'condition',
+            label: 'Any underlying health/medical conditions?',
+            type: 'input',
+        },
+        {
+            id: 'part_time',
+            label: 'Any part time work at the moment (please specify)?',
+            type: 'input',
+        },
+    ]
+
     const formComponents = (data, count) => {
-        console.log('debug form component', data);
+        // console.log('debug form component', data);
         if (data['type'] == 'input') {
             return (
-                <Card sx={{ my: 2 }}>
+                <Card sx={{ m: 2 }}>
                     <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        {/* <MDTypography variant='button'>{count+1}.</MDTypography> */}
                         <MDInput
                             id={data['label']}
                             type="text" 
@@ -363,9 +541,9 @@ function Careers(){
         }
         if (data['type'] == 'number') {
             return (
-                <Card sx={{ my: 2 }}>
+                <Card sx={{ m: 2 }}>
                     <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        {/* <MDTypography variant='button'>{count+1}.</MDTypography> */}
                         <MDInput
                             id={data['label']}
                             inputProps={{ type: 'number' }}
@@ -396,9 +574,9 @@ function Careers(){
         }
         if (data['type'] == 'tel') {
             return (
-                <Card sx={{ my: 2 }}>
+                <Card sx={{ m: 2 }}>
                     <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        {/* <MDTypography variant='button'>{count+1}.</MDTypography> */}
                         <MDInput
                             id={data['label']}
                             inputProps={{ type: 'number' }}
@@ -429,9 +607,9 @@ function Careers(){
         }
         if (data['type'] == 'email') {
             return (
-                <Card sx={{ my: 2 }}>
+                <Card sx={{ m: 2 }}>
                     <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        {/* <MDTypography variant='button'>{count+1}.</MDTypography> */}
                         <MDInput
                             id={data['label']}
                             type="text" 
@@ -461,9 +639,9 @@ function Careers(){
         }
         if (data['type'] == 'select') {
             return (
-                <Card sx={{ my: 2 }}>
+                <Card sx={{ m: 2 }}>
                     <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        {/* <MDTypography variant='button'>{count+1}.</MDTypography> */}
                         <MDInput
                             id={data['label']}
                             select
@@ -500,9 +678,9 @@ function Careers(){
         }
         if (data['type'] == 'date') {
             return (
-                <Card sx={{ my: 2 }}>
+                <Card sx={{ m: 2 }}>
                     <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                        <MDTypography fontWeight="bold">{count+1}.</MDTypography>
+                        {/* <MDTypography variant='button'>{count+1}.</MDTypography> */}
                         <DatePicker 
                             label={data['label']} 
                             fullWidth
@@ -543,23 +721,66 @@ function Careers(){
 
     const experienceData = [
         {
-            title: 'Last Company Details',
+            title: 'From Most Recent Company',
+            required: true,
         },
         {
-            title: '2nd to the Last Company Details',
+            title: '',
+            required: false,
         },
         {
-            title: '3rd to the Last Company Details',
+            title: '',
+            required: false,
         },
     ]
 
+    const referenceData = [
+        {
+            title: '1',
+            required: true,
+        },
+        {
+            title: '2',
+            required: true,
+        },
+        {
+            title: '3',
+            required: false,
+        },
+    ]
+
+    // const validationSchema = yup.object({
+    //     text: yup
+    //         .string(),
+    //     textReq: yup
+    //         .string('')
+    //         .required('This Field is required'),
+    //     date: yup
+    //         .date(),
+    //     dateReq: yup
+    //         .date()
+    //         .required('This Field is required'),
+    // })
+
+    // const formik = useFormik({
+    //     validationSchema: validationSchema,
+    // })
+
     const experienceComponent = (data, count) => (
-        <Card sx={{ my: 2 }}>
-            <CardHeader title={data['title']}/>
+        <Card sx={{ m: 2 }}>
+            {
+                data['title'] != '' &&
+                <CardHeader 
+                subheader={`${data['title']}`}
+                subheaderTypographyProps={{
+                    variant: 'button'
+                }}
+                />
+            }
             <CardContent>
                 <MDInput
                     type="text" 
-                    label='Company'
+                    label={`${count+1}. Company Name`}
                     fullWidth
                     sx={{
                         '& .MuiInputLabel-root:not(.Mui-focused)': {
@@ -568,10 +789,11 @@ function Careers(){
                         my: 1,
                     }}
                     variant="standard"
-                    onChange={e => {
-                        entityHandle(data['id'], e.target.value);
-                    }}
-                    disabled={disabled}
+                    onChange={e => workExpHandle({
+                        index: count,
+                        item: 'company',
+                        value: e.target.value
+                    })}
                 />
                 <MDInput
                     type="text" 
@@ -584,10 +806,28 @@ function Careers(){
                         my: 1,
                     }}
                     variant="standard"
-                    onChange={e => {
-                        entityHandle(data['id'], e.target.value);
+                    onChange={e => workExpHandle({
+                        index: count,
+                        item: 'position_held',
+                        value: e.target.value
+                    })}
+                />
+                <MDInput
+                    type="text" 
+                    label='Department'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
                     }}
-                    disabled={disabled}
+                    variant="standard"
+                    onChange={e => workExpHandle({
+                        index: count,
+                        item: 'department',
+                        value: e.target.value
+                    })}
                 />
                 <MDInput
                     type="text" 
@@ -600,10 +840,12 @@ function Careers(){
                         my: 1,
                     }}
                     variant="standard"
-                    onChange={e => {
-                        entityHandle(data['id'], e.target.value);
-                    }}
-                    disabled={disabled}
+                    onChange={e => workExpHandle({
+                        index: count,
+                        item: 'handled',
+                        value: e.target.value
+                    })}
+                    multiline
                 />
                 <MDInput
                     type="text" 
@@ -616,10 +858,11 @@ function Careers(){
                         my: 1,
                     }}
                     variant="standard"
-                    onChange={e => {
-                        entityHandle(data['id'], e.target.value);
-                    }}
-                    disabled={disabled}
+                    onChange={e => workExpHandle({
+                        index: count,
+                        item: 'leave_reason',
+                        value: e.target.value
+                    })}
                 />
                 <MDInput
                     type="text" 
@@ -632,10 +875,11 @@ function Careers(){
                         my: 1,
                     }}
                     variant="standard"
-                    onChange={e => {
-                        entityHandle(data['id'], e.target.value);
-                    }}
-                    disabled={disabled}
+                    onChange={e => workExpHandle({
+                        index: count,
+                        item: 'salary',
+                        value: e.target.value
+                    })}
                 />
                 <MDBox display='flex' sx={{ my: 1, flexDirection: 'row' }}>
                     <DatePicker 
@@ -650,18 +894,18 @@ function Careers(){
                             textField: {
                                 variant: 'standard',
                                 fullWidth: true,
-                                // required: true,
                                 InputLabelProps: {
                                     style: {
                                         color: 'black'
                                     }
                                 },
-                                disabled: disabled,
                             }
                         }}
-                        onChange={e => {
-                            entityHandle(data['id'], e);
-                        }}
+                        onChange={e => workExpHandle({
+                            index: count,
+                            item: 'start_date',
+                            value: e
+                        }, 'date')}
                     />
                     <DatePicker 
                         label='End Date'
@@ -682,22 +926,178 @@ function Careers(){
                                         color: 'black'
                                     }
                                 },
-                                disabled: disabled,
                             }
                         }}
-                        onChange={e => {
-                            entityHandle(data['id'], e);
-                        }}
+                        onChange={e => workExpHandle({
+                            index: count,
+                            item: 'end_date',
+                            value: e
+                        }, 'date')}
                     />
                 </MDBox>
-                <MDBox display='flex' my={1} justifyContent='space-between'>
-                    <FormControlLabel control={<Checkbox />} label="Present" />
-                    <MDTypography>Length of Stay:</MDTypography>
+                <MDBox display='flex' my={1} justifyContent={ 'end' }>
+                    <FormControlLabel control={<Checkbox
+                    onChange={e => setExpPresent(e.target.checked)}
+                    />} label="Currently working" />
+                    {/*todo*/} {/* <MDTypography variant='button'>Length of Stay: {stay1}</MDTypography> */}
                 </MDBox>
-                { expCount < 3 && <MDButton color='info' onClick={() => setExpCount(expCount+1)}>{experienceData[count+1].title}</MDButton> }
+                {addMoreButton('exp', count+1)}
             </CardContent>
         </Card>
     )
+
+    const addMoreButton = (type, count) => {
+        if (type = 'exp') {
+            if (expCount == count) {
+                return (
+                    <MDButton startIcon={<Icon>add</Icon>} color='info' variant='outlined' onClick={() => {
+                        swipeableCustomHightUpdate(); 
+                        setExpCount(expCount+1);
+                    }}>Add More</MDButton>
+                )
+        }
+        }
+        if (type == 'ref') {
+            if (refCount == count) {
+                <MDButton sx={{ mt: 2 }} startIcon={<Icon>add</Icon>} color='info' variant='outlined' onClick={() => {
+                    swipeableCustomHightUpdate(); 
+                    setRefCount(refCount+1);
+                    setCurrentIndex(Object.keys(swipeContent).length)
+                }}>Add More</MDButton>
+            }
+        }
+    }
+
+    const referenceComponent = (data, count) => (
+        <Card sx={{ m: 2 }}>
+            {
+                data['title'] != '' &&
+                <CardHeader 
+                subheader={`${data['title']}`}
+                subheaderTypographyProps={{
+                    variant: 'button'
+                }}
+                />
+            }
+            <CardContent>
+                <MDInput
+                    type="text" 
+                    label='Name'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => referenceHandle({
+                        index: count,
+                        item: 'name',
+                        value: e.target.value
+                    })}
+                />
+                <MDInput
+                    type="text" 
+                    label='Position'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => referenceHandle({
+                        index: count,
+                        item: 'position',
+                        value: e.target.value
+                    })}
+                />
+                <MDInput
+                    type="text" 
+                    label='Email'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => referenceHandle({
+                        index: count,
+                        item: 'email',
+                        value: e.target.value
+                    })}
+                />
+                <MDInput
+                    type="tel" 
+                    label='Contact Number'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => referenceHandle({
+                        index: count,
+                        item: 'contact_number',
+                        value: e.target.value
+                    })}
+                />
+                <MDInput
+                    type="text" 
+                    label='Company Name'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => referenceHandle({
+                        index: count,
+                        item: 'company',
+                        value: e.target.value
+                    })}
+                />
+                <MDInput
+                    type="text" 
+                    label='Company Email'
+                    fullWidth
+                    sx={{
+                        '& .MuiInputLabel-root:not(.Mui-focused)': {
+                            color: 'black!important',
+                        },
+                        my: 1,
+                    }}
+                    variant="standard"
+                    onChange={e => referenceHandle({
+                        index: count,
+                        item: 'company_email',
+                        value: e.target.value
+                    })}
+                />
+                { addMoreButton('ref', count+1) }
+            </CardContent>
+        </Card>
+    )
+
+    const swipeableCustomHightUpdate = () => {
+        console.log('debug scroll offsets', dialogRef.current);
+        setScroll({
+            x: window.scrollX,
+            y: window.scrollY,
+        })
+        window.scrollTo(0, 0)
+        setTime(0)
+        startTimer()
+        setSwipeIndex(swipeIndex+1)
+    }
 
     const entityContent = (
         <MDBox>
@@ -707,9 +1107,9 @@ function Careers(){
                     formComponents(entityData[item], index)
                 ))
             }
-            <Card sx={{ my: 2 }}>
+            <Card sx={{ m: 2 }}>
                 <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                    <MDTypography fontWeight="bold">19.</MDTypography>
+                    {/* <MDTypography variant='button'>19.</MDTypography> */}
                     <MDInput 
                         id='Where did you hear about us?'
                         type="text" 
@@ -733,7 +1133,6 @@ function Careers(){
                                 }
                             }))
                         }}
-                        disabled={disabled}
                     >
                         {
                             platform && Object.keys(platform).map((item, key) => (
@@ -743,9 +1142,9 @@ function Careers(){
                     </MDInput>
                 </CardContent>
             </Card>
-            <Divider/>
+            <Divider sx={{ my: 4 }} />
             <MDTypography variant="h5" fontWeight="medium">Work Experience</MDTypography>
-            <Card sx={{ my: 2 }}>
+            <Card sx={{ m: 2 }}>
                 <CardContent>
                     <MDInput
                         type="text" 
@@ -757,10 +1156,10 @@ function Careers(){
                             }
                         }}
                         variant="standard"
-                        onChange={e => {
-                            entityHandle(data['id'], e.target.value);
-                        }}
-                        disabled={disabled}
+                        onChange={e => setExperience(prev => ({
+                            ...prev,
+                            total_experience: e.target.value
+                        }))}
                     />
                 </CardContent>
             </Card>
@@ -769,10 +1168,236 @@ function Careers(){
                     experienceComponent(experienceData[index], index)
                 ))
             }
-            <Card sx={{ my: 2, border: 0, boxShadow: 0 }}>
-                <CardContent></CardContent>
+            <Card sx={{ m: 2 }}>
+                <CardContent>
+                    <MDInput
+                        type="text" 
+                        label='Other Relevant Experience'
+                        fullWidth
+                        sx={{
+                            '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                color: 'black!important',
+                            }
+                        }}
+                        variant="standard"
+                        onChange={e => setExperience(prev => ({
+                            ...prev,
+                            other_experience: e.target.value
+                        }))}
+                        multiline
+                    />
+                </CardContent>
             </Card>
-            {/* <MDBox my={2}></MDBox> */}
+            <Divider sx={{ my: 4 }} />
+            <MDTypography variant="h5" fontWeight="medium">Other Details</MDTypography>
+            {
+                Object.keys(otherData).map((item, index) => (
+                    <Card sx={{ m: 2 }}>
+                        <CardContent>
+                            <MDInput
+                                type="text" 
+                                label={otherData[item]['label']}
+                                fullWidth
+                                sx={{
+                                    '& .MuiInputLabel-root:not(.Mui-focused)': {
+                                        color: 'black!important',
+                                    }
+                                }}
+                                variant="standard"
+                                onChange={e => setOtherDetails(prev => ({
+                                    ...prev,
+                                    [otherData[item]['id']]: e.target.value
+                                }))}
+                            />
+                        </CardContent>
+                    </Card>
+                ))
+            }
+            <Divider sx={{ my: 4 }} />
+        </MDBox>
+    )
+
+    const lastContent = () => (
+        <MDBox>
+            <MDTypography variant="h5" fontWeight="medium">Character Reference</MDTypography>
+            {
+                Array.from({length: refCount}, (item, index) => (
+                    referenceComponent(referenceData[index], index)
+                ))
+            }
+            <MDBox my={3}>
+                <MDTypography
+                    component="a"
+                    href="#"
+                    variant="button"
+                    fontWeight="bold"
+                    color="info"
+                    sx={{ mb: 3 }}
+                >
+                    Authorization Letter
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    In the course of conducting an investigation into my background, I authorize the Company to contact government agencies, 
+                    previous employers, educational institutions, public or private entities, and individuals, as well as the listed references.
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    I authorize the Company to release all background investigation data to the Company's designated hiring officers for use in evaluating
+                    my application for employment or for continued empoyment. I understand and acknowledge that the information gathered and provided to hiring officers by the 
+                    Company may be detrimental to my application for employment or continued employment.
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    I also authorize any individual, company, firm corporation, or public agency to disclose any and all information pertaining to me, whether verbal or written.
+                    I hereby release from all liability any person, firm, or orgination that provides information or records in accordance with this authorization.
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    By signing this document, I give the Company my permission to conduct an initial background check for employment application purposes, as well as any
+                    subsequent background checks deemed necessary during the course of my employment with the Company.
+                </MDTypography>
+            </MDBox>
+            <MDBox my={3}>
+                <MDTypography
+                    component="a"
+                    href="#"
+                    variant="button"
+                    fontWeight="bold"
+                    color="info"
+                    sx={{ mb: 3 }}
+                >
+                    Terms and Conditions
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
+                    and that any dishonesty or falsification may jeopardize my employment application.
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    I hereby release all persons, companies, or corporations who provide such information from any liability or responsibility. I also 
+                    agree to submit any future examination that Eighty20 Virtual may require of me, and that the foregoing examination questions and answers may be 
+                    used in any way that company desires.
+                </MDTypography>
+                <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+                    I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
+                    and that any dishonesty or falsification may jeopardize my employment application.
+                </MDTypography>
+            </MDBox>
+            <MDBox>
+                <MDBox display={'flex'} alignItems='center'>
+                    <Checkbox sx={{ alignItems: 'unset', pl: 0 }} required />
+                    <MDTypography
+                        variant="overline"
+                        fontWeight="regular"
+                        color="text"
+                        sx={{ display: 'block' }}
+                    >
+                        I have read, understand and agree to the 
+                        <MDTypography
+                            component="a"
+                            href="#"
+                            variant="overline"
+                            fontWeight="bold"
+                            color="info"
+                            textGradient
+                            sx={{ ml: '4px' }}
+                        >
+                            Authorization Letter
+                        </MDTypography>
+                    </MDTypography>
+                </MDBox> 
+                <MDBox display={'flex'} alignItems='center'>
+                    <Checkbox sx={{ alignItems: 'unset', pl: 0 }} required />
+                    <MDTypography
+                        variant="overline"
+                        fontWeight="regular"
+                        color="text"
+                        sx={{ display: 'block' }}
+                    >
+                        I have read, understand and agree to the 
+                        <MDTypography
+                            component="a"
+                            href="#"
+                            variant="overline"
+                            fontWeight="bold"
+                            color="info"
+                            textGradient
+                            sx={{ mx: '4px' }}
+                        >
+                            Terms and Conditions
+                        </MDTypography>  
+                    </MDTypography>
+                </MDBox> 
+            </MDBox>
+            <Divider sx={{ my: 4 }} />
+        </MDBox>
+    )
+
+    const responseContent = () => (
+        <MDBox 
+        position='relative'
+        sx={{ bgcolor: 'transparent' }}
+        >
+            <MDBox display='flex' sx={{ height: '90vh', justifyContent: 'center' }}>
+                <MDBox component='img' src={e20logo}
+                sx={{
+                    position: 'absolute',
+                    margin: 'auto',
+                    width: '75%',
+                    opacity: '.1',
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                }}
+                />
+                <MDBox 
+                sx={{ 
+                    mx: 2, p: 5
+                }}
+                >
+                    <MDTypography variant='h2' sx={{
+                        mb: 3,
+                        fontSize: '1.5rem',
+                        fontWeight: 'normal',
+                        textAlign: 'center',
+                    }}>Thank you for filling out the form! <MDBox sx={{
+                        position: 'relative',
+                        display: 'inline-block',
+                        width: 'inherit',
+                        height: 'inherit',
+                        p: '10px',
+                    }}><MDBox component='img' src={smiley1} sx={{
+                        display: 'block',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        minHeight: '100%',
+                        minWidth: '100%',
+                        transform: 'translate(-50%, -50%)',
+                        height: '33px',
+                    }} /></MDBox></MDTypography>
+                    <MDBox>
+                        <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
+                            We have received your application and will get back to you soon.
+                            Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">Facebook</Link> for updates.
+                        </MDTypography>
+                        <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
+                            For any further inquiries, please contact <Link color='primary' href="#">careers@eighty20virtual.com</Link> 
+                        </MDTypography>
+                        <MDBox display='flex' justifyContent="space-between">
+                            <Link 
+                            color='info' 
+                            href={`/careers/response?entity=${entityCareer.entity_id}&careers=${entityCareer.careers_id}`} 
+                            sx={{ my: 'auto' }} 
+                            target='_blank'
+                            variant="text"
+                            >
+                                <MDButton variant='text' sx={{ pl: 0 }} color='info'>View Response</MDButton>
+                            </Link>
+                            <MDButton color='info' onClick={handleClose}>Return to page</MDButton>
+                        </MDBox>
+                    </MDBox>
+                </MDBox>
+            </MDBox>
         </MDBox>
     )
 
@@ -793,48 +1418,166 @@ function Careers(){
 
     const handleValidation = (e) => {
         e.preventDefault();
-        // responseOpenHandle()
-        setSwipeIndex(swipeIndex+1)
+
         console.log('debug submit target data:', e)
-
-        console.log('debug custom entity validation:', entityCustomValidation)
-        console.log('debug custom questions validation:', questionsCustomValidation)
-
-        var validations = {
-            [0]: entityCustomValidation,
-            [1]: questionsCustomValidation,
-        }
-
-        let valid = true
-        // i: for (let i in validations) {
-        //     for (let j in validations[i]) {
-        //         if (validations[i][j].invalid) {
-        //             console.log('debug validation', i, j, validations[i][j])
-    
-        //             valid = false
-        //             setSwipeIndex(validations[i][j].index)
-        //             enqueueSnackbar(`Form is invalid! Please check the Question ${i==0 ? validations[i][j].id : j}`, {
-        //                 variant: 'error',
-        //                 preventDuplicate: true,
-        //                 anchorOrigin: {
-        //                     horizontal: 'left',
-        //                     vertical: 'top',
-        //                 }
-        //             })
-    
-        //             break i
-        //         }
-        //     }
-        // }
-
         console.log('debug submit validity:', valid)
         // if (valid) handleSubmit()
         if (valid) {
             handleSubmit()
+            experienceSubmit()
+            entityDetailsSubmit()
+            entityReferenceSubmit()
         }
 
         console.log('debug submit entity data:', entity)
         console.log('debug submit question data:', questions)
+    }
+
+    const entityValidation = () => {
+        // responseOpenHandle()
+        // setSwipeIndex(swipeIndex+1)
+        console.log('debug work experience data', experience);
+        console.log('debug entity other details data', otherDetails);
+        console.log('debug work experience stay length data', stayLength);
+        // entityReferenceSubmit()
+        // experienceSubmit()
+        // entityDetailsSubmit()
+        console.log('debug custom entity validation:', entityCustomValidation)
+        
+        var tempValid = true
+        console.log('w3w1', tempValid, valid);
+
+        // entity validations
+        if (tempValid) {
+            for ( var item in entityCustomValidation ) {
+                if (entityCustomValidation[item]['invalid']) {
+                    setValid(false)
+                    tempValid = false
+                    setSwipeIndex(0)
+                    enqueueSnackbar(`Personal Information - ${entityData[item]['label']} is invalid`, {
+                        variant: 'error',
+                        preventDuplicate: true,
+                        anchorOrigin: {
+                            horizontal: 'left',
+                            vertical: 'top',
+                        }
+                    })
+                }
+
+                break
+            }
+        }
+
+        // last company details validation
+        if (tempValid) {
+            var expKeys = ['']
+            if ('total_experience' in experience) {
+                if (experience['total_experience'] == '') {
+                    setValid(false)
+                    tempValid = false
+                    setSwipeIndex(0)
+                    enqueueSnackbar(`Total Work Experience must be filled up`, {
+                        variant: 'error',
+                        preventDuplicate: true,
+                        anchorOrigin: {
+                            horizontal: 'left',
+                            vertical: 'top',
+                        }
+                    })
+                }
+            } else {
+                setValid(false)
+                tempValid = false
+                setSwipeIndex(0)
+                enqueueSnackbar(`Total Work Experience must be filled up`, {
+                    variant: 'error',
+                    preventDuplicate: true,
+                    anchorOrigin: {
+                        horizontal: 'left',
+                        vertical: 'top',
+                    }
+                })
+            }
+            if (!'other_experience' in experience) {
+
+            }
+        }
+
+        console.log('w3w1.1', tempValid, valid);
+
+        if (tempValid) {
+            setValid(true)
+            setSwipeIndex(swipeIndex+1)
+        }
+    }
+
+    const questionValidation = () => {
+        console.log('debug custom questions validation:', questionsCustomValidation)
+
+        var tempValid = true
+        // questions validation
+        if (tempValid) {
+            for (var item in questionsCustomValidation) {
+                if (questionsCustomValidation[item].invalid) {
+                    console.log('debug validation', item, questionsCustomValidation[item])
+                    tempValid = false
+                    setValid(false)
+                    setSwipeIndex(questionsCustomValidation[item].index)
+                    enqueueSnackbar(`Form is invalid! Please check the Question ${item}`, {
+                        variant: 'error',
+                        preventDuplicate: true,
+                        anchorOrigin: {
+                            horizontal: 'left',
+                            vertical: 'top',
+                        }
+                    })
+
+                    return
+                }
+            }
+        }
+
+        if (tempValid) {
+            console.log('w3w2');
+            setValid(true)
+            setSwipeIndex(swipeIndex+1)
+        }
+    }
+
+    const experienceSubmit = () => {
+        console.log('debug experience submit', experience);
+        dataServicePrivate('POST', 'entity/experience/submit', {
+            entity_id: entity['id'],
+            experience
+        }).then((result) => {
+            console.log('debug experience result', result);
+        }).catch((err) => {
+            console.log('debug experience err result', err);
+
+        })
+    }
+
+    const entityDetailsSubmit = () => {
+        console.log('debug other details submit', otherDetails);
+        dataServicePrivate('POST', 'entity/details/define', otherDetails).then((result) => {
+            console.log('debug other details result', result);
+        }).catch((err) => {
+            console.log('debug other details err result', err);
+
+        })
+    }
+
+    const entityReferenceSubmit = () => {
+        console.log('debug entity reference submit', reference);
+        dataServicePrivate('POST', 'entity/reference/submit', {
+            reference,
+            entity_id: String(entity['id']),
+        }).then((result) => {
+            console.log('debug entity reference result', result);
+        }).catch((err) => {
+            console.log('debug entity reference err result', err);
+
+        })
     }
 
     useEffect(() => {
@@ -842,39 +1585,36 @@ function Careers(){
         // console.log("debug effect questions", Object.keys(questions).length);
 
         SetSwipeContent({ 0: entityContent })
-        swipeableViewsRef.current
-        .getChildContext()
-        .swipeableViews.slideUpdateHeight()
         setQuestionsCustomValidation()
-        var count = 13
-        var id_count = 13
+        var count = 0
+        var id_count = 0
 
         var swipecount = 0
         Object.keys(questions).map((item, key) => {
-            var tempContent
+            Object.keys(questions[item]).map((_item, _key) => {
+                if ( !['label', 'link'].includes(questions[item][_item].type) ) {
+                    setQuestionsCustomValidation(prev => ({
+                        ...prev,
+                        [count+=1]: {
+                            index: key+1,
+                            invalid: true,
+                            id: questions[item][_item]?.id,
+                        }
+                    }))
+                }
+            })
 
+            var tempContent
             tempContent = (
                 <MDBox>
                     {
                         Object.keys(questions[key]).map((_item, _key) => {
-                            console.log('debug', questions[key][_key].type, questions[key][_key].type != 'link');
-                            if ( questions[key][_key].type != 'link' && questions[key][_key].type != 'label' ) {
-                                setQuestionsCustomValidation(prev => ({
-                                    ...prev,
-                                    [count+=1]: {
-                                        index: key+1,
-                                        invalid: true,
-                                        id: questions[key][_key]?.id,
-                                    }
-                                }))
-                            }
-
                             if ( questions[key][_key].type == 'input' ) {
                                 var qCount = id_count+=1
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
                                         <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
+                                            <MDTypography variant='button'>{qCount}.</MDTypography>
                                             <MDInput 
                                                 id={questions[key][_key]?.title}
                                                 type="text" 
@@ -908,7 +1648,7 @@ function Careers(){
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
                                         <CardContent sx={{ display: 'flex', alignItems: 'end', gap: 1 }}>
-                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
+                                            <MDTypography variant="button">{qCount}.</MDTypography>
                                             <MDInput
                                                 id={questions[key][_key]?.title}
                                                 label={questions[key][_key]?.title}
@@ -954,7 +1694,7 @@ function Careers(){
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
                                         <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
-                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
+                                            <MDTypography variant="button">{qCount}.</MDTypography>
                                             <FormControl fullWidth>
                                                 <FormLabel sx={{
                                                     fontWeight: 400,
@@ -995,7 +1735,7 @@ function Careers(){
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
                                         <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
-                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
+                                            <MDTypography variant="button">{qCount}.</MDTypography>
                                             <FormControl fullWidth>
                                                 <FormLabel sx={{
                                                     fontWeight: 400,
@@ -1031,7 +1771,7 @@ function Careers(){
                                 return (
                                     <Card key={_key} sx={{ my: 2, py: 1 }}>
                                         <CardContent sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
-                                            <MDTypography fontWeight="bold">{qCount}.</MDTypography>
+                                            <MDTypography variant="button">{qCount}.</MDTypography>
                                             <MDBox>
                                                 <MDTypography sx={{ fontSize: 14 }} color="black" gutterBottom>{questions[key][_key]?.title}</MDTypography>
                                                 <FileUpload question={questions[key][_key]} 
@@ -1079,6 +1819,7 @@ function Careers(){
                             }
                         })
                     }
+                    <Divider sx={{ my: 4 }} />
                 </MDBox>
             )
 
@@ -1090,56 +1831,6 @@ function Careers(){
 
         })
 
-        SetSwipeContent(prev => ({
-            ...prev,
-            [swipecount+1]: (
-                <MDBox 
-                position='relative'
-                sx={{ bgcolor: 'transparent' }}
-                >
-                    <MDBox display='flex' sx={{ height: '90vh', justifyContent: 'center' }}>
-                        <MDBox component='img' src={e20logo}
-                        sx={{
-                            position: 'absolute',
-                            margin: 'auto',
-                            width: '75%',
-                            opacity: '.1',
-                            left: '50%',
-                            top: '50%',
-                            transform: 'translate(-50%, -50%)',
-                        }}
-                        />
-                        <MDBox 
-                        sx={{ 
-                            mx: 2, p: 5
-                            // border: 1, borderColor: 'secondary.main', borderRadius: '16px', borderTop: '5px solid #00a8cd', bgcolor: 'white'
-                        }}
-                        >
-                            <MDTypography variant='h2' sx={{ mb: 3 }}>Thank you for filling out the form! 😊</MDTypography>
-                            <MDBox>
-                                <MDTypography vairant='body1' gutterBottom>
-                                    We have received your application and will get back to you soon.
-                                    Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">@Facebook</Link> for updates.
-                                </MDTypography>
-                                <MDBox display='flex' justifyContent="space-between">
-                                    <Link 
-                                    color='info' 
-                                    href={`/careers/response?entity=${entityCareer.entity_id}&careers=${entityCareer.careers_id}`} 
-                                    sx={{ my: 'auto' }} 
-                                    target='_blank'
-                                    variant="text"
-                                    >
-                                        View Response
-                                    </Link>
-                                    <MDButton color='info' onClick={handleClose}>Return to page</MDButton>
-                                </MDBox>
-                            </MDBox>
-                        </MDBox>
-                    </MDBox>
-                </MDBox>
-            )
-        }))
-
     },[questions, disabled, expCount])
 
     const careerHandle = (key) => {
@@ -1149,9 +1840,9 @@ function Careers(){
             careers_id: careers[key].id
         });
 
-        setSwipeIndex(0)
+        setCurrentIndex(0)
         setQuestions({})
-        setProgress(0)
+        setTime(0)
 
         var button = (<MDButton onClick={isAuth ? () => {
             handleOpen();
@@ -1389,7 +2080,7 @@ function Careers(){
         }, (err) => {
             console.log('debug answer error response:', err);
             var response = err?.response?.data ? err.response.data : 'Error Request'
-            snackBar(response, 'error')
+            snackBar('Error form Submission', 'error')
     
         })
     }
@@ -1404,6 +2095,26 @@ function Careers(){
             }
         })
     }
+
+    const GradientProgress = () => (
+        <MDBox sx={{ 
+            display: progress ? 'block' : 'none', 
+            position: 'fixed',
+            top: '50%',
+            right: '50%',
+            transform: 'translate(-50%, -50%)',
+        }}>
+          <svg width={0} height={0}>
+            <defs>
+              <linearGradient id="my_gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#e01cd5" />
+                <stop offset="100%" stopColor="#1CB5E0" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <CircularProgress sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }} />
+        </MDBox>
+    )
 
     return (
         <PageLayout>
@@ -1455,11 +2166,12 @@ function Careers(){
                     fullWidth
                     fullScreen
                 >
-                    <LinearProgress sx={{ width: '100%', display: progress >= 100 ? 'none' : 'block' }} />
+                    {/* <LinearProgress sx={{ width: '100%', display: progress >= 100 ? 'none' : 'block' }} /> */}
+                    <GradientProgress/>
                     <MDBox 
                     display='flex' 
                     sx={{ 
-                        visibility: progress >= 100 ? '' : 'hidden', 
+                        visibility: progress ? 'hidden' : '', 
                         minWidth: { lg: '50rem', md: '40rem', xs: '20rem' },
                         maxWidth: 'min-content',
                         margin: 'auto',
@@ -1467,7 +2179,7 @@ function Careers(){
                     justifyContent='center'
                     >
                         <MDBox component='form' onSubmit={handleValidation}>
-                            <DialogTitle align="center" hidden={swipeIndex > Object.keys(questions).length}>Please fill out this form</DialogTitle>
+                            <DialogTitle sx={{ fontSize: '1.75rem' }} align="center" hidden={swipeIndex > Object.keys(questions).length}>PLEASE FILL OUT THIS FORM</DialogTitle>
                             <IconButton
                                 aria-label="close"
                                 onClick={handleClose}
@@ -1484,52 +2196,21 @@ function Careers(){
                                     axis={swipeDirection} 
                                     index={swipeIndex} 
                                     animateHeight
-                                    ref={swipeableViewsRef}
                                 >
                                     {
                                         swipeContent && Object.keys(swipeContent).map((item, key) => (
                                             swipeContent[key]
                                         ))
                                     }
+                                    {lastContent()}
+                                    {responseContent()}
                                 </SwipeableViews>
                             </DialogContent>
-                            <DialogActions sx={{ justifyContent: swipeIndex == Object.keys(questions).length && view ? 'space-between' : 'end' }}>
-                                <MDBox display={swipeIndex == Object.keys(questions).length && view ? 'flex' : 'none'}>
-                                    <Checkbox required />
-                                    <Grid container>
-                                        <Grid item xs={12}>
-                                        <Tooltip 
-                                            title='I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
-                                            and that any dishonesty or falsification may jeopardize my employment application.'
-                                        >
-                                            <MDTypography
-                                                component="a"
-                                                href="#"
-                                                variant="button"
-                                                fontWeight="bold"
-                                                color="info"
-                                                textGradient
-                                            >
-                                                Terms and Conditions
-                                            </MDTypography>
-                                        </Tooltip>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                        <MDTypography
-                                            variant="button"
-                                            fontWeight="regular"
-                                            color="text"
-                                        >
-                                            I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
-                                            and that any dishonesty or falsification may jeopardize my employment application.
-                                        </MDTypography>
-                                        </Grid>
-                                    </Grid>
-                                </MDBox> 
+                            <DialogActions sx={{ justifyContent: 'end' }}>
                                 {
-                                    swipeIndex <= Object.keys(questions).length ? 
+                                    swipeIndex <= Object.keys(questions).length+1 ? 
                                     <MDBox>
-                                        { swipeIndex == Object.keys(questions).length ?
+                                        { swipeIndex == Object.keys(questions).length+1 ?
                                             (
                                                 <MDBox>
                                                     <MDBox sx={{ display: 'flex' }}>
@@ -1548,7 +2229,13 @@ function Careers(){
                                                     <MDButton sx={{ mx: 1, display: swipeIndex == 0 && 'none' }} onClick={ () => setSwipeIndex(swipeIndex-1) }>
                                                         Back
                                                     </MDButton>
-                                                    <MDButton sx={{ mx: 1 }} color="info" onClick={ () => setSwipeIndex(swipeIndex+1) }>
+                                                    <MDButton sx={{ mx: 1 }} color="info" onClick={ () => {
+                                                        if (swipeIndex == 0) {
+                                                            entityValidation()
+                                                        } else {
+                                                            questionValidation()
+                                                        }
+                                                    } }>
                                                         Next
                                                     </MDButton>
                                                 </MDBox>

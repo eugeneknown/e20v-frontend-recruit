@@ -1,38 +1,38 @@
 const otherDetails = [
     {
-        key: '',
-        title: 'Salary Expectation',
+        key: 'salary',
+        title: 'Salary Expectation (in PHP)',
     },
     {
-        key: '',
-        title: 'Amenable to US time',
+        key: 'us_time',
+        title: 'Amenable to work in a US time',
     },
     {
-        key: '',
-        title: 'Amenable to work in the office'
+        key: 'work_in_office',
+        title: 'Amenable to work in the office (Matina Davao City)'
     },
     {
-        key: '',
-        title: 'If Yes, do you have own transpo or commute?'
+        key: 'transpo',
+        title: 'If YES, do you have own transportation or commute?'
     },
     {
-        key: '',
+        key: 'application',
         title: 'Pending Application with other Company'
     },
     {
-        key: '',
+        key: 'platforms',
         title: 'Source'
     },
     {
-        key: '',
+        key: 'start',
         title: 'Availability to Start'
     },
     {
-        key: '',
+        key: 'condition',
         title: 'Any underlying health/medical conditions'
     },
     {
-        key: '',
+        key: 'part_time',
         title: 'Any part time work at the moment (please specify)'
     },
 ]
