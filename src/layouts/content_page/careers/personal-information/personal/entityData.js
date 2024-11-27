@@ -35,32 +35,12 @@ export default [
         label: 'Mobile Number',
         type: 'tel',
         required: true,
-        validations: [
-            {
-                type: "min",
-                params: [11, "Contact number cannot be less than 11 numbers"],
-            },
-            {
-                type: "max",
-                params: [11, "Contact number cannot be more than 11 numbers"],
-            },
-        ],
     },
     {
         id: 'alternative_number',
         label: 'Alternative Mobile Number',
         type: 'tel',
         required: true,
-        validations: [
-            {
-                type: "min",
-                params: [11, "Alternative contact cannot be less than 11 numbers"],
-            },
-            {
-                type: "max",
-                params: [11, "Alternative contact cannot be more than 11 numbers"],
-            },
-        ],
     },
     {
         id: 'gender',

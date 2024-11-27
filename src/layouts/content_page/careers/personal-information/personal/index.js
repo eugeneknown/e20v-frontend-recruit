@@ -117,8 +117,10 @@ function PersonalForm(){
                                     }
                                     <MDButton color='info' fullWidth type='submit' >Continue</MDButton>
                                 </MDBox> */}
-                                <Formik
+                                {entity && <Formik
                                     initialValues={entity}
+                                    validationSchema={validationSchema}
+                                    enableReinitialize
                                     onSubmit={(data) => {
                                         console.log(data)
                                     }}
@@ -128,15 +130,30 @@ function PersonalForm(){
                                             <FieldArray
                                                 render={arrayHelper => (
                                                 <MDBox>
-                                                    {values && Object.keys(entityData).map((item, index) => (
-                                                        <Field key={index} name={entityData[item].id}/>
+                                                    {Object.keys(entityData).map((item, index) => (
+                                                        <TextField 
+                                                            variant='outlined'
+                                                            fullWidth
+                                                            sx={{ my: 1 }}
+                                                            type={entityData[item].type}
+                                                            id={entityData[item].id}
+                                                            name={entityData[item].id}
+                                                            label={entityData[item].label}
+                                                            value={values[entityData[item].id]}
+                                                            required={entityData[item].required}
+                                                            onChange={handleChange}
+                                                            onBlur={handleBlur}
+                                                            error={touched[entityData[item].id] && Boolean(errors[entityData[item].id])}
+                                                            helperText={touched[entityData[item].id] && errors[entityData[item].id]}
+                                                        />
                                                     ))}
                                                 </MDBox>
                                                 )}
                                             />
+                                            <MDButton color='info' fullWidth type='submit' >Continue</MDButton>
                                         </Form>
                                     )}
-                                </Formik>
+                                </Formik>}
                             </CardContent>
                         </Card>
                     </MDBox>

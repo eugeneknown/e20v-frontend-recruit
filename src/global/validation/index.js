@@ -25,8 +25,8 @@ export const generateObjectSchema = (data) => {
     var object = []
 
     Object.keys(data).map((item, index) => {
-        var tempObject = data[item]
-        var tempValidations = data[item]['validations'] ? data[item]['validations'] : []
+        var tempObject = {...data[item]}
+        var tempValidations = data[item]['validations'] ? [...data[item]['validations']] : []
 
         // is required
         if (data[item]['required']) {
@@ -52,7 +52,15 @@ export const generateObjectSchema = (data) => {
                 break;
 
             case 'tel':
-                tempObject['validationType'] = 'number'
+                tempObject['validationType'] = 'string'
+                tempValidations.push({
+                    type: "min",
+                    params: [11, "Contact cannot be less than 11 digit" ],
+                })
+                tempValidations.push({
+                    type: "max",
+                    params: [11, "Contact cannot be more than 11 digit" ],
+                })
                 tempValidations.push({
                     type: "matches",
                     params: [/^09\d{9}$/, { message: 'It must be started with (09)' }],
