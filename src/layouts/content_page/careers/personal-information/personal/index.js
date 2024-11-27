@@ -21,6 +21,7 @@ import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
 import entityData from "./entityData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
+import { generateFormInput } from "global/form";
 
 
 function PersonalForm(){
@@ -77,25 +78,8 @@ function PersonalForm(){
         },
     })
 
-    const formContent = ({id, label, type, value=undefined, options=[]}) => {
-        var props = {}
-        if (value) props['value'] = value
-
-        // return (
-        //     <MDInput 
-        //         variant='outlined'
-        //         fullWidth
-        //         type={type}
-        //         id={entityData[item].id}
-        //         name={entityData[item].id}
-        //         label={entityData[item].label}
-        //         value={values[entityData[item].id]}
-        //         onChange={handleChange}
-        //         onBlur={handleBlur}
-        //         error={touched[entityData[item].id] && Boolean(errors[entityData[item].id])}
-        //         helperText={touched[entityData[item].id] && Boolean(errors[entityData[item].id])}
-        //     />
-        // )
+    const formContent = (props) => {
+        return (<TextField {...props} />)
     }
 
     return (
@@ -109,18 +93,9 @@ function PersonalForm(){
                                 <IconButton><Icon>keyboard_backspace</Icon></IconButton>
                                 <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Information</MDTypography>
                                 <Divider />
-                                {/* <MDBox component='form' onSubmit={formik.handleSubmit}>
-                                    {
-                                        entity && Object.keys(entityData).map((item, index) => {
-                                            return (formContent(entityData[item].id, entityData[item].label, entityData[item].type))
-                                        })
-                                    }
-                                    <MDButton color='info' fullWidth type='submit' >Continue</MDButton>
-                                </MDBox> */}
                                 {entity && <Formik
                                     initialValues={entity}
                                     validationSchema={validationSchema}
-                                    enableReinitialize
                                     onSubmit={(data) => {
                                         console.log(data)
                                     }}
@@ -130,23 +105,38 @@ function PersonalForm(){
                                             <FieldArray
                                                 render={arrayHelper => (
                                                 <MDBox>
-                                                    {Object.keys(entityData).map((item, index) => (
-                                                        <TextField 
-                                                            variant='outlined'
-                                                            fullWidth
-                                                            sx={{ my: 1 }}
-                                                            type={entityData[item].type}
-                                                            id={entityData[item].id}
-                                                            name={entityData[item].id}
-                                                            label={entityData[item].label}
-                                                            value={values[entityData[item].id]}
-                                                            required={entityData[item].required}
-                                                            onChange={handleChange}
-                                                            onBlur={handleBlur}
-                                                            error={touched[entityData[item].id] && Boolean(errors[entityData[item].id])}
-                                                            helperText={touched[entityData[item].id] && errors[entityData[item].id]}
-                                                        />
-                                                    ))}
+                                                    {Object.keys(entityData).map((item, index) => {
+                                                        // <TextField 
+                                                        //     variant='outlined'
+                                                        //     fullWidth
+                                                        //     sx={{ my: 1 }}
+                                                        //     type={entityData[item].type}
+                                                        //     id={entityData[item].id}
+                                                        //     name={entityData[item].id}
+                                                        //     label={entityData[item].label}
+                                                        //     value={values[entityData[item].id]}
+                                                        //     required={entityData[item].required}
+                                                        //     onChange={handleChange}
+                                                        //     onBlur={handleBlur}
+                                                        //     error={touched[entityData[item].id] && Boolean(errors[entityData[item].id])}
+                                                        //     helperText={touched[entityData[item].id] && errors[entityData[item].id]}
+                                                        // />
+                                                        return (generateFormInput({
+                                                            variant: 'outlined',
+                                                            fullWidth: true,
+                                                            type: entityData[item].type,
+                                                            id: entityData[item].id,
+                                                            name: entityData[item].id,
+                                                            label: entityData[item].label,
+                                                            value: values[entityData[item].id],
+                                                            required: entityData[item].required,
+                                                            onChange: handleChange,
+                                                            onBlur: handleBlur,
+                                                            error: touched[entityData[item].id] && Boolean(errors[entityData[item].id]),
+                                                            helperText: touched[entityData[item].id] && errors[entityData[item].id],
+                                                            options: entityData[item].options ? entityData[item].options : undefined
+                                                        }))
+                                                    })}
                                                 </MDBox>
                                                 )}
                                             />
