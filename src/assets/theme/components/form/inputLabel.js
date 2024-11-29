@@ -17,14 +17,14 @@ Coded by www.creative-tim.com
 import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
 
-const { text, info } = colors;
+const { black, info } = colors;
 const { size } = typography;
 
 const inputLabel = {
   styleOverrides: {
     root: {
       fontSize: size.sm,
-      color: text.main,
+      color: black.main,
       lineHeight: 0.9,
 
       "&.Mui-focused": {

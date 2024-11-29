@@ -1,7 +1,9 @@
-import { Checkbox, Chip, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, TextField } from '@mui/material'
-import { MobileDateTimePicker } from '@mui/x-date-pickers'
+import { Checkbox, Chip, FormControl, FormHelperText, Icon, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, TextField } from '@mui/material'
+import { MobileDatePicker } from '@mui/x-date-pickers'
 import MDBox from 'components/MDBox'
 import propTypes from 'prop-types'
+import moment from 'moment'
+import { formatDateTime } from 'global/function'
 
 
 export const generateFormInput = (props) => {
@@ -17,17 +19,17 @@ export const generateFormInput = (props) => {
             return (<TextField {...props} />)
 
         case 'select':
-            sx['py'] = '0.75rem'
-            props['sx'] = [sx]
+            props['sx'] = [{ py: '0.75rem' }]
+            // console.log('select', props);
 
             return (
-                <FormControl required={props.required} fullWidth={props.fullWidth} error={props?.error}>
+                <FormControl sx={sx} required={props.required} fullWidth={props.fullWidth} error={props?.error}>
                     <InputLabel>{props.label}</InputLabel>
                     <Select
                         {...props}
                     >
                         {props.options.map((item) => (
-                            <MenuItem key={item} value={item}>{item}</MenuItem>
+                            <MenuItem key={item} value={item.toLowerCase()}>{item}</MenuItem>
                         ))}
                     </Select>
                     {props?.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
@@ -35,8 +37,26 @@ export const generateFormInput = (props) => {
             )
 
         case 'date':
-            console.log('date', props);
-            return (<MobileDateTimePicker {...props} />)
+            props['value'] = moment(props.value)
+            props['closeOnSelect'] = true
+            // console.log('date', props);
+            return (
+                <MobileDatePicker
+                    onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
+                    value={props.value}
+                    label={props.label}
+                    name={props.name}
+                    sx={props.sx}
+                    slotProps={{
+                        textField: {
+                            fullWidth: props.fullWidth,
+                            required: props.required,
+                            error: props.error,
+                            helperText: props.helperText
+                        }
+                    }}
+                />
+            )
 
         // case 'checkbox':
         //     return (

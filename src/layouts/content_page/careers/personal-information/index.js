@@ -1,4 +1,4 @@
-import {Card, CardContent, Chip, Container, Divider, Icon, Link} from "@mui/material";
+import {Card, CardContent, CardHeader, Chip, Container, Divider, Icon, Link} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -14,6 +14,7 @@ import CareersStepper from "../careers-stepper";
 import MDButton from "components/MDButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import { dataService } from "global/function";
+import Footer from "examples/Footer";
 
 
 function PersonalInformation(){
@@ -22,6 +23,8 @@ function PersonalInformation(){
     const navigate = useNavigate();
     const location = useLocation(); 
     const from = location.state?.from?.pathname || "/";
+    const prevPage = () => navigate(from, { replace: true })
+    const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     const {isAuth, auth} = useAuth();
     const [entity, setEntity] = useState({})
@@ -79,10 +82,6 @@ function PersonalInformation(){
         })
     }, [])
 
-    const urlRedirection = (url) => {
-        navigate(url)
-    }
-    
     const InformationContent = ({title, data, url}) => (
         <Card sx={{ mx: 5, my: 3 }}>
             <CardContent>
@@ -99,7 +98,7 @@ function PersonalInformation(){
                     ))
                 }
                 <MDButton 
-                onClick={() => urlRedirection(url)} 
+                onClick={() => toPage(url)} 
                 sx={{ mt: 2 }} 
                 variant='outlined' 
                 fullWidth 
@@ -115,12 +114,16 @@ function PersonalInformation(){
     return (
         <PageLayout>
             <NavBar position='absolute' />
-            <Grid container pt="5rem">
+            <Grid container pt={6} pb={3}>
                 <Grid size={{ xs: 12, lg: 7 }}>
                     <MDBox maxWidth="sm" mx={{ xs: 3, md: 'auto', lg: 3, xl: 'auto' }} pt="5rem">
                         <Card variant="outlined">
+                            <CardHeader 
+                                title={<MDTypography variant='h3'>Informations</MDTypography>} 
+                                subheader='Add a personal information'
+                                avatar={<Icon fontSize="large">person_outline</Icon>} 
+                            />
                             <CardContent>
-                                <MDTypography variant='h4'>Informations</MDTypography>
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
                             </CardContent>
                         </Card>
@@ -130,6 +133,7 @@ function PersonalInformation(){
                     <CareersStepper activeStep={0} />
                 </Grid>
             </Grid>
+            <Footer />
         </PageLayout>
     );
 }

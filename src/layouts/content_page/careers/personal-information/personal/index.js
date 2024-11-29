@@ -22,6 +22,7 @@ import entityData from "./entityData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
+import Footer from "examples/Footer";
 
 
 function PersonalForm(){
@@ -30,6 +31,8 @@ function PersonalForm(){
     const navigate = useNavigate();
     const location = useLocation(); 
     const from = location.state?.from?.pathname || "/";
+    const prevPage = () => navigate(from, { replace: true })
+    const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     const {isAuth, auth} = useAuth();
     const [entity, setEntity] = useState()
@@ -58,7 +61,13 @@ function PersonalForm(){
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
-            if (result) setEntity(localEntity ? JSON.parse(localEntity) : result)
+            if (localEntity) {
+                result = JSON.parse(localEntity)
+            } else {
+                localStorage.setItem('entity', JSON.stringify(result))
+            }
+
+            setEntity(result)
 
         }).catch((err) => {
             console.log('debug entity error result', err);
@@ -68,90 +77,81 @@ function PersonalForm(){
     }, [])
 
     useEffect(() => {
-        if (entity) localStorage.setItem('entity', JSON.stringify(entity))
+        if (entity) {
+            const onbeforeunloadFn = () => {
+                localStorage.setItem('entity', JSON.stringify(entity))
+            }
+          
+            window.addEventListener('beforeunload', onbeforeunloadFn);
+            return () => {
+                window.removeEventListener('beforeunload', onbeforeunloadFn);
+            }
+        }
     },[entity])
 
-    const formik = useFormik({
-        validationSchema: validationSchema,
-        onSubmit: (data) => {
-            console.log(data)
-        },
-    })
+    const handleSubmit = (data) => {
+        dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
+            console.log('debug entity define result', result);
+            removeLocalEntity()
+            navigate('/careers/personalinfo', { replace: true })
+        }).catch((err) => {
+            console.log('debug entity define error result', err);
 
-    const formContent = (props) => {
-        return (<TextField {...props} />)
+        })
     }
 
     return (
         <PageLayout>
             <NavBar position='absolute' />
-            <Grid container pt="5rem">
-                <Grid size={{ xs: 12, lg: 7 }}>
-                    <MDBox maxWidth="sm" mx={{ xs: 3, md: 'auto', lg: 3, xl: 'auto' }} pt="5rem">
-                        <Card variant="outlined">
-                            <CardContent>
-                                <IconButton><Icon>keyboard_backspace</Icon></IconButton>
-                                <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Information</MDTypography>
-                                <Divider />
-                                {entity && <Formik
-                                    initialValues={entity}
-                                    validationSchema={validationSchema}
-                                    onSubmit={(data) => {
-                                        console.log(data)
-                                    }}
-                                >
-                                    {({values, touched, errors, handleChange, handleBlur}) => (
-                                        <Form>
-                                            <FieldArray
-                                                render={arrayHelper => (
-                                                <MDBox>
-                                                    {Object.keys(entityData).map((item, index) => {
-                                                        // <TextField 
-                                                        //     variant='outlined'
-                                                        //     fullWidth
-                                                        //     sx={{ my: 1 }}
-                                                        //     type={entityData[item].type}
-                                                        //     id={entityData[item].id}
-                                                        //     name={entityData[item].id}
-                                                        //     label={entityData[item].label}
-                                                        //     value={values[entityData[item].id]}
-                                                        //     required={entityData[item].required}
-                                                        //     onChange={handleChange}
-                                                        //     onBlur={handleBlur}
-                                                        //     error={touched[entityData[item].id] && Boolean(errors[entityData[item].id])}
-                                                        //     helperText={touched[entityData[item].id] && errors[entityData[item].id]}
-                                                        // />
-                                                        return (generateFormInput({
-                                                            variant: 'outlined',
-                                                            fullWidth: true,
-                                                            type: entityData[item].type,
-                                                            id: entityData[item].id,
-                                                            name: entityData[item].id,
-                                                            label: entityData[item].label,
-                                                            value: values[entityData[item].id],
-                                                            required: entityData[item].required,
-                                                            onChange: handleChange,
-                                                            onBlur: handleBlur,
-                                                            error: touched[entityData[item].id] && Boolean(errors[entityData[item].id]),
-                                                            helperText: touched[entityData[item].id] && errors[entityData[item].id],
-                                                            options: entityData[item].options ? entityData[item].options : undefined
-                                                        }))
-                                                    })}
-                                                </MDBox>
-                                                )}
-                                            />
-                                            <MDButton color='info' fullWidth type='submit' >Continue</MDButton>
-                                        </Form>
-                                    )}
-                                </Formik>}
-                            </CardContent>
-                        </Card>
-                    </MDBox>
-                </Grid>
-                <Grid display={{ xs: 'none', lg: 'block' }} size={{ lg: 5 }}>
-                    <CareersStepper activeStep={0} />
-                </Grid>
-            </Grid>
+            <MDBox mt={5} maxWidth="sm" mx='auto' pt={6} pb={3}>
+                <Card variant="outlined">
+                    <CardContent>
+                        <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Information</MDTypography>
+                        <Divider />
+                        {entity && <Formik
+                            initialValues={entity}
+                            validationSchema={validationSchema}
+                            onSubmit={(data) => {
+                                console.log(data)
+                                handleSubmit(data)
+                            }}
+                        >
+                            {({values, touched, errors, handleChange, handleBlur, setFieldValue}) => (
+                                <Form>
+                                    <FieldArray
+                                        render={arrayHelper => (
+                                        <MDBox>
+                                            {setEntity(values)}
+                                            {Object.keys(entityData).map((item, index) => {
+                                                return (generateFormInput({
+                                                    variant: 'outlined',
+                                                    fullWidth: true,
+                                                    type: entityData[item].type,
+                                                    id: entityData[item].id,
+                                                    name: entityData[item].id,
+                                                    label: entityData[item].label,
+                                                    value: values[entityData[item].id],
+                                                    required: entityData[item].required,
+                                                    onChange: handleChange,
+                                                    onBlur: handleBlur,
+                                                    setFieldValue,
+                                                    error: touched[entityData[item].id] && Boolean(errors[entityData[item].id]),
+                                                    helperText: touched[entityData[item].id] && errors[entityData[item].id],
+                                                    options: entityData[item].options ? entityData[item].options : undefined
+                                                }))
+                                            })}
+                                        </MDBox>
+                                        )}
+                                    />
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Continue</MDButton>
+                                </Form>
+                            )}
+                        </Formik>}
+                    </CardContent>
+                </Card>
+            </MDBox>
+            <Footer />
         </PageLayout>
     );
 }

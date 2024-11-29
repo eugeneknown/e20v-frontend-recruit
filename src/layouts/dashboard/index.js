@@ -75,7 +75,7 @@ function Dashboard() {
 
     const getUsers = async () => {
       try {
-        const response = await axiosPrivate.get('entity/entities/all', {
+        const response = await axiosPrivate.post('entity/entities/all', {
           signal: controller.signal
         });
         console.log("debug dashboard", response.data);

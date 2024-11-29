@@ -24,8 +24,13 @@ export const dataServicePrivate = async (method, url, data) => {
     }
 }
 
-export const formatDateTime = (date='', output = 'YYYY-MM-DD HH:mm:ss') => {
+export const formatDateTime = (date, output) => {
     return moment( date ).format( output );
+}
+
+formatDateTime.defaultProps = {
+    date: '',
+    output: 'YYYY-MM-DD HH:mm:ss',
 }
 
 dataService.propTypes = {
@@ -38,4 +43,9 @@ dataServicePrivate.propTypes = {
     method: propTypes.string.isRequired,
     url: propTypes.string.isRequired,
     data: propTypes.object.isRequired,
+}
+
+formatDateTime.propTypes = {
+    date: propTypes.string.isRequired,
+    output: propTypes.string,
 }
