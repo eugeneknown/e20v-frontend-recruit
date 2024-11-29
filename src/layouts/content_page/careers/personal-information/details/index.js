@@ -18,14 +18,14 @@ import CareersStepper from "../../careers-stepper";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
-import entityData from "./entityData";
+import entityData from "./detailsData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 
 
-function PersonalForm(){
+function DetailsForm(){
 
     // navigation
     const navigate = useNavigate();
@@ -144,7 +144,7 @@ function PersonalForm(){
                                         </MDBox>
                                         )}
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Continue</MDButton>
                                 </Form>
                             )}
                         </Formik>}
@@ -156,4 +156,4 @@ function PersonalForm(){
     );
 }
 
-export default PersonalForm;
+export default DetailsForm;

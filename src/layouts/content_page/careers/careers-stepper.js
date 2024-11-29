@@ -5,20 +5,20 @@ import MDTypography from 'components/MDTypography';
 
 const steps = [
   {
-    stepLabel: "Shipping address",
-    stepDescription: "Add your delivery address",
+    stepLabel: "Personal Information",
+    stepDescription: <MDTypography variant='button'>Add your Personal Informations details</MDTypography>,
   },
   {
-    stepLabel: "Payment details",
-    stepDescription: "Add your mode of payment",
+    stepLabel: "Career Questions",
+    stepDescription: <MDTypography variant='button'>Answer the following questions</MDTypography>,
   },
   {
-    stepLabel: "Review your order",
-    stepDescription: "Verify your order details",
+    stepLabel: "Referrence",
+    stepDescription: <MDTypography variant='button'>Add your referrence</MDTypography>,
   },
 ];
 
-export default function CareersStepper(activeStep) {
+export default function CareersStepper({activeStep}) {
 
   return (
     <MDBox sx={{ maxWidth: 400 }}>
@@ -26,9 +26,6 @@ export default function CareersStepper(activeStep) {
       steps={steps} 
       currentStepIndex={activeStep} 
       orientation="vertical" 
-      stepContent={(step) => (
-        <MDTypography>{step.label}</MDTypography>
-      )}
       />
     </MDBox>
   );

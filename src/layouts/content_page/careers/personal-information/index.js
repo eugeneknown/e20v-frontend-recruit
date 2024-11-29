@@ -28,8 +28,13 @@ function PersonalInformation(){
 
     const {isAuth, auth} = useAuth();
     const [entity, setEntity] = useState({})
-    const [experience, setExperience] = useState()
-    const [details, setDetails] = useState()
+    const [experience, setExperience] = useState({})
+    const [details, setDetails] = useState({})
+
+    // remove personal local data
+    localStorage.removeItem('entity')
+    localStorage.removeItem('work_experience')
+    localStorage.removeItem('experience')
 
     useEffect(() => {
         var entity_id = auth['id']
@@ -88,7 +93,7 @@ function PersonalInformation(){
                 <MDTypography variant='h6' color='info'>{title}</MDTypography>
                 <Divider />
                 {
-                    Object.keys(data).map((item, index) => (
+                    data && Object.keys(data).map((item, index) => (
                         <MDTypography 
                         key={index} 
                         color={data[item]?.color ? data[item].color : 'inherit'}
@@ -125,11 +130,13 @@ function PersonalInformation(){
                             />
                             <CardContent>
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
+                                <InformationContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
+                                <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
                             </CardContent>
                         </Card>
                     </MDBox>
                 </Grid>
-                <Grid display={{ xs: 'none', lg: 'block' }} size={{ lg: 5 }}>
+                <Grid display={{ xs: 'none', lg: 'block' }} alignContent='center' size={{ lg: 5 }}>
                     <CareersStepper activeStep={0} />
                 </Grid>
             </Grid>

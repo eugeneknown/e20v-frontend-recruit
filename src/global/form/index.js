@@ -1,4 +1,4 @@
-import { Checkbox, Chip, FormControl, FormHelperText, Icon, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, TextField } from '@mui/material'
+import { Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Icon, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, Switch, TextField } from '@mui/material'
 import { MobileDatePicker } from '@mui/x-date-pickers'
 import MDBox from 'components/MDBox'
 import propTypes from 'prop-types'
@@ -39,7 +39,7 @@ export const generateFormInput = (props) => {
         case 'date':
             props['value'] = moment(props.value)
             props['closeOnSelect'] = true
-            // console.log('date', props);
+            console.log('date', props);
             return (
                 <MobileDatePicker
                     onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
@@ -47,14 +47,36 @@ export const generateFormInput = (props) => {
                     label={props.label}
                     name={props.name}
                     sx={props.sx}
+                    disabled={props?.disabled ? props.disabled : false}
                     slotProps={{
                         textField: {
                             fullWidth: props.fullWidth,
                             required: props.required,
                             error: props.error,
-                            helperText: props.helperText
+                            helperText: props.helperText,
                         }
                     }}
+                    {...props?.options}
+                />
+            )
+
+        case 'switch':
+            props['sx'] = {
+                ...sx,
+                display: 'flex',
+                alignItems: 'center',
+            }
+            // console.log('debug switch', props);
+            return (
+                <FormControlLabel 
+                    required={props.required} 
+                    label={props.label} 
+                    sx={props.sx}
+                    control={<Switch
+                        name={props.name}
+                        checked={props.value}
+                        onChange={(value) => props.setFieldValue(props.id, value.target.checked, props.required)}
+                    />} 
                 />
             )
 

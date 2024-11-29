@@ -18,68 +18,67 @@ import CareersStepper from "../../careers-stepper";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
-import entityData from "./entityData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
+import workExperienceData from "./work-experienceData";
 
 
-function PersonalForm(){
+function WorkExperienceForm(){
 
     // navigation
     const navigate = useNavigate();
     const location = useLocation(); 
-    const from = location.state?.from?.pathname || "/";
+    const from = location.state?.from?.pathname || "/careers/personalinfo";
     const prevPage = () => navigate(from, { replace: true })
     const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [entity, setEntity] = useState()
+    const [experience, setExperience] = useState()
 
-    const localEntity = localStorage.getItem('entity')
-    const removeLocalEntity = () => {
-        localStorage.removeItem('entity')
+    const local = localStorage.getItem('work_experience')
+    const removeLocal = () => {
+        localStorage.removeItem('work_experience')
     }
 
     // init validation
-    var yupObject = generateObjectSchema(entityData)
+    var yupObject = generateObjectSchema(workExperienceData)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
-    console.log('debug validation schema', validationSchema);
 
     useEffect(() => {
         var entity_id = auth['id']
 
-        // fetch entity
-        dataServicePrivate('POST', 'entity/entities/all', {
+        // fetch experience
+        dataServicePrivate('POST', 'entity/experience/all', {
             filter: [{
                 operator: '=',
-                target: 'id',
+                target: 'entity_id',
                 value: entity_id,
             }],
+            relations: ['details'],
         }).then((result) => {
-            console.log('debug entity result', result);
-            result = result.data['entity'][0]
-            if (localEntity) {
-                result = JSON.parse(localEntity)
+            console.log('debug experience result', result);
+            result = result.data['experience'][0]
+            if (local) {
+                result = JSON.parse(local)
             } else {
-                localStorage.setItem('entity', JSON.stringify(result))
+                localStorage.setItem('work_experience', JSON.stringify(result))
             }
-
-            setEntity(result)
+            setExperience(result)
 
         }).catch((err) => {
-            console.log('debug entity error result', err);
+            console.log('debug experience error result', err);
 
         })
 
     }, [])
 
     useEffect(() => {
-        if (entity) {
+        if (experience) {
             const onbeforeunloadFn = () => {
-                localStorage.setItem('entity', JSON.stringify(entity))
+                localStorage.setItem('work_experience', JSON.stringify(experience))
             }
           
             window.addEventListener('beforeunload', onbeforeunloadFn);
@@ -87,15 +86,15 @@ function PersonalForm(){
                 window.removeEventListener('beforeunload', onbeforeunloadFn);
             }
         }
-    },[entity])
+    },[experience])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
-            console.log('debug entity define result', result);
-            removeLocalEntity()
+        dataServicePrivate('POST', 'entity/experience/define', data).then((result) => {
+            console.log('debug experience define result', result);
+            removeLocal()
             navigate('/careers/personalinfo', { replace: true })
         }).catch((err) => {
-            console.log('debug entity define error result', err);
+            console.log('debug experience define error result', err);
 
         })
     }
@@ -107,13 +106,22 @@ function PersonalForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Information</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
                         <Divider />
-                        {entity && <Formik
-                            initialValues={entity}
+                        <MDButton
+                            variant='outlined' 
+                            color='secondary' 
+                            fullWidth
+                            startIcon={<Icon>add</Icon>}
+                            onClick={() => toPage('/careers/personalinfo/experienceform')}
+                        >
+                            <MDTypography variant='h6' color='secondary'>Add Work Experience</MDTypography>
+                        </MDButton>
+                        <Divider />
+                        {experience && <Formik
+                            initialValues={experience}
                             validationSchema={validationSchema}
                             onSubmit={(data) => {
-                                console.log(data)
                                 handleSubmit(data)
                             }}
                         >
@@ -122,23 +130,23 @@ function PersonalForm(){
                                     <FieldArray
                                         render={arrayHelper => (
                                         <MDBox>
-                                            {setEntity(values)}
-                                            {Object.keys(entityData).map((item, index) => {
+                                            {setExperience(values)}
+                                            {Object.keys(workExperienceData).map((item, index) => {
                                                 return (generateFormInput({
                                                     variant: 'outlined',
                                                     fullWidth: true,
-                                                    type: entityData[item].type,
-                                                    id: entityData[item].id,
-                                                    name: entityData[item].id,
-                                                    label: entityData[item].label,
-                                                    value: values[entityData[item].id],
-                                                    required: entityData[item].required,
+                                                    type: workExperienceData[item].type,
+                                                    id: workExperienceData[item].id,
+                                                    name: workExperienceData[item].id,
+                                                    label: workExperienceData[item].label,
+                                                    value: values[workExperienceData[item].id],
+                                                    required: workExperienceData[item].required,
                                                     onChange: handleChange,
                                                     onBlur: handleBlur,
                                                     setFieldValue,
-                                                    error: touched[entityData[item].id] && Boolean(errors[entityData[item].id]),
-                                                    helperText: touched[entityData[item].id] && errors[entityData[item].id],
-                                                    options: entityData[item].options ? entityData[item].options : undefined
+                                                    error: touched[workExperienceData[item].id] && Boolean(errors[workExperienceData[item].id]),
+                                                    helperText: touched[workExperienceData[item].id] && errors[workExperienceData[item].id],
+                                                    options: workExperienceData[item].options ? workExperienceData[item].options : undefined
                                                 }))
                                             })}
                                         </MDBox>
@@ -156,4 +164,4 @@ function PersonalForm(){
     );
 }
 
-export default PersonalForm;
+export default WorkExperienceForm;
