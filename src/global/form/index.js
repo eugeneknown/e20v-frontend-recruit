@@ -11,6 +11,8 @@ export const generateFormInput = (props) => {
     var sx = { my: 1 }
     props['sx'] = [sx]
 
+    // revise the touched, touched must be pass then init the error and helper for global and custom variables
+
     switch (props.type) {
         case 'text':
         case 'number':
@@ -37,13 +39,15 @@ export const generateFormInput = (props) => {
             )
 
         case 'date':
-            props['value'] = moment(props.value)
+            let valueProps = {}
+            if (props.value) valueProps['value'] = moment(props.value)
             props['closeOnSelect'] = true
-            console.log('date', props);
+            // console.log('date', props, valueProps);
             return (
                 <MobileDatePicker
                     onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
-                    value={props.value}
+                    onOpen={() => props.setFieldTouched(props.id, true, props.required)}
+                    {...valueProps}
                     label={props.label}
                     name={props.name}
                     sx={props.sx}

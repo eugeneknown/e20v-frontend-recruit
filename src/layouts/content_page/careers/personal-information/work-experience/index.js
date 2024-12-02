@@ -32,10 +32,14 @@ function WorkExperienceForm(){
     const location = useLocation(); 
     const from = location.state?.from?.pathname || "/careers/personalinfo";
     const prevPage = () => navigate(from, { replace: true })
-    const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
+    const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const {isAuth, auth} = useAuth();
     const [experience, setExperience] = useState()
+    const [details, setDetails] = useState()
+
+    // remove personal local data
+    localStorage.removeItem('experience')
 
     const local = localStorage.getItem('work_experience')
     const removeLocal = () => {
@@ -48,6 +52,10 @@ function WorkExperienceForm(){
     var validationSchema = yup.object().shape(yupSchema)
 
     useEffect(() => {
+        handleInit()
+    }, [])
+
+    const handleInit = () => {
         var entity_id = auth['id']
 
         // fetch experience
@@ -67,13 +75,13 @@ function WorkExperienceForm(){
                 localStorage.setItem('work_experience', JSON.stringify(result))
             }
             setExperience(result)
+            setDetails(result['details'])
 
         }).catch((err) => {
             console.log('debug experience error result', err);
 
         })
-
-    }, [])
+    }
 
     useEffect(() => {
         if (experience) {
@@ -99,6 +107,17 @@ function WorkExperienceForm(){
         })
     }
 
+    const handleDelete = (id) => {
+        dataServicePrivate('POST', 'entity/experience/details/delete', id).then((result) => {
+            console.log('debug experience details delete result', result);
+            removeLocal()
+            handleInit()
+        }).catch((err) => {
+            console.log('debug experience details delete error result', err);
+
+        })
+    }
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -108,6 +127,24 @@ function WorkExperienceForm(){
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
                         <Divider />
+                        {details && Object.keys(details).map((item, index) => (
+                            <Card position='relative' sx={{ my: 2 }}>
+                                <MDBox display='flex' position='absolute' right={0} p={1}>
+                                    <IconButton onClick={() => toPage('/careers/personalinfo/experienceform', { id: details[item].id })}><Icon>edit</Icon></IconButton>
+                                    <IconButton onClick={() => handleDelete(details[item].id)}><Icon>delete</Icon></IconButton>
+                                </MDBox>
+                                <CardContent>
+                                    <MDTypography variant='h6'>{details[item].position_held}</MDTypography>
+                                    <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].company}</MDTypography>
+                                    <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].department}</MDTypography>
+                                    <MDTypography variant='body2'>
+                                        {formatDateTime(details[item].start_date, 'MMMM YYYY')} to {details[item].present ? `Present` : formatDateTime(details[item].end_date, 'MMMM YYYY')}
+                                    </MDTypography>
+                                    <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].stay_length}</MDTypography>
+                                    <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].leave_reason}</MDTypography>
+                                </CardContent>
+                            </Card>
+                        ))}
                         <MDButton
                             variant='outlined' 
                             color='secondary' 
@@ -115,7 +152,7 @@ function WorkExperienceForm(){
                             startIcon={<Icon>add</Icon>}
                             onClick={() => toPage('/careers/personalinfo/experienceform')}
                         >
-                            <MDTypography variant='h6' color='secondary'>Add Work Experience</MDTypography>
+                            <MDTypography variant='body2' color='secondary'>Add Work Experience</MDTypography>
                         </MDButton>
                         <Divider />
                         {experience && <Formik
