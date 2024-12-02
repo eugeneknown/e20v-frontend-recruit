@@ -69,16 +69,35 @@ function WorkExperienceForm(){
         }).then((result) => {
             console.log('debug experience result', result);
             result = result.data['experience'][0]
-            if (local) {
+
+            if (local && (local == JSON.stringify(result))) {
                 result = JSON.parse(local)
             } else {
                 localStorage.setItem('work_experience', JSON.stringify(result))
             }
             setExperience(result)
-            setDetails(result['details'])
+            getExperienceDetails(result['id'])
 
         }).catch((err) => {
             console.log('debug experience error result', err);
+
+        })
+    }
+
+    const getExperienceDetails = (id) => {
+        dataServicePrivate('POST', 'entity/experience/details/all', {
+            filter: [{
+                operator: '=',
+                target: 'experience_id',
+                value: id,
+            }],
+        }).then((result) => {
+            console.log('debug experience details result', result);
+            result = result.data['experience_details']
+            setDetails(result)
+
+        }).catch((err) => {
+            console.log('debug experience details error result', err);
 
         })
     }
@@ -108,10 +127,10 @@ function WorkExperienceForm(){
     }
 
     const handleDelete = (id) => {
-        dataServicePrivate('POST', 'entity/experience/details/delete', id).then((result) => {
+        dataServicePrivate('POST', 'entity/experience/details/delete', {id}).then((result) => {
             console.log('debug experience details delete result', result);
             removeLocal()
-            handleInit()
+            getExperienceDetails(experience['id'])
         }).catch((err) => {
             console.log('debug experience details delete error result', err);
 
@@ -134,7 +153,7 @@ function WorkExperienceForm(){
                                     <IconButton onClick={() => handleDelete(details[item].id)}><Icon>delete</Icon></IconButton>
                                 </MDBox>
                                 <CardContent>
-                                    <MDTypography variant='h6'>{details[item].position_held}</MDTypography>
+                                    <MDTypography variant='h5'>{details[item].position_held}</MDTypography>
                                     <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].company}</MDTypography>
                                     <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].department}</MDTypography>
                                     <MDTypography variant='body2'>
@@ -145,7 +164,7 @@ function WorkExperienceForm(){
                                 </CardContent>
                             </Card>
                         ))}
-                        <MDButton
+                        {details && Object.keys(details).length <= 3 && <MDButton
                             variant='outlined' 
                             color='secondary' 
                             fullWidth
@@ -153,7 +172,7 @@ function WorkExperienceForm(){
                             onClick={() => toPage('/careers/personalinfo/experienceform')}
                         >
                             <MDTypography variant='body2' color='secondary'>Add Work Experience</MDTypography>
-                        </MDButton>
+                        </MDButton>}
                         <Divider />
                         {experience && <Formik
                             initialValues={experience}

@@ -41,6 +41,7 @@ function ExperienceForm(){
     const [workId, setWorkId] = useState()
     const [experience, setExperience] = useState()
     const [stayLength, setStayLength] = useState()
+    const [endDate, setEndDate] = useState()
 
     const local = localStorage.getItem('experience')
     const removeLocal = () => {
@@ -76,6 +77,11 @@ function ExperienceForm(){
             } else {
                 localStorage.setItem('experience', JSON.stringify(detail))
             }
+
+            // const blacklist = ['id', 'description', 'deleted_at', 'created_at', 'updated_at']
+            // blacklist.forEach((item) => {
+            //     if (item in detail) delete detail[item]
+            // })
             setExperience(detail)
 
         }).catch((err) => {
@@ -124,23 +130,30 @@ function ExperienceForm(){
                             initialValues={experience}
                             validationSchema={validationSchema}
                             onSubmit={(data) => {
-                                if (data['present']) delete data['end_date']
                                 handleSubmit(data)
                             }}
                         >
-                            {({values, touched, errors, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
+                            {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
                                 <Form>
                                     <FieldArray
                                         render={arrayHelper => (
                                         <MDBox>
                                             {setExperience(values)}
-                                            {console.log('values', values)}
+                                            {console.log('values', values, isValid)}
                                             {Object.keys(experienceData).map((item, index) => {
                                                 var disabled = false
-                                                if (experienceData[item].id == 'end_date' && 'present' in values ) {
+                                                if ( experienceData[item].id == 'end_date' && !('present' in values) ) experienceData[item].required = true
+                                                if ( experienceData[item].id == 'end_date' && 'present' in values ) {
                                                     disabled = values.present
                                                     Object.keys(experienceData).map((item, index) => {
                                                         if ( experienceData[item].id == 'end_date' ) experienceData[item].required = !(values.present)
+                                                        
+                                                        if (values.present) {
+                                                            setEndDate(values['end_date'])
+                                                            delete values['end_date']
+                                                        } else {
+                                                            if (endDate) values['end_date'] = endDate
+                                                        }
                                                     })
                                                 }
 
@@ -158,7 +171,7 @@ function ExperienceForm(){
                                                     var months = end.diff(start, 'months')
                                                     start.add(months, 'months')
     
-                                                    stay_length = `${years} years ${months} month`
+                                                    if ( years && months ) stay_length = `${years} years ${months} month`
                                                     setStayLength(stay_length)
                                                 }
 
@@ -214,7 +227,7 @@ function ExperienceForm(){
                                         </MDBox>
                                         )}
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!(isValid)} >Save</MDButton>
                                 </Form>
                             )}
                         </Formik>}

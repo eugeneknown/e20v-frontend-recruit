@@ -15,6 +15,7 @@ import MDButton from "components/MDButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import { dataService } from "global/function";
 import Footer from "examples/Footer";
+import { formatDateTime } from "global/function";
 
 
 function PersonalInformation(){
@@ -76,10 +77,51 @@ function PersonalInformation(){
                 operator: '=',
                 target: 'entity_id',
                 value: entity_id,
-            }],
-            relations: ['details']           
+            }],    
         }).then((result) => {
             console.log('debug experience result', result);
+            result = result.data['experience'][0]
+            // fetch experience details
+            dataService('POST', 'entity/experience/details/all', {
+                filter: [{
+                    operator: '=',
+                    target: 'experience_id',
+                    value: result['id'],
+                }],
+                relations: ['details']           
+            }).then((result) => {
+                console.log('debug experience details result', result);
+                result = result.data['experience_details']
+                var title = []
+                Object.keys(result).map((item, index) => {
+                    title.push(['position_held', 'company', 'start_date', 'stay_length'])
+                })
+                var color = []
+                var variant = ['h6']
+                var temp = []
+                Object.keys(title).map((item, index) => {
+                    var _temp = []
+                    Object.keys(title[item]).map((_item, _index) => {
+                        _temp.push({
+                            title: title[item][_item] == 'start_date' ? 
+                            <MDTypography variant='body2'>
+                                {formatDateTime(result[item]['start_date'], 'MMMM YYYY')} to {result[item]['end_date'] ?  formatDateTime(result[item]['end_date'], 'MMMM YYYY') : `Present`}
+                            </MDTypography> : result[item][title[item][_item]] ,
+                            color: color[_index] ? color[_index] : 'inherit',
+                            variant: variant[_index] ? variant[_index] : 'body2',
+                        })
+                    })
+
+                    temp.push(_temp)
+                })
+
+                console.log('debug exp details data', temp);
+                setExperience(temp)
+
+            }).catch((err) => {
+                console.log('debug experience details error result', err);
+
+            })
 
         }).catch((err) => {
             console.log('debug experience error result', err);
@@ -116,6 +158,42 @@ function PersonalInformation(){
         </Card>
     )
 
+    const WorkExpContent = ({title, data, url}) => (
+        <Card sx={{ mx: 5, my: 3 }}>
+            <CardContent>
+                <MDTypography variant='h6' color='info'>{title}</MDTypography>
+                <Divider />
+                {
+                    data && Object.keys(data).map((item, index) => {
+                        return (
+                            <MDBox>
+                                {Object.keys(data[item]).map((_item, _index) => (
+                                    <MDTypography 
+                                    key={index} 
+                                    color={data[item][_item]?.color ? data[item][_item].color : 'inherit'}
+                                    variant={data[item][_item]?.variant ? data[item][_item].variant : ''}
+                                    sx={{ textTransform: 'capitalize' }}
+                                    >{data[item][_item].title}</MDTypography>
+                                ))}
+                                <Divider />
+                            </MDBox>
+                        )
+                    })
+                }
+                <MDButton 
+                onClick={() => toPage(url)} 
+                sx={{ mt: 2 }} 
+                variant='outlined' 
+                fullWidth 
+                color='secondary' 
+                startIcon={<Icon>edit</Icon>}
+                >
+                    Edit {title}
+                </MDButton>
+            </CardContent>
+        </Card>
+    )
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -130,7 +208,7 @@ function PersonalInformation(){
                             />
                             <CardContent>
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
-                                <InformationContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
+                                <WorkExpContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
                             </CardContent>
                         </Card>

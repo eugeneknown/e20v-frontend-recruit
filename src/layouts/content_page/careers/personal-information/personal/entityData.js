@@ -24,6 +24,12 @@ export default [
         required: true,
     },
     {
+        id: 'religion',
+        label: 'Religion',
+        type: 'text',
+        required: true,
+    },
+    {
         id: 'civil_status',
         label: 'Civil Status',
         type: 'select',
