@@ -46,7 +46,6 @@ function PersonalForm(){
     var yupObject = generateObjectSchema(entityData)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
-    console.log('debug validation schema', validationSchema);
 
     useEffect(() => {
         var entity_id = auth['id']
@@ -117,13 +116,17 @@ function PersonalForm(){
                                 handleSubmit(data)
                             }}
                         >
-                            {({values, touched, errors, handleChange, handleBlur, setFieldValue}) => (
+                            {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
                                 <Form>
                                     <FieldArray
                                         render={arrayHelper => (
                                         <MDBox>
                                             {setEntity(values)}
                                             {Object.keys(entityData).map((item, index) => {
+
+                                                // universal format
+                                                var touch = entityData[item].type == 'date' ? typeof touched[entityData[item].id] == 'undefined' ? true : touched[entityData[item].id] : touched[entityData[item].id]
+                                                var error = entityData[item].type == 'date' ? entityData[item].required && errors[entityData[item].id] : errors[entityData[item].id]
                                                 return (generateFormInput({
                                                     variant: 'outlined',
                                                     fullWidth: true,
@@ -136,8 +139,9 @@ function PersonalForm(){
                                                     onChange: handleChange,
                                                     onBlur: handleBlur,
                                                     setFieldValue,
-                                                    error: touched[entityData[item].id] && Boolean(errors[entityData[item].id]),
-                                                    helperText: touched[entityData[item].id] && errors[entityData[item].id],
+                                                    setFieldTouched,
+                                                    error: touch && Boolean(error),
+                                                    helperText: touch && error,
                                                     options: entityData[item].options ? entityData[item].options : undefined
                                                 }))
                                             })}

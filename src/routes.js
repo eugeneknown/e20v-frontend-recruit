@@ -61,6 +61,7 @@ import PersonalInformation from "layouts/content_page/careers/personal-informati
 import PersonalForm from "layouts/content_page/careers/personal-information/personal";
 import WorkExperienceForm from "layouts/content_page/careers/personal-information/work-experience";
 import ExperienceForm from "layouts/content_page/careers/personal-information/work-experience/experience";
+import PersonalDetailsForm from "layouts/content_page/careers/personal-information/personal-details";
 
 const routes = [
   {
@@ -216,6 +217,12 @@ const routes = [
     key: "experienceform",
     route: "/careers/personalinfo/experienceform",
     component: <ExperienceForm />,
+  },
+  {
+    type: "hidden", //hidden
+    key: "personaldetailsform",
+    route: "/careers/personalinfo/detailsform",
+    component: <PersonalDetailsForm />,
   },
   // {
   //   type: "collapse",

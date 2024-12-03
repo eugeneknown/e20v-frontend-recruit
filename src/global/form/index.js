@@ -30,9 +30,13 @@ export const generateFormInput = (props) => {
                     <Select
                         {...props}
                     >
-                        {props.options.map((item) => (
-                            <MenuItem key={item} value={item.toLowerCase()}>{item}</MenuItem>
-                        ))}
+                        {props?.options && props.options.map((item, index) => {
+                            if ( typeof item == 'object' ) {
+                                return (<MenuItem key={index} value={item.id}>{item.title}</MenuItem>)
+                            } else {
+                                return (<MenuItem key={item} value={item.toLowerCase()}>{item}</MenuItem>)
+                            }
+                        })}
                     </Select>
                     {props?.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
                 </FormControl>

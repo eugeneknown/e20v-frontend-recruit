@@ -52,7 +52,6 @@ export default [
         label: 'Any underlying health/medical conditions? (pls specify)',
         type: 'text',
         required: true,
-        options: ['Male', 'Female', 'Others'],
     },
     {
         id: 'part_time',

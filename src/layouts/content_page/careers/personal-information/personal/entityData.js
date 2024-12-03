@@ -84,6 +84,9 @@ export default [
         label: 'Date of Birth',
         type: 'date',
         required: true,
+        options: { 
+            disableFuture: true,
+        },
     },
     {
         id: 'children',

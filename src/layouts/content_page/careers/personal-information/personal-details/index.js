@@ -18,14 +18,14 @@ import CareersStepper from "../../careers-stepper";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
-import entityData from "./detailsData";
+import schema from "./detailsData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 
 
-function PersonalForm(){
+function PersonalDetailsForm(){
 
     // navigation
     const navigate = useNavigate();
@@ -35,51 +35,62 @@ function PersonalForm(){
     const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [entity, setEntity] = useState()
+    const [entityDetails, setEntityDetails] = useState()
 
-    const localEntity = localStorage.getItem('entity')
-    const removeLocalEntity = () => {
-        localStorage.removeItem('entity')
+    const localEntityDetails = localStorage.getItem('entity_details')
+    const removeLocalEntityDetails = () => {
+        localStorage.removeItem('entity_details')
     }
 
     // init validation
-    var yupObject = generateObjectSchema(entityData)
+    var yupObject = generateObjectSchema(schema)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
-    console.log('debug validation schema', validationSchema);
 
     useEffect(() => {
         var entity_id = auth['id']
 
-        // fetch entity
-        dataServicePrivate('POST', 'entity/entities/all', {
+        // fetch platforms
+        dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
+            console.log('debug careers platform result', result);
+            result = result.data['career_platforms']
+            var tempPlatforms = []
+            result.forEach((value) => tempPlatforms.push(value))
+            schema[schema.findIndex((e) => e.id == 'platform')]['options'] = tempPlatforms
+        }).catch((err) => {
+            console.log('debug careers platform error result', err);
+        
+        })
+
+        // fetch entity details
+        dataServicePrivate('POST', 'entity/details/all', {
             filter: [{
                 operator: '=',
-                target: 'id',
+                target: 'entity_id',
                 value: entity_id,
             }],
         }).then((result) => {
-            console.log('debug entity result', result);
-            result = result.data['entity'][0]
-            if (localEntity) {
-                result = JSON.parse(localEntity)
+            console.log('debug entity details result', result);
+            result = result.data['entity_details'][0]
+            if (localEntityDetails) {
+                result = JSON.parse(localEntityDetails)
             } else {
-                localStorage.setItem('entity', JSON.stringify(result))
+                localStorage.setItem('entity_details', JSON.stringify(result))
             }
 
-            setEntity(result)
+            setEntityDetails(result)
 
         }).catch((err) => {
-            console.log('debug entity error result', err);
+            console.log('debug entity details error result', err);
 
         })
 
     }, [])
 
     useEffect(() => {
-        if (entity) {
+        if (entityDetails) {
             const onbeforeunloadFn = () => {
-                localStorage.setItem('entity', JSON.stringify(entity))
+                localStorage.setItem('entity_details', JSON.stringify(entityDetails))
             }
           
             window.addEventListener('beforeunload', onbeforeunloadFn);
@@ -87,15 +98,24 @@ function PersonalForm(){
                 window.removeEventListener('beforeunload', onbeforeunloadFn);
             }
         }
-    },[entity])
+    },[entityDetails])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
-            console.log('debug entity define result', result);
-            removeLocalEntity()
+        dataServicePrivate('POST', 'entity/details/define', data).then((result) => {
+            console.log('debug entity details define result', result);
+            removeLocalEntityDetails()
             navigate('/careers/personalinfo', { replace: true })
         }).catch((err) => {
-            console.log('debug entity define error result', err);
+            console.log('debug entity details define error result', err);
+
+        })
+
+        dataServicePrivate('POST', 'entity/details/define', data).then((result) => {
+            console.log('debug entity details define result', result);
+            removeLocalEntityDetails()
+            navigate('/careers/personalinfo', { replace: true })
+        }).catch((err) => {
+            console.log('debug entity details define error result', err);
 
         })
     }
@@ -107,38 +127,42 @@ function PersonalForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Information</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Other Details</MDTypography>
                         <Divider />
-                        {entity && <Formik
-                            initialValues={entity}
+                        {entityDetails && <Formik
+                            initialValues={entityDetails}
                             validationSchema={validationSchema}
                             onSubmit={(data) => {
-                                console.log(data)
+                                console.log('submit data', data)
                                 handleSubmit(data)
                             }}
                         >
-                            {({values, touched, errors, handleChange, handleBlur, setFieldValue}) => (
+                            {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
                                 <Form>
                                     <FieldArray
                                         render={arrayHelper => (
                                         <MDBox>
-                                            {setEntity(values)}
-                                            {Object.keys(entityData).map((item, index) => {
+                                            {setEntityDetails(values)}
+                                            {Object.keys(schema).map((item, index) => {
+
+                                                var touch = schema[item].type == 'date' ? typeof touched[schema[item].id] == 'undefined' ? true : touched[schema[item].id] : touched[schema[item].id]
+                                                var error = schema[item].type == 'date' ? schema[item].required && errors[schema[item].id] : errors[schema[item].id]
                                                 return (generateFormInput({
                                                     variant: 'outlined',
                                                     fullWidth: true,
-                                                    type: entityData[item].type,
-                                                    id: entityData[item].id,
-                                                    name: entityData[item].id,
-                                                    label: entityData[item].label,
-                                                    value: values[entityData[item].id],
-                                                    required: entityData[item].required,
+                                                    type: schema[item].type,
+                                                    id: schema[item].id,
+                                                    name: schema[item].id,
+                                                    label: schema[item].label,
+                                                    value: values[schema[item].id],
+                                                    required: schema[item].required,
                                                     onChange: handleChange,
                                                     onBlur: handleBlur,
                                                     setFieldValue,
-                                                    error: touched[entityData[item].id] && Boolean(errors[entityData[item].id]),
-                                                    helperText: touched[entityData[item].id] && errors[entityData[item].id],
-                                                    options: entityData[item].options ? entityData[item].options : undefined
+                                                    setFieldTouched,
+                                                    error: touch && Boolean(error),
+                                                    helperText: touch && error,
+                                                    options: schema[item].options ? schema[item].options : undefined
                                                 }))
                                             })}
                                         </MDBox>
@@ -156,4 +180,4 @@ function PersonalForm(){
     );
 }
 
-export default PersonalForm;
+export default PersonalDetailsForm;

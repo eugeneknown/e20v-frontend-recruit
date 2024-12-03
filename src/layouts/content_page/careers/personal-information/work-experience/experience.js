@@ -133,7 +133,7 @@ function ExperienceForm(){
                                 handleSubmit(data)
                             }}
                         >
-                            {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched, validateField}) => (
+                            {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
                                 <Form>
                                     <FieldArray
                                         render={arrayHelper => (
@@ -142,12 +142,9 @@ function ExperienceForm(){
                                             {console.log('values', values, isValid)}
                                             {Object.keys(experienceData).map((item, index) => {
                                                 var disabled = false
-                                                if ( experienceData[item].id == 'end_date' && !('present' in values) ) experienceData[item].required = true
                                                 if ( experienceData[item].id == 'end_date' && 'present' in values ) {
                                                     disabled = values.present
                                                     Object.keys(experienceData).map((item, index) => {
-                                                        if ( experienceData[item].id == 'end_date' ) experienceData[item].required = !(values.present)
-                                                        
                                                         if (values.present) {
                                                             setEndDate(values['end_date'])
                                                             delete values['end_date']
@@ -157,26 +154,7 @@ function ExperienceForm(){
                                                     })
                                                 }
 
-                                                var start_index = experienceData.findIndex((e)=>e.id=='start_date')
-                                                var end_index = experienceData.findIndex((e)=>e.id=='end_date')
-                                                if ( 'start_date' in values ) {
-                                                    var temp = experienceData[end_index]
-                                                    temp['validations'] = [{
-                                                        type: 'min',
-                                                        params: [moment(values.start_date), 'End date cannot be less than Start date']
-                                                    }]
-                                                    experienceData[end_index] = temp
-                                                }
-                                                if ( 'end_date' in values ) {
-                                                    var temp = experienceData[start_index]
-                                                    temp['validations'] = [{
-                                                        type: 'max',
-                                                        params: [moment(values.end_date), 'Start date cannot be more than End date']
-                                                    }]
-                                                    experienceData[start_index] = temp
-                                                }
-
-                                                var stay_length = ''
+                                                var stay_length = `0 years 0 months`
                                                 if ( 'start_date' in values && ('end_date' in values || ('present' in values && (values.present))) ) {
                                                     var start = moment(values.start_date)
                                                     var end = ''
@@ -190,19 +168,13 @@ function ExperienceForm(){
                                                     var months = end.diff(start, 'months')
                                                     start.add(months, 'months')
     
-                                                    if ( start && end ) stay_length = `${years} years ${months} month`
+                                                    if ( start && end ) stay_length = `${years} years ${months} months`
                                                     setStayLength(stay_length)
                                                 }
 
                                                 // universal format
                                                 var touch = experienceData[item].type == 'date' ? typeof touched[experienceData[item].id] == 'undefined' ? true : touched[experienceData[item].id] : touched[experienceData[item].id]
-                                                var error = experienceData[item].type == 'date' 
-                                                ? typeof errors[experienceData[item].id] == 'string'
-                                                    ? errors[experienceData[item].id]
-                                                    : !(disabled) && errors[experienceData[item].id]
-                                                : errors[experienceData[item].id]
-
-                                                console.log('touch error', touched[experienceData[item].id], experienceData[item].id, error, touch);
+                                                var error = experienceData[item].type == 'date' ? !(disabled) && errors[experienceData[item].id] : errors[experienceData[item].id]
 
                                                 if ( experienceData[item].id == 'present' ) {
                                                     return (
@@ -243,7 +215,6 @@ function ExperienceForm(){
                                                         onBlur: handleBlur,
                                                         setFieldValue,
                                                         setFieldTouched,
-                                                        validateField,
                                                         error: touch && Boolean(error),
                                                         helperText: touch && error,
                                                         options: experienceData[item].options ? experienceData[item].options : undefined

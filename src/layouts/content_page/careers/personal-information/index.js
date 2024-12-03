@@ -17,6 +17,8 @@ import { dataService } from "global/function";
 import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
 
+import detailsData from "./personal-details/detailsData";
+
 
 function PersonalInformation(){
 
@@ -34,6 +36,7 @@ function PersonalInformation(){
 
     // remove personal local data
     localStorage.removeItem('entity')
+    localStorage.removeItem('entity_details')
     localStorage.removeItem('work_experience')
     localStorage.removeItem('experience')
 
@@ -62,9 +65,22 @@ function PersonalInformation(){
                     variant: variant[index] ? variant[index] : 'body2',
                 })
             })
-
-            console.log('debug entity data', temp);
             setEntity(temp)
+
+            var detail = result['details'][0]
+            var title = ['salary', 'us_time', 'work_in_office', 'application', 'start']
+            var color = []
+            var variant = ['h6']
+            var temp = []
+            Object.keys(title).map((item, index) => {
+                temp.push({
+                    title: `${detailsData[detailsData.findIndex((e) => e.id == title[item])].label}: ${detail[title[item]]}`,
+                    color: color[index] ? color[index] : 'inherit',
+                    variant: variant[index] ? variant[index] : 'body2',
+                })
+            })
+            console.log('temp', temp);
+            setDetails(temp)
 
         }).catch((err) => {
             console.log('debug entity error result', err);
@@ -77,7 +93,7 @@ function PersonalInformation(){
                 operator: '=',
                 target: 'entity_id',
                 value: entity_id,
-            }],    
+            }],
         }).then((result) => {
             console.log('debug experience result', result);
             result = result.data['experience'][0]
@@ -88,7 +104,10 @@ function PersonalInformation(){
                     target: 'experience_id',
                     value: result['id'],
                 }],
-                relations: ['details']           
+                order: {
+                    target: 'start_date',
+                    value: 'desc'
+                }
             }).then((result) => {
                 console.log('debug experience details result', result);
                 result = result.data['experience_details']

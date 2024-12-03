@@ -23,6 +23,7 @@ import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import workExperienceData from "./work-experienceData";
+import moment from "moment";
 
 
 function WorkExperienceForm(){
@@ -37,6 +38,8 @@ function WorkExperienceForm(){
     const {isAuth, auth} = useAuth();
     const [experience, setExperience] = useState()
     const [details, setDetails] = useState()
+    const [years, setYears] = useState()
+    const [months, setMonths] = useState()
 
     // remove personal local data
     localStorage.removeItem('experience')
@@ -91,10 +94,33 @@ function WorkExperienceForm(){
                 target: 'experience_id',
                 value: id,
             }],
+            order: {
+                target: 'start_date',
+                value: 'desc'
+            }
         }).then((result) => {
             console.log('debug experience details result', result);
             result = result.data['experience_details']
             setDetails(result)
+
+            var total_years = 0
+            var total_months = 0
+            Object.keys(result).map((item, index) => {
+                var start = moment(result[item].start_date)
+                var end = result[item].present ? moment() : moment(result[item].end_date)
+
+                var years = end.diff(start, 'year')
+                start.add(years, 'years')
+
+                var months = end.diff(start, 'month')
+                start.add(months, 'months')
+
+                total_years += years
+                total_months += months
+            })
+            setYears(total_years += Math.round(total_months / 12))
+            setMonths(total_months % 12)
+            console.log('total', total_years, total_months);
 
         }).catch((err) => {
             console.log('debug experience details error result', err);
@@ -116,7 +142,7 @@ function WorkExperienceForm(){
     },[experience])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/experience/define', data).then((result) => {
+        dataServicePrivate('POST', 'entity/experience/define', {...data, total_experience: `${years} years ${months} months`}).then((result) => {
             console.log('debug experience define result', result);
             removeLocal()
             navigate('/careers/personalinfo', { replace: true })
@@ -164,7 +190,10 @@ function WorkExperienceForm(){
                                 </CardContent>
                             </Card>
                         ))}
-                        {details && Object.keys(details).length <= 3 && <MDButton
+                        <MDBox display='flex' justifyContent='end'>
+                            <MDTypography sx={{ mx: 2 }} variant='button'>Total Work Experience: {years} years {months} months</MDTypography>
+                        </MDBox>
+                        {details && Object.keys(details).length < 3 && <MDButton
                             variant='outlined' 
                             color='secondary' 
                             fullWidth
