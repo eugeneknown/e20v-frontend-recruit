@@ -26,7 +26,7 @@ export const generateObjectSchema = (data) => {
 
     Object.keys(data).map((item, index) => {
         var tempObject = {...data[item]}
-        var tempValidations = data[item]['validations'] ? [...data[item]['validations']] : []
+        var tempValidations = 'validations' in data[item] ? data[item]['validations'] : []
 
         // is required
         if (data[item]['required']) {
