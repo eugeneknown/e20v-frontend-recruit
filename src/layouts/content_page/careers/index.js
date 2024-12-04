@@ -1844,9 +1844,9 @@ function Careers(){
         setQuestions({})
         setTime(0)
 
-        var button = (<MDButton onClick={isAuth ? () => {
-            handleOpen();
-            startTimer();
+        var button = (<MDButton href='careers/personalinfo' onClick={isAuth ? () => {
+            // handleOpen();
+            // startTimer();
         } : handleRedirection} variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
             Apply
         </MDButton>)

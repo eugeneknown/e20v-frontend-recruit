@@ -30,9 +30,9 @@ function PersonalInformation(){
     const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [entity, setEntity] = useState({})
-    const [experience, setExperience] = useState({})
-    const [details, setDetails] = useState({})
+    const [entity, setEntity] = useState()
+    const [experience, setExperience] = useState()
+    const [details, setDetails] = useState()
 
     // remove personal local data
     localStorage.removeItem('entity')
@@ -58,29 +58,33 @@ function PersonalInformation(){
             var color = []
             var variant = ['h6']
             var temp = []
-            Object.keys(title).map((item, index) => {
-                temp.push({
-                    title: result[title[item]],
-                    color: color[index] ? color[index] : 'inherit',
-                    variant: variant[index] ? variant[index] : 'body2',
+            if ( result?.created_at ) {
+                Object.keys(title).map((item, index) => {
+                    temp.push({
+                        title: result[title[item]],
+                        color: color[index] ? color[index] : 'inherit',
+                        variant: variant[index] ? variant[index] : 'body2',
+                    })
                 })
-            })
-            setEntity(temp)
+                setEntity(temp)
+            }
 
             var detail = result['details'][0]
             var title = ['salary', 'us_time', 'work_in_office', 'application', 'start']
             var color = []
             var variant = ['h6']
-            var temp = []
-            Object.keys(title).map((item, index) => {
-                temp.push({
-                    title: `${detailsData[detailsData.findIndex((e) => e.id == title[item])].label}: ${detail[title[item]]}`,
-                    color: color[index] ? color[index] : 'inherit',
-                    variant: variant[index] ? variant[index] : 'body2',
+
+            if ( detail?.created_at ) {
+                var temp = []
+                Object.keys(title).map((item, index) => {
+                    temp.push({
+                        title: `${detailsData[detailsData.findIndex((e) => e.id == title[item])].label}: ${detail[title[item]]}`,
+                        color: color[index] ? color[index] : 'inherit',
+                        variant: variant[index] ? variant[index] : 'body2',
+                    })
                 })
-            })
-            console.log('temp', temp);
-            setDetails(temp)
+                setDetails(temp)
+            }
 
         }).catch((err) => {
             console.log('debug entity error result', err);
@@ -117,25 +121,26 @@ function PersonalInformation(){
                 })
                 var color = []
                 var variant = ['h6']
-                var temp = []
-                Object.keys(title).map((item, index) => {
-                    var _temp = []
-                    Object.keys(title[item]).map((_item, _index) => {
-                        _temp.push({
-                            title: title[item][_item] == 'start_date' ? 
-                            <MDTypography variant='body2'>
-                                {formatDateTime(result[item]['start_date'], 'MMMM YYYY')} to {result[item]['end_date'] ?  formatDateTime(result[item]['end_date'], 'MMMM YYYY') : `Present`}
-                            </MDTypography> : result[item][title[item][_item]] ,
-                            color: color[_index] ? color[_index] : 'inherit',
-                            variant: variant[_index] ? variant[_index] : 'body2',
+
+                if (result.length) {
+                    var temp = []
+                    Object.keys(title).map((item, index) => {
+                        var _temp = []
+                        Object.keys(title[item]).map((_item, _index) => {
+                            _temp.push({
+                                title: title[item][_item] == 'start_date' ? 
+                                <MDTypography variant='body2'>
+                                    {formatDateTime(result[item]['start_date'], 'MMMM YYYY')} to {result[item]['end_date'] ?  formatDateTime(result[item]['end_date'], 'MMMM YYYY') : `Present`}
+                                </MDTypography> : result[item][title[item][_item]] ,
+                                color: color[_index] ? color[_index] : 'inherit',
+                                variant: variant[_index] ? variant[_index] : 'body2',
+                            })
                         })
+    
+                        temp.push(_temp)
                     })
-
-                    temp.push(_temp)
-                })
-
-                console.log('debug exp details data', temp);
-                setExperience(temp)
+                    setExperience(temp)
+                }
 
             }).catch((err) => {
                 console.log('debug experience details error result', err);
@@ -153,25 +158,27 @@ function PersonalInformation(){
             <CardContent>
                 <MDTypography variant='h6' color='info'>{title}</MDTypography>
                 <Divider />
+                {console.log('w3w', data)}
                 {
-                    data && Object.keys(data).map((item, index) => (
+                    data ? Object.keys(data).map((item, index) => (
                         <MDTypography 
                         key={index} 
                         color={data[item]?.color ? data[item].color : 'inherit'}
                         variant={data[item]?.variant ? data[item].variant : ''}
                         sx={{ textTransform: 'capitalize' }}
                         >{data[item].title}{Object.keys(data).length == index+1 && '...'}</MDTypography>
-                    ))
+                    )) 
+                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your {title} here</MDTypography></MDBox>
                 }
-                <MDButton 
+                <MDButton   
                 onClick={() => toPage(url)} 
                 sx={{ mt: 2 }} 
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
-                startIcon={<Icon>edit</Icon>}
+                startIcon={<Icon>{(data?.created_at) ? `edit` : `add`}</Icon>}
                 >
-                    Edit {title}
+                    {`${(data?.created_at) ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -183,7 +190,7 @@ function PersonalInformation(){
                 <MDTypography variant='h6' color='info'>{title}</MDTypography>
                 <Divider />
                 {
-                    data && Object.keys(data).map((item, index) => {
+                    data ? Object.keys(data).map((item, index) => {
                         return (
                             <MDBox>
                                 {Object.keys(data[item]).map((_item, _index) => (
@@ -198,16 +205,17 @@ function PersonalInformation(){
                             </MDBox>
                         )
                     })
+                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your {title} here</MDTypography></MDBox>
                 }
-                <MDButton 
+                <MDButton   
                 onClick={() => toPage(url)} 
                 sx={{ mt: 2 }} 
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
-                startIcon={<Icon>edit</Icon>}
+                startIcon={<Icon>{data==[] ? `edit` : `add`}</Icon>}
                 >
-                    Edit {title}
+                    {`${data==[] ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -229,6 +237,8 @@ function PersonalInformation(){
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
                                 <WorkExpContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
+                                {console.log('mik', entity, experience, details)}
+                                <MDButton disabled={!entity && !experience && !details} fullWidth color='info' sx={{ px: 5 }}>Continue</MDButton>
                             </CardContent>
                         </Card>
                     </MDBox>
