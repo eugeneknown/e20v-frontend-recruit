@@ -56,7 +56,7 @@ function PersonalDetailsForm(){
             result = result.data['career_platforms']
             var tempPlatforms = []
             result.forEach((value) => tempPlatforms.push(value))
-            schema[schema.findIndex((e) => e.id == 'platform')]['options'] = tempPlatforms
+            schema[schema.findIndex((e) => e.id == 'platforms_id')]['options'] = tempPlatforms
         }).catch((err) => {
             console.log('debug careers platform error result', err);
         
@@ -101,15 +101,6 @@ function PersonalDetailsForm(){
     },[entityDetails])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/details/define', data).then((result) => {
-            console.log('debug entity details define result', result);
-            removeLocalEntityDetails()
-            navigate('/careers/personalinfo', { replace: true })
-        }).catch((err) => {
-            console.log('debug entity details define error result', err);
-
-        })
-
         dataServicePrivate('POST', 'entity/details/define', data).then((result) => {
             console.log('debug entity details define result', result);
             removeLocalEntityDetails()

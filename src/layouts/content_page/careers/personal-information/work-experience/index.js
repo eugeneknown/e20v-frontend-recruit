@@ -190,7 +190,7 @@ function WorkExperienceForm(){
                                 </CardContent>
                             </Card>
                         ))}
-                        <MDBox display='flex' justifyContent='end'>
+                        <MDBox display='flex' justifyContent='end' my={2}>
                             <MDTypography sx={{ mx: 2 }} variant='button'>Total Work Experience: {years} years {months} months</MDTypography>
                         </MDBox>
                         {details && Object.keys(details).length < 3 && <MDButton

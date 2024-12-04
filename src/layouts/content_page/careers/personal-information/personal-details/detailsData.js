@@ -30,7 +30,7 @@ export default [
         required: true,
     },
     {
-        id: 'platform',
+        id: 'platforms_id',
         label: 'Source (where did you find us)',
         type: 'select',
         required: true,
