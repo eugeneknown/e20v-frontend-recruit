@@ -21,7 +21,7 @@ const steps = [
 export default function CareersStepper({activeStep}) {
 
   return (
-    <MDBox sx={{ maxWidth: 400 }}>
+    <MDBox sx={{ maxWidth: 400 }} position='fixed' m={5}>
       <Stepper 
       steps={steps} 
       currentStepIndex={activeStep} 

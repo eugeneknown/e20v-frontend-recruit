@@ -233,7 +233,7 @@ function PersonalInformation(){
                         </Card>
                     </MDBox>
                 </Grid>
-                <Grid display={{ xs: 'none', lg: 'block' }} alignContent='center' size={{ lg: 5 }}>
+                <Grid display={{ xs: 'none', lg: 'block' }} size={{ lg: 5 }}>
                     <CareersStepper activeStep={0} />
                 </Grid>
             </Grid>
