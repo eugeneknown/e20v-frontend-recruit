@@ -46,7 +46,7 @@ export const generateFormInput = (props) => {
             let valueProps = {}
             if (props.value) valueProps['value'] = moment(props.value)
             props['closeOnSelect'] = true
-            console.log('date', props, valueProps);
+            // console.log('date', props, valueProps);
             return (
                 <MobileDatePicker
                     onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
@@ -88,39 +88,51 @@ export const generateFormInput = (props) => {
                 />
             )
 
-        // case 'checkbox':
-        //     return (
-        //         <FormControl fullWidth={props.fullWidth} error={props.error}>
-        //             <InputLabel>{props.label}</InputLabel>
-        //             <Select
-        //                 {...props}
-        //                 input={<OutlinedInput label={props.label} />}
-        //                 renderValue={(selected) => (
-        //                     <MDBox sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-        //                       {selected.map((value) => (
-        //                         <Chip key={value} label={value} />
-        //                       ))}
-        //                     </MDBox>
-        //                 )}
-        //                 MenuProps={{
-        //                     PaperProps: {
-        //                         style: {
-        //                             maxHeight: 48 * 4.5 + 8,
-        //                             width: 250,
-        //                         },
-        //                     }
-        //                 }}
-        //             >
-        //                 {Object.keys(props.options).map((item, index) => (
-        //                     <MenuItem key={index} value={props.options[item]}>
-        //                         <Checkbox checked={props.value.includes(props.options[item])} />
-        //                         <ListItemText primary={props.options[item]} />
-        //                     </MenuItem>
-        //                 ))}
-        //             </Select>
-        //             {props.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
-        //         </FormControl>
-        //     )
+        case 'check':
+            props['sx'] = [{ py: '0.75rem' }]
+            console.log('checkbox', props);
+
+            return (
+                <FormControl sx={sx} fullWidth={props.fullWidth} error={props.error}>
+                    <InputLabel>{props.label}</InputLabel>
+                    <Select
+                        {...props}
+                        input={<OutlinedInput label={props.label} />}
+                        renderValue={(selected) => (
+                            <MDBox sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {selected.map((value) => (
+                                <Chip key={value} label={value} />
+                              ))}
+                            </MDBox>
+                        )}
+                        MenuProps={{
+                            PaperProps: {
+                                style: {
+                                    maxHeight: 48 * 4.5 + 8,
+                                    width: 250,
+                                },
+                            }
+                        }}
+                    >
+                        {props?.options && props.options.map((item, index) => {
+                            if ( typeof item == 'object' ) {
+                                return (
+                                <MenuItem key={index} value={item.title}>
+                                    <Checkbox checked={props.value.includes(item.title)} />
+                                    <ListItemText primary={item.title} />
+                                </MenuItem>)
+                            } else {
+                                return (
+                                <MenuItem key={item} value={item.toLowerCase()}>
+                                    <Checkbox checked={props.value.includes(item)} />
+                                    <ListItemText primary={item} />
+                                </MenuItem>)
+                            }
+                        })}
+                    </Select>
+                    {props.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
+                </FormControl>
+            )
     }
 }
 

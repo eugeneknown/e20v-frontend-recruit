@@ -1,4 +1,4 @@
-import {Card, CardContent, Chip, Container, Divider, Icon, IconButton, Link, TextField} from "@mui/material";
+import {Card, CardContent, Chip, Container, Divider, Icon, IconButton, Link, Step, StepLabel, Stepper, TextField} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -17,11 +17,11 @@ import MDInput from "components/MDInput";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
-import data from "./entityData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
+import SwipeableViews from "react-swipeable-views";
 
 
 function CareerQuestionsForm(){
@@ -34,20 +34,25 @@ function CareerQuestionsForm(){
     const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [entity, setEntity] = useState()
+    const [answers, setAnswers] = useState()
+    const [questions, setQuestions] = useState()
+    const [step, setStep] = useState(0)
 
+    // must be revice
     const careerId = localStorage.getItem('career_id')
     console.log('career id', careerId);
 
-    const localEntity = localStorage.getItem('answers')
+    const local = localStorage.getItem('answers')
     const removeLocalData = () => {
         localStorage.removeItem('answers')
     }
 
-    // init validation
-    var yupObject = generateObjectSchema(data)
-    var yupSchema = yupObject.reduce(generateYupSchema, {})
-    var validationSchema = yup.object().shape(yupSchema)
+    const validationSchema = (data) => {
+        // init validation
+        var yupObject = generateObjectSchema(data)
+        var yupSchema = yupObject.reduce(generateYupSchema, {})
+        return yup.object().shape(yupSchema)
+    }
 
     useEffect(() => {
         var entity_id = auth['id']
@@ -62,14 +67,8 @@ function CareerQuestionsForm(){
             relations: ['has', 'questions'],
         }).then((result) => {
             console.log('debug careers result', result);
-            result = result.data['careers'][0]
-            // if (localEntity) {
-            //     result = JSON.parse(localEntity)
-            // } else {
-            //     localStorage.setItem('entity', JSON.stringify(result))
-            // }
-
-            // setEntity(result)
+            result = result.data['careers'][0].has
+            generateQuestionsSchema(result)
 
         }).catch((err) => {
             console.log('debug careers error result', err);
@@ -78,28 +77,88 @@ function CareerQuestionsForm(){
 
     }, [])
 
-    useEffect(() => {
-        if (entity) {
-            const onbeforeunloadFn = () => {
-                localStorage.setItem('answers', JSON.stringify(entity))
-            }
-          
-            window.addEventListener('beforeunload', onbeforeunloadFn);
-            return () => {
-                window.removeEventListener('beforeunload', onbeforeunloadFn);
-            }
-        }
-    },[entity])
+    const generateQuestionsSchema = (data) => {
+        var schema = []
 
-    const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
-            console.log('debug entity define result', result);
-            removeLocalData()
-            navigate('/careers/personalinfo', { replace: true })
-        }).catch((err) => {
-            console.log('debug entity define error result', err);
+        // get sections
+        var section = []
+        Object.keys(data).map((item, index)=>{
+            if ( !(data[item].section in section) ) section.push(data[item].section)
+        })
+
+        // get questions in order sequence
+        section.forEach((item) => {
+
+            var question = []
+            for (var i=0; i<Object.keys(data).length; i++) {
+
+                var order = Object.keys(data).findIndex((_item) => data[_item].section == item && data[_item].order == i)
+                if ( order>=0 ) {
+                    question.push({
+                        id: data[order]['questions'].id,
+                        label: data[order]['questions'].title,
+                        type: data[order]['questions'].type,
+                        required: data[order]['questions'].required,
+                        ...(
+                            data[order]['questions'].type == 'select' 
+                            || data[order]['questions'].type == 'check'
+                            || data[order]['questions'].type == 'file'
+                            || data[order]['questions'].type == 'link'
+                            || data[order]['questions'].type == 'label'
+                        ) 
+                        && {options: (data[order]['questions'].value).split(', ')}
+                    })
+
+                    continue
+                }
+
+            }
+            schema.push(question)
 
         })
+        setQuestions(schema)
+        console.log('debug question schema', schema);
+
+        Object.keys(data).map((item, index) => {
+            setAnswers(prev => ({
+                ...prev,
+                [data[item]['questions'].id]: '',
+            }))
+        })
+
+    }
+
+    // useEffect(() => {
+    //     if (entity) {
+    //         const onbeforeunloadFn = () => {
+    //             localStorage.setItem('answers', JSON.stringify(entity))
+    //         }
+          
+    //         window.addEventListener('beforeunload', onbeforeunloadFn);
+    //         return () => {
+    //             window.removeEventListener('beforeunload', onbeforeunloadFn);
+    //         }
+    //     }
+    // },[entity])
+
+    const handleSubmit = (data, opt) => {
+        console.log('debug submit', data, opt, step, Object.keys(questions).length);
+
+        if ( step == Object.keys(questions).length-1 ) {
+
+        } else {
+            opt.setTouched({})
+            setStep(step+1)
+        }
+
+        // dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
+        //     console.log('debug entity define result', result);
+        //     removeLocalData()
+        //     navigate('/careers/personalinfo', { replace: true })
+        // }).catch((err) => {
+        //     console.log('debug entity define error result', err);
+
+        // })
     }
 
     return (
@@ -109,49 +168,72 @@ function CareerQuestionsForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Information</MDTypography>
+                        <Stepper activeStep={step} alternativeLabel>
+                            {questions && answers && Object.keys(questions).map((item, index) => (
+                                <Step key={index}>
+                                    <StepLabel>Question Group {index+1}</StepLabel>
+                                </Step>
+                            ))}
+                        </Stepper>
                         <Divider />
-                        {entity && <Formik
-                            initialValues={entity}
-                            validationSchema={validationSchema}
-                            onSubmit={(data) => {
-                                console.log(data)
-                                handleSubmit(data)
-                            }}
+                        {questions && answers && <Formik
+                            initialValues={answers}
+                            validationSchema={validationSchema(questions[step])}
+                            onSubmit={handleSubmit}
                         >
                             {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
                                 <Form>
-                                    <FieldArray
-                                        render={arrayHelper => (
-                                        <MDBox>
-                                            {setEntity(values)}
-                                            {Object.keys(entityData).map((item, index) => {
-
-                                                // universal format
-                                                var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
-                                                var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
-                                                return (generateFormInput({
-                                                    variant: 'outlined',
-                                                    fullWidth: true,
-                                                    type: data[item].type,
-                                                    id: data[item].id,
-                                                    name: data[item].id,
-                                                    label: data[item].label,
-                                                    value: values[data[item].id],
-                                                    required: data[item].required,
-                                                    onChange: handleChange,
-                                                    onBlur: handleBlur,
-                                                    setFieldValue,
-                                                    setFieldTouched,
-                                                    error: touch && Boolean(error),
-                                                    helperText: touch && error,
-                                                    options: data[item].options ? data[item].options : undefined
-                                                }))
-                                            })}
-                                        </MDBox>
+                                    <SwipeableViews
+                                        index={step}
+                                    >
+                                        {Object.keys(questions).map((item, index) => (
+                                            <FieldArray
+                                                render={arrayHelper => (
+                                                <MDBox>
+                                                    {setAnswers(values)}
+                                                    {console.log('values', touched)}
+                                                    {Object.keys(questions[item]).map((_item, index) => {
+                                                        var data = questions[item][_item]
+                                                        // console.log('data', data);
+                                                        // universal format
+                                                        var touch = data.type == 'date' ? typeof touched[data.id] == 'undefined' ? true : touched[data.id] : touched[data.id]
+                                                        var error = data.type == 'date' ? data.required && errors[data.id] : errors[data.id]
+                                                        return (generateFormInput({
+                                                            variant: 'outlined',
+                                                            fullWidth: true,
+                                                            type: data.type,
+                                                            id: data.id,
+                                                            name: data.id,
+                                                            label: data.label,
+                                                            value: values[data.id],
+                                                            required: item == step ? data.required : false,
+                                                            onChange: handleChange,
+                                                            onBlur: handleBlur,
+                                                            setFieldValue,
+                                                            setFieldTouched,
+                                                            error: touch && Boolean(error),
+                                                            helperText: touch && error,
+                                                            options: data.options ? data.options : undefined
+                                                        }))
+                                                    })}
+                                                </MDBox>
+                                                )}
+                                            />
+                                        ))}
+                                    </SwipeableViews>
+                                    <MDBox style={{ display: 'flex' }} justifyContent={step > 0 ? 'space-between' : 'end'}>
+                                        {step > 0 && (
+                                        <MDButton onClick={() => setStep(step-1)} sx={{ my: 1 }} color='secondary'>
+                                            Back
+                                        </MDButton>
                                         )}
-                                    />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                        <MDBox>
+                                            <MDButton sx={{ my: 1 }} color='info' type="submit">
+                                                {step == Object.keys(questions).length-1 ? 'Continue' : 'Next'}
+                                            </MDButton>
+                                        </MDBox>
+                                    </MDBox>
+                                    {/* <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton> */}
                                 </Form>
                             )}
                         </Formik>}

@@ -238,7 +238,7 @@ function PersonalInformation(){
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
                                 <WorkExpContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
-                                <MDButton onClick={() => toPage('/careers/questions')} disabled={(entity) && (experience) && (details)} fullWidth color={entity && experience && details ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
+                                <MDButton onClick={() => toPage('/careers/questions')} disabled={!(entity) && !(experience) && !(details)} fullWidth color={!entity && !experience && !details ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
                             </CardContent>
                         </Card>
                     </MDBox>
