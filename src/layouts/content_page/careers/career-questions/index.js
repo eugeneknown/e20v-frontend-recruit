@@ -14,7 +14,6 @@ import MDButton from "components/MDButton";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import MDInput from "components/MDInput";
-import CareersStepper from "../../careers-stepper";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
