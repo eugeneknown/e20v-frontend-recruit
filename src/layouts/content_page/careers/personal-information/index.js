@@ -27,7 +27,9 @@ function PersonalInformation(){
     const location = useLocation(); 
     const from = location.state?.from?.pathname || "/";
     const prevPage = () => navigate(from, { replace: true })
-    const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
+    const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
+
+    // save this career id in cache
 
     const {isAuth, auth} = useAuth();
     const [entity, setEntity] = useState()
@@ -158,7 +160,6 @@ function PersonalInformation(){
             <CardContent>
                 <MDTypography variant='h6' color='info'>{title}</MDTypography>
                 <Divider />
-                {console.log('w3w', data)}
                 {
                     data ? Object.keys(data).map((item, index) => (
                         <MDTypography 
@@ -237,7 +238,6 @@ function PersonalInformation(){
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
                                 <WorkExpContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
-                                {console.log('mik', entity, experience, details)}
                                 <MDButton onClick={() => toPage('/careers/questions')} disabled={(entity) && (experience) && (details)} fullWidth color={entity && experience && details ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
                             </CardContent>
                         </Card>

@@ -17,7 +17,7 @@ import MDInput from "components/MDInput";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
-import entityData from "./entityData";
+import data from "./entityData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
@@ -31,44 +31,48 @@ function CareerQuestionsForm(){
     const location = useLocation(); 
     const from = location.state?.from?.pathname || "/";
     const prevPage = () => navigate(from, { replace: true })
-    const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
+    const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const {isAuth, auth} = useAuth();
     const [entity, setEntity] = useState()
 
-    const localEntity = localStorage.getItem('entity')
-    const removeLocalEntity = () => {
-        localStorage.removeItem('entity')
+    const careerId = localStorage.getItem('career_id')
+    console.log('career id', careerId);
+
+    const localEntity = localStorage.getItem('answers')
+    const removeLocalData = () => {
+        localStorage.removeItem('answers')
     }
 
     // init validation
-    var yupObject = generateObjectSchema(entityData)
+    var yupObject = generateObjectSchema(data)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
 
     useEffect(() => {
         var entity_id = auth['id']
 
-        // fetch entity
-        dataServicePrivate('POST', 'entity/entities/all', {
+        // fetch career
+        dataServicePrivate('POST', 'hr/careers/all', {
             filter: [{
                 operator: '=',
                 target: 'id',
-                value: entity_id,
+                value: careerId,
             }],
+            relations: ['has', 'questions'],
         }).then((result) => {
-            console.log('debug entity result', result);
-            result = result.data['entity'][0]
-            if (localEntity) {
-                result = JSON.parse(localEntity)
-            } else {
-                localStorage.setItem('entity', JSON.stringify(result))
-            }
+            console.log('debug careers result', result);
+            result = result.data['careers'][0]
+            // if (localEntity) {
+            //     result = JSON.parse(localEntity)
+            // } else {
+            //     localStorage.setItem('entity', JSON.stringify(result))
+            // }
 
-            setEntity(result)
+            // setEntity(result)
 
         }).catch((err) => {
-            console.log('debug entity error result', err);
+            console.log('debug careers error result', err);
 
         })
 
@@ -77,7 +81,7 @@ function CareerQuestionsForm(){
     useEffect(() => {
         if (entity) {
             const onbeforeunloadFn = () => {
-                localStorage.setItem('entity', JSON.stringify(entity))
+                localStorage.setItem('answers', JSON.stringify(entity))
             }
           
             window.addEventListener('beforeunload', onbeforeunloadFn);
@@ -90,7 +94,7 @@ function CareerQuestionsForm(){
     const handleSubmit = (data) => {
         dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
             console.log('debug entity define result', result);
-            removeLocalEntity()
+            removeLocalData()
             navigate('/careers/personalinfo', { replace: true })
         }).catch((err) => {
             console.log('debug entity define error result', err);
@@ -124,24 +128,24 @@ function CareerQuestionsForm(){
                                             {Object.keys(entityData).map((item, index) => {
 
                                                 // universal format
-                                                var touch = entityData[item].type == 'date' ? typeof touched[entityData[item].id] == 'undefined' ? true : touched[entityData[item].id] : touched[entityData[item].id]
-                                                var error = entityData[item].type == 'date' ? entityData[item].required && errors[entityData[item].id] : errors[entityData[item].id]
+                                                var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
+                                                var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
                                                 return (generateFormInput({
                                                     variant: 'outlined',
                                                     fullWidth: true,
-                                                    type: entityData[item].type,
-                                                    id: entityData[item].id,
-                                                    name: entityData[item].id,
-                                                    label: entityData[item].label,
-                                                    value: values[entityData[item].id],
-                                                    required: entityData[item].required,
+                                                    type: data[item].type,
+                                                    id: data[item].id,
+                                                    name: data[item].id,
+                                                    label: data[item].label,
+                                                    value: values[data[item].id],
+                                                    required: data[item].required,
                                                     onChange: handleChange,
                                                     onBlur: handleBlur,
                                                     setFieldValue,
                                                     setFieldTouched,
                                                     error: touch && Boolean(error),
                                                     helperText: touch && error,
-                                                    options: entityData[item].options ? entityData[item].options : undefined
+                                                    options: data[item].options ? data[item].options : undefined
                                                 }))
                                             })}
                                         </MDBox>

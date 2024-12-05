@@ -43,8 +43,12 @@ function Careers(){
 
     const { isAuth, auth } = useAuth();
 
+    // navigation
     const navigate = useNavigate();
-    const location = useLocation();
+    const location = useLocation(); 
+    const from = location.state?.from?.pathname || "/";
+    const prevPage = () => navigate(from, { replace: true })
+    const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const [careers, setCareers] = useState({});
     const [questions, setQuestions] = useState({})
@@ -1844,9 +1848,11 @@ function Careers(){
         setQuestions({})
         setTime(0)
 
-        var button = (<MDButton href='careers/personalinfo' onClick={isAuth ? () => {
+        var button = (<MDButton onClick={isAuth ? () => {
             // handleOpen();
             // startTimer();
+            localStorage.setItem('career_id', careers[key].id)
+            toPage('/careers/personalinfo')
         } : handleRedirection} variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
             Apply
         </MDButton>)
