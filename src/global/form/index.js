@@ -168,7 +168,7 @@ export const generateFormInput = (props) => {
 
         case 'file':
             props['value'] ? props['value'] : props['value'] = null
-            // console.log('file', props);
+            console.log('file', props);
 
             return (
                 <MuiFileInput
@@ -204,7 +204,7 @@ export const generateFormInput = (props) => {
             )
 
         case 'label':
-            console.log('label', props);
+            // console.log('label', props);
 
             return (
                 <MDBox>

@@ -41,6 +41,7 @@ function PersonalInformation(){
     localStorage.removeItem('entity_details')
     localStorage.removeItem('work_experience')
     localStorage.removeItem('experience')
+    localStorage.removeItem('answers')
 
     useEffect(() => {
         var entity_id = auth['id']
@@ -177,9 +178,9 @@ function PersonalInformation(){
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
-                startIcon={<Icon>{(data?.created_at) ? `edit` : `add`}</Icon>}
+                startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${(data?.created_at) ? 'Edit' : 'Create'} ${title}`}
+                    {`${data ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -214,9 +215,9 @@ function PersonalInformation(){
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
-                startIcon={<Icon>{data==[] ? `edit` : `add`}</Icon>}
+                startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data==[] ? 'Edit' : 'Create'} ${title}`}
+                    {`${data ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -244,7 +245,7 @@ function PersonalInformation(){
                     </MDBox>
                 </Grid>
                 <Grid display={{ xs: 'none', lg: 'block' }} size={{ lg: 5 }}>
-                    <CareersStepper activeStep={0} />
+                    <CareersStepper activeStep={0} orientation='vertical' position='fixed' />
                 </Grid>
             </Grid>
             <Footer />

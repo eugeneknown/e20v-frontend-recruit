@@ -13,19 +13,19 @@ const steps = [
     stepDescription: <MDTypography variant='button'>Answer the following questions</MDTypography>,
   },
   {
-    stepLabel: "Referrence",
-    stepDescription: <MDTypography variant='button'>Add your referrence</MDTypography>,
+    stepLabel: "Reference",
+    stepDescription: <MDTypography variant='button'>Add your reference</MDTypography>,
   },
 ];
 
-export default function CareersStepper({activeStep}) {
+export default function CareersStepper({activeStep, orientation, position}) {
 
   return (
-    <MDBox sx={{ maxWidth: 400 }} position='fixed' m={5}>
+    <MDBox sx={{ maxWidth: 400 }} position={position} m={5}>
       <Stepper 
       steps={steps} 
       currentStepIndex={activeStep} 
-      orientation="vertical" 
+      orientation={orientation}
       />
     </MDBox>
   );

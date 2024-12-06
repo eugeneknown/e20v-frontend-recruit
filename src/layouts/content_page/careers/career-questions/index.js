@@ -22,9 +22,16 @@ import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import SwipeableViews from "react-swipeable-views";
+import CareersStepper from "../careers-stepper";
 
 
 function CareerQuestionsForm(){
+
+    // local
+    const local = localStorage.getItem('answers')
+    const removeLocalData = () => {
+        localStorage.removeItem('answers')
+    }
 
     // navigation
     const navigate = useNavigate();
@@ -34,18 +41,13 @@ function CareerQuestionsForm(){
     const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [answers, setAnswers] = useState()
+    const [answers, setAnswers] = useState(local ? JSON.parse(local) : {})
     const [questions, setQuestions] = useState()
     const [step, setStep] = useState(0)
 
     // must be revice
     const careerId = localStorage.getItem('career_id')
     console.log('career id', careerId);
-
-    const local = localStorage.getItem('answers')
-    const removeLocalData = () => {
-        localStorage.removeItem('answers')
-    }
 
     const validationSchema = (data) => {
         // init validation
@@ -120,30 +122,20 @@ function CareerQuestionsForm(){
         setQuestions(schema)
         console.log('debug question schema', schema);
 
-        Object.keys(data).map((item, index) => {
-            setAnswers(prev => (
-                data[item]['questions'].type != 'link' && data[item]['questions'].type != 'label' &&
-                {
-                    ...prev,
-                    [data[item]['questions'].id]: '',
-                }
-            ))
-        })
-
     }
 
-    // useEffect(() => {
-    //     if (entity) {
-    //         const onbeforeunloadFn = () => {
-    //             localStorage.setItem('answers', JSON.stringify(entity))
-    //         }
+    useEffect(() => {
+        if (answers) {
+            const onbeforeunloadFn = () => {
+                localStorage.setItem('answers', JSON.stringify(answers))
+            }
           
-    //         window.addEventListener('beforeunload', onbeforeunloadFn);
-    //         return () => {
-    //             window.removeEventListener('beforeunload', onbeforeunloadFn);
-    //         }
-    //     }
-    // },[entity])
+            window.addEventListener('beforeunload', onbeforeunloadFn);
+            return () => {
+                window.removeEventListener('beforeunload', onbeforeunloadFn);
+            }
+        }
+    },[answers])
 
     const handleSubmit = (data, opt) => {
         console.log('debug submit', data, opt);
@@ -167,8 +159,8 @@ function CareerQuestionsForm(){
                 },
             }).then((result) => {
                 console.log('debug answers define result', result);
-                // removeLocalData()
-                // navigate('/careers/personalinfo', { replace: true })
+                removeLocalData()
+                navigate('/careers/reference', { replace: true })
             }).catch((err) => {
                 console.log('debug answers define error result', err);
     
@@ -187,13 +179,15 @@ function CareerQuestionsForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
+                        { questions && answers && 
                         <Stepper activeStep={step} alternativeLabel>
-                            {questions && answers && Object.keys(questions).map((item, index) => (
+                            {Object.keys(questions).map((item, index) => (
                                 <Step key={index}>
                                     <StepLabel>Question Group {index+1}</StepLabel>
                                 </Step>
                             ))}
                         </Stepper>
+                        }
                         <Divider />
                         {questions && answers && <Formik
                             initialValues={answers}
@@ -210,6 +204,7 @@ function CareerQuestionsForm(){
                                             <FieldArray
                                                 render={arrayHelper => (
                                                 <MDBox>
+                                                    {console.log('values', values)}
                                                     {setAnswers(values)}
                                                     {Object.keys(questions[item]).map((_item, index) => {
                                                         var data = questions[item][_item]

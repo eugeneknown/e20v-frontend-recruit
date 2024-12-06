@@ -448,8 +448,8 @@ function Employee() {
                         <MDBox ml={-1}>
                             <BadgePopper
                                 id={recruit[key].id}
-                                badgeContent={recruit[key]['platforms_data'].title} 
-                                color={recruit[key]['platforms_data'].color} 
+                                badgeContent={recruit[key]['platforms_data']?.title} 
+                                color={recruit[key]['platforms_data']?.color} 
                                 variant="customGradient" 
                                 content={platforms}
                                 data={handlePlatformData}

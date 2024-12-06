@@ -1857,12 +1857,12 @@ function Careers(){
             Apply
         </MDButton>)
         var exist = false
-        Object.keys(hasCareers).map((item, index) => {
-            console.log('id', hasCareers[item], careers[key]);
-            if (hasCareers[item].careers == careers[key].id) {
-                exist = true
-            }
-        })
+        // Object.keys(hasCareers).map((item, index) => {
+        //     console.log('id', hasCareers[item], careers[key]);
+        //     if (hasCareers[item].careers == careers[key].id) {
+        //         exist = true
+        //     }
+        // })
 
         if (exist) {
             button = (<MDButton disabled variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
