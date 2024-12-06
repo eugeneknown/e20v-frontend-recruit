@@ -4,23 +4,23 @@ import propTypes from 'prop-types'
 import moment from "moment";
 
 
-export const dataService = async (method, url, data) => {
+export const dataService = async (method, url, data, params={}) => {
     switch (method) {
         case 'GET':
-            return await axios.get(url, data)
+            return await axios.get(url, data, params)
 
         case 'POST':
-            return await axios.post(url, data)
+            return await axios.post(url, data, params)
     }
 }
 
-export const dataServicePrivate = async (method, url, data) => {
+export const dataServicePrivate = async (method, url, data, params={}) => {
     switch (method) {
         case 'GET':
-            return await axiosPrivate.get(url, data)
+            return await axiosPrivate.get(url, data, params)
 
         case 'POST':
-            return await axiosPrivate.post(url, data)
+            return await axiosPrivate.post(url, data, params)
     }
 }
 

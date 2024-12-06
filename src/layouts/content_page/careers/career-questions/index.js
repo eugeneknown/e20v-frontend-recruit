@@ -102,6 +102,7 @@ function CareerQuestionsForm(){
                         ...(
                             data[order]['questions'].type == 'select' 
                             || data[order]['questions'].type == 'check'
+                            || data[order]['questions'].type == 'radio'
                             || data[order]['questions'].type == 'file'
                             || data[order]['questions'].type == 'link'
                             || data[order]['questions'].type == 'label'
@@ -120,10 +121,13 @@ function CareerQuestionsForm(){
         console.log('debug question schema', schema);
 
         Object.keys(data).map((item, index) => {
-            setAnswers(prev => ({
-                ...prev,
-                [data[item]['questions'].id]: '',
-            }))
+            setAnswers(prev => (
+                data[item]['questions'].type != 'link' && data[item]['questions'].type != 'label' &&
+                {
+                    ...prev,
+                    [data[item]['questions'].id]: '',
+                }
+            ))
         })
 
     }
@@ -142,23 +146,38 @@ function CareerQuestionsForm(){
     // },[entity])
 
     const handleSubmit = (data, opt) => {
-        console.log('debug submit', data, opt, step, Object.keys(questions).length);
+        console.log('debug submit', data, opt);
 
         if ( step == Object.keys(questions).length-1 ) {
+            var formData = new FormData()
 
+            Object.keys(data).map((item, index) => {
+                if (data[item]) formData.append(item, data[item])
+            })
+            formData.append('entity_id', auth['id'])
+            formData.append('careers_id', careerId)
+
+            formData.forEach((item, index) => {
+                console.log('debug form data', index, item);
+            })
+
+            dataServicePrivate('POST', 'hr/careers/entity/submitv2', formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }).then((result) => {
+                console.log('debug answers define result', result);
+                // removeLocalData()
+                // navigate('/careers/personalinfo', { replace: true })
+            }).catch((err) => {
+                console.log('debug answers define error result', err);
+    
+            })
         } else {
             opt.setTouched({})
             setStep(step+1)
         }
 
-        // dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
-        //     console.log('debug entity define result', result);
-        //     removeLocalData()
-        //     navigate('/careers/personalinfo', { replace: true })
-        // }).catch((err) => {
-        //     console.log('debug entity define error result', err);
-
-        // })
     }
 
     return (
@@ -185,13 +204,13 @@ function CareerQuestionsForm(){
                                 <Form>
                                     <SwipeableViews
                                         index={step}
+                                        animateHeight
                                     >
                                         {Object.keys(questions).map((item, index) => (
                                             <FieldArray
                                                 render={arrayHelper => (
                                                 <MDBox>
                                                     {setAnswers(values)}
-                                                    {console.log('values', touched)}
                                                     {Object.keys(questions[item]).map((_item, index) => {
                                                         var data = questions[item][_item]
                                                         // console.log('data', data);
