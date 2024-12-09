@@ -38,7 +38,7 @@ export const generateFormInput = (props) => {
                             if ( typeof item == 'object' ) {
                                 return (<MenuItem key={index} value={item.id}>{item.title}</MenuItem>)
                             } else {
-                                return (<MenuItem key={item} value={item.toLowerCase()}>{item}</MenuItem>)
+                                return (<MenuItem key={item} value={item}>{item}</MenuItem>)
                             }
                         })}
                     </Select>
@@ -112,8 +112,8 @@ export const generateFormInput = (props) => {
                 const {
                     target: { value },
                 } = e;
-
-                props.setFieldValue(props.id, typeof value === 'string' ? value.split(',') : value, props.required)
+                
+                props.setFieldValue(props.id, typeof value === 'string' ? value.split(', ') : value, props.required)
             }
             props['onChange'] = handleChange
 
@@ -151,7 +151,7 @@ export const generateFormInput = (props) => {
                             if ( typeof item == 'object' ) {
                                 return (
                                 <MenuItem key={index} value={item.title}>
-                                    <Checkbox checked={checkValue(props.value, item.title)} />
+                                    <Checkbox checked={e => checkValue(props.value, item.title)} />
                                     <ListItemText primary={item.title} />
                                 </MenuItem>)
                             } else {

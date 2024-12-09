@@ -35,6 +35,7 @@ function PersonalInformation(){
     const [entity, setEntity] = useState()
     const [experience, setExperience] = useState()
     const [details, setDetails] = useState()
+    const [educations, setEducations] = useState()
 
     // remove personal local data
     localStorage.removeItem('entity')
@@ -53,11 +54,11 @@ function PersonalInformation(){
                 target: 'id',
                 value: entity_id,
             }],
-            relations: ['details']
+            relations: ['details', 'education']
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
-            var title = ['full_name', 'contact_number', 'email', 'permanent_address', 'education', 'course']
+            var title = ['full_name', 'contact_number', 'email', 'permanent_address']
             var color = []
             var variant = ['h6']
             var temp = []
@@ -87,6 +88,34 @@ function PersonalInformation(){
                     })
                 })
                 setDetails(temp)
+            }
+
+            var education = result['education']
+            var title = []
+            Object.keys(education).map((item, index) => {
+                title.push(['education', 'course', 'school', 'start_date'])
+            })
+            var color = []
+            var variant = ['h6']
+
+            if (education.length) {
+                var temp = []
+                Object.keys(title).map((item, index) => {
+                    var _temp = []
+                    Object.keys(title[item]).map((_item, _index) => {
+                        _temp.push({
+                            title: title[item][_item] == 'start_date' ? 
+                            <MDTypography variant='body2'>
+                                {formatDateTime(education[item]['start_date'], 'MMMM YYYY')} to {education[item]['end_date'] ?  formatDateTime(education[item]['end_date'], 'MMMM YYYY') : `Present`}
+                            </MDTypography> : education[item][title[item][_item]],
+                            color: color[_index] ? color[_index] : 'inherit',
+                            variant: variant[_index] ? variant[_index] : 'body2',
+                        })
+                    })
+
+                    temp.push(_temp)
+                })
+                setEducations(temp)
             }
 
         }).catch((err) => {
@@ -237,7 +266,8 @@ function PersonalInformation(){
                             />
                             <CardContent>
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
-                                <WorkExpContent title='Work Experience' data={experience} url='/careers/personalinfo/workexperienceform' />
+                                <WorkExpContent title='Educational Attainment' data={educations} url='/careers/personalinfo/educational' />
+                                <WorkExpContent title='Work Experience' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
                                 <MDButton onClick={() => toPage('/careers/questions')} disabled={!(entity) && !(experience) && !(details)} fullWidth color={!entity && !experience && !details ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
                             </CardContent>

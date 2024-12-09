@@ -147,7 +147,7 @@ function CareerSubmitted(){
                                     <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
                                         For any further inquiries, please contact <Link color='primary' href="#">careers@eighty20virtual.com</Link> 
                                     </MDTypography>
-                                    <MDBox display='flex' justifyContent="space-between">
+                                    <MDBox mt={5} display='flex' justifyContent="space-between">
                                         <Link 
                                         color='info' 
                                         // href={`/careers/response?entity=${entityCareer.entity_id}&careers=${entityCareer.careers_id}`} 

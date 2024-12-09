@@ -144,7 +144,13 @@ function CareerQuestionsForm(){
             var formData = new FormData()
 
             Object.keys(data).map((item, index) => {
-                if (data[item]) formData.append(item, data[item])
+                if (data[item]) {
+                    if (Array.isArray(data[item])) {
+                        formData.append(item, data[item].join(', '))
+                    } else {
+                        formData.append(item, data[item])
+                    }
+                }
             })
             formData.append('entity_id', auth['id'])
             formData.append('careers_id', careerId)
@@ -186,8 +192,7 @@ function CareerQuestionsForm(){
                                     <StepLabel>Question Group {index+1}</StepLabel>
                                 </Step>
                             ))}
-                        </Stepper>
-                        }
+                        </Stepper>}
                         <Divider />
                         {questions && answers && <Formik
                             initialValues={answers}
