@@ -23,19 +23,19 @@ export default [
     {
         id: 'company_email',
         label: 'Company Email',
-        type: 'text',
+        type: 'email',
         required: true,
     },
     {
         id: 'email',
         label: 'Personal Email',
-        type: 'text',
+        type: 'email',
         required: true,
     },
     {
         id: 'contact_number',
         label: 'Contact Number',
-        type: 'text',
+        type: 'tel',
         required: true,
     },
 ]

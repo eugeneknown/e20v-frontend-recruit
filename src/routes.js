@@ -65,6 +65,7 @@ import PersonalDetailsForm from "layouts/content_page/careers/personal-informati
 import CareerQuestionsForm from "layouts/content_page/careers/career-questions";
 import ReferenceInformation from "layouts/content_page/careers/reference-information";
 import ReferenceForm from "layouts/content_page/careers/reference-information/reference";
+import CareerSubmitted from "layouts/content_page/careers/submit";
 
 const routes = [
   {
@@ -198,7 +199,7 @@ const routes = [
     component: <Response />,
   },
   {
-    type: "collapse", //hidden
+    type: "hidden", //hidden
     key: "personal",
     route: "/careers/personalinfo",
     component: <PersonalInformation />,
@@ -244,6 +245,12 @@ const routes = [
     key: "referrenceform",
     route: "/careers/reference/referenceform",
     component: <ReferenceForm />,
+  },
+  {
+    type: "hidden", //hidden
+    key: "submitted",
+    route: "/careers/submitted",
+    component: <CareerSubmitted />,
   },
   // {
   //   type: "collapse",

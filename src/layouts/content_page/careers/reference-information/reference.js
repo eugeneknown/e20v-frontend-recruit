@@ -39,6 +39,7 @@ function ReferenceForm(){
 
     const {isAuth, auth} = useAuth();
     const [ref, setRef] = useState()
+    var entity_id = auth['id']
 
     const local = localStorage.getItem('reference')
     const removeLocal = () => {
@@ -51,7 +52,6 @@ function ReferenceForm(){
     var validationSchema = yup.object().shape(yupSchema)
 
     useEffect(() => {
-        var entity_id = auth['id']
 
         // fetch reference
         if (id) {
@@ -85,16 +85,14 @@ function ReferenceForm(){
     const handleSubmit = (data) => {
         console.log('submit', data);
 
-        // var submit = {...data, experience_id: workId, 'stay_length': stayLength}
-        // if (id) submit['id'] = id
-        // dataServicePrivate('POST', 'entity/experience/details/define', submit).then((result) => {
-        //     console.log('debug experience define result', result);
-        //     removeLocal()
-        //     prevPage()
-        // }).catch((err) => {
-        //     console.log('debug experience define error result', err);
+        dataServicePrivate('POST', 'entity/reference/define', {entity_id, ...data}).then((result) => {
+            console.log('debug reference define result', result);
+            removeLocal()
+            prevPage()
+        }).catch((err) => {
+            console.log('debug reference define error result', err);
 
-        // })
+        })
     }
 
     return (

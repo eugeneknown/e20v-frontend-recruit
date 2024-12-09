@@ -36,7 +36,7 @@ function CareerQuestionsForm(){
     // navigation
     const navigate = useNavigate();
     const location = useLocation(); 
-    const from = location.state?.from?.pathname || "/";
+    const from = location.state?.from?.pathname || "/careers/personalinfo";
     const prevPage = () => navigate(from, { replace: true })
     const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
@@ -160,7 +160,7 @@ function CareerQuestionsForm(){
             }).then((result) => {
                 console.log('debug answers define result', result);
                 removeLocalData()
-                navigate('/careers/reference', { replace: true })
+                toPage('/careers/reference')
             }).catch((err) => {
                 console.log('debug answers define error result', err);
     

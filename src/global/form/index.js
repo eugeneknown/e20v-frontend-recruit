@@ -124,13 +124,14 @@ export const generateFormInput = (props) => {
                         {...props}
                         multiple
                         input={<OutlinedInput label={props.label} />}
-                        renderValue={(selected) => (
-                            <MDBox sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {selected.map((value) => (
-                                    <Chip key={value} label={value} />
-                                ))}
-                            </MDBox>
-                        )}
+                        // renderValue={(selected) => (
+                        //     <MDBox sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        //         {selected.map((value) => (
+                        //             <Chip key={value} label={value} />
+                        //         ))}
+                        //     </MDBox>
+                        // )} // chip rendered
+                        renderValue={(selected) => selected.join(', ')} // word rendered
                         MenuProps={{
                             PaperProps: {
                                 style: {

@@ -13,7 +13,7 @@ import moment from "moment";
 import CareersStepper from "../careers-stepper";
 import MDButton from "components/MDButton";
 import { useLocation, useNavigate } from "react-router-dom";
-import { dataService } from "global/function";
+import { dataServicePrivate } from "global/function";
 import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
 
@@ -47,7 +47,7 @@ function PersonalInformation(){
         var entity_id = auth['id']
 
         // fetch entity
-        dataService('POST', 'entity/entities/all', {
+        dataServicePrivate('POST', 'entity/entities/all', {
             filter: [{
                 operator: '=',
                 target: 'id',
@@ -95,7 +95,7 @@ function PersonalInformation(){
         })
 
         // fetch experience
-        dataService('POST', 'entity/experience/all', {
+        dataServicePrivate('POST', 'entity/experience/all', {
             filter: [{
                 operator: '=',
                 target: 'entity_id',
@@ -105,7 +105,7 @@ function PersonalInformation(){
             console.log('debug experience result', result);
             result = result.data['experience'][0]
             // fetch experience details
-            dataService('POST', 'entity/experience/details/all', {
+            dataServicePrivate('POST', 'entity/experience/details/all', {
                 filter: [{
                     operator: '=',
                     target: 'experience_id',

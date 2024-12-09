@@ -6,16 +6,16 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 import useAuth from "hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NavBar from "layouts/content_page/nav_bar";
 import moment from "moment";
 
 import CareersStepper from "../careers-stepper";
 import MDButton from "components/MDButton";
 import { useLocation, useNavigate } from "react-router-dom";
-import { dataService } from "global/function";
 import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
+import { dataServicePrivate } from "global/function";
 
 
 function ReferenceInformation(){
@@ -28,13 +28,17 @@ function ReferenceInformation(){
     const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [ref, setRef] = useState()
+    const [ref, setRef] = useState(null)
+    const err = useRef()
+    var entity_id = auth['id']
 
     useEffect(() => {
-        var entity_id = auth['id']
+        init()
+    }, [])
 
+    const init = () => {
         // fetch reference
-        dataService('POST', 'entity/reference/all', {
+        dataServicePrivate('POST', 'entity/reference/all', {
             filter: [{
                 operator: '=',
                 target: 'entity_id',
@@ -49,8 +53,7 @@ function ReferenceInformation(){
             console.log('debug reference error result', err);
 
         })
-
-    }, [])
+    }
 
     const AuthLetter = () => (
         <MDBox>
@@ -160,6 +163,34 @@ function ReferenceInformation(){
         </MDBox>
     )
 
+    const handleDelete = (id) => {
+        dataServicePrivate('POST', 'entity/reference/delete', {id}).then((result) => {
+            console.log('debug reference details delete result', result);
+            init()
+        }).catch((err) => {
+            console.log('debug reference details delete error result', err);
+
+        })
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+
+        console.log('w3w submit');
+        toPage('/careers/submitted')
+
+        if ( ref && (Object.keys(ref).length > 2) ) {
+            toPage('/careers/submitted')
+        } else {
+            err.current.scrollIntoView({
+                behavior: 'auto',
+                block: 'center',
+                inline: 'center'
+            })
+        }
+
+    }
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -169,7 +200,7 @@ function ReferenceInformation(){
                         <Card variant="outlined">
                             <CardContent>
                                 <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                                <MDTypography sx={{ mt: 3 }} variant='h3'>Reference Information</MDTypography>
+                                <MDTypography sx={{ mt: 3 }} variant='h3'>Character References</MDTypography>
                                 <Divider />
                                 {ref && Object.keys(ref).map((item, index) => (
                                     <Card position='relative' sx={{ my: 2 }}>
@@ -196,8 +227,9 @@ function ReferenceInformation(){
                                 >
                                     <MDTypography variant='body2' color='secondary'>Add Reference</MDTypography>
                                 </MDButton>}
+                                <MDTypography ref={err} color='error' variant='button'>Add atleast 2 reference</MDTypography>
                                 <Divider />
-                                <form>
+                                <form onSubmit={handleSubmit}>
                                 <AuthLetter />
                                 <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Submit Application</MDButton>
                                 </form>
