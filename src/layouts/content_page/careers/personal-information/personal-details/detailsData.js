@@ -8,14 +8,16 @@ export default [
     {
         id: 'us_time',
         label: 'Amenable to US Time (Night Shift)',
-        type: 'text',
+        type: 'select',
         required: true,
+        options: ['Yes', 'No'],
     },
     {
         id: 'work_in_office',
         label: 'Amenable to work in the office (Matina, Davao)',
-        type: 'text',
+        type: 'select',
         required: true,
+        options: ['Yes', 'No'],
     },
     {
         id: 'transpo',
@@ -25,9 +27,10 @@ export default [
     },
     {
         id: 'application',
-        label: 'Pending Application with other Company',
-        type: 'text',
+        label: 'Any pending application with other Company?',
+        type: 'select',
         required: true,
+        options:['Yes','No'],
     },
     {
         id: 'platforms_id',
@@ -55,8 +58,22 @@ export default [
     },
     {
         id: 'part_time',
-        label: 'Any part time work at the moment (pls specify)',
+        label: 'Any part time work at the moment? (Pls specify)',
         type: 'text',
         required: true,
     },
+    {
+        id: 'dependents',
+        label: 'Dependents',
+        type: 'text',
+        required: true,
+    },
+    {
+        id: 'government_requirements',
+        label: 'Government Requirements (Please check to select)',
+        type: 'check',
+        required: true,
+        options: ['SSS (Social Security System)', 'PhilHealth', 'Pag-IBIG Fund', 'TIN (Tax Identification Number)'],
+    },
+  
 ]
