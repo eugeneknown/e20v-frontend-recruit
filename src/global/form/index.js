@@ -10,9 +10,9 @@ import MDTypography from 'components/MDTypography'
 
 
 export const generateFormInput = (props) => {
-    // console.log('props', props);
-    var sx = { my: 1 }
+    var sx = { my: 2, display: props?.hidden ? 'none' : 'block' }
     props['sx'] = [sx]
+    // console.log('props', props);
 
     // revise the touched, touched must be pass then init the error and helper for global and custom variables
 
@@ -216,6 +216,17 @@ export const generateFormInput = (props) => {
             )
     }
 }
+
+export const formScrub = (data) => {
+    if (typeof data != 'object') return
+
+    Object.keys(data).map((item, index) => {
+        if (Array.isArray(data[item])) data[item] = data[item].join(', ') 
+    })
+
+    return data
+}
+
 
 generateFormInput.propTypes = {
     props: {

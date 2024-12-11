@@ -15,6 +15,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
 import { dataServicePrivate } from "global/function";
+import elemData from "./elemData";
+import seniorData from "./seniorData";
+import collegeData from "./collegeData";
 
 
 function Educational(){
@@ -28,8 +31,15 @@ function Educational(){
 
     const {isAuth, auth} = useAuth();
     const [education, setEducation] = useState(null)
+    const [elem, setElem] = useState()
+    const [high, setHigh] = useState()
+    const [senior, setSenior] = useState()
+    const [college, setCollege] = useState()
+    const [master, setMaster] = useState()
     const err = useRef()
     var entity_id = auth['id']
+
+    localStorage.removeItem('education')
 
     useEffect(() => {
         init()
@@ -46,7 +56,8 @@ function Educational(){
         }).then((result) => {
             console.log('debug education result', result);
             result = result.data['entity_education']
-            setEducation(result)
+            // setEducation(result)
+            setAttainment(result)
 
         }).catch((err) => {
             console.log('debug education error result', err);
@@ -54,9 +65,24 @@ function Educational(){
         })
     }
 
+    const setAttainment = (data) => {
+        Object.keys(data).map((item, index) => {
+            if ( data[item]['education'] == 'Elementary' ) setElem(data[item]) 
+            if ( data[item]['education'] == 'Secondary (High School)' ) setHigh(data[item]) 
+            if ( data[item]['education'] == 'Senior High' ) setSenior(data[item]) 
+            if ( data[item]['education'] == 'College' ) setCollege(data[item]) 
+            if ( data[item]['education'] == "Graduate School (Master's or Doctorate)" ) setMaster(data[item]) 
+        })
+    }
+
     const handleDelete = (id) => {
         dataServicePrivate('POST', 'entity/education/delete', {id}).then((result) => {
             console.log('debug education education delete result', result);
+            setElem()
+            setHigh()
+            setSenior()
+            setCollege()
+            setMaster()
             init()
         }).catch((err) => {
             console.log('debug education education delete error result', err);
@@ -68,6 +94,40 @@ function Educational(){
         prevPage()
     }
 
+    const EducationAttainment = ({attainment, data, required=false}) => (
+        <MDBox my={1}>
+            <MDTypography variant='h5'>{attainment}</MDTypography>
+            {data && <Card variant="outlined" position='relative' sx={{ my: 2 }}>
+                <MDBox display='flex' position='absolute' right={0} p={1}>
+                    <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id })}><Icon>edit</Icon></IconButton>
+                    <IconButton onClick={() => handleDelete(data.id)}><Icon>delete</Icon></IconButton>
+                </MDBox>
+                <CardContent>
+                    {/* <MDTypography variant='h5'>{data.education}</MDTypography> */}
+                    {data?.course && <MDTypography variant='body2'>Course: {data.course}</MDTypography>}
+                    <MDTypography variant='body2'>School: {data.school}</MDTypography>
+                    {data.start_date ? 
+                    <MDTypography variant='body2'>
+                        Year: {formatDateTime(data.start_date, 'YYYY')} to {data?.present ? `Present` : formatDateTime(data.end_date, 'YYYY')}
+                    </MDTypography> : 
+                    <MDTypography variant='body2'>
+                        Year: {formatDateTime(data.end_date, 'YYYY')}
+                    </MDTypography>}
+                </CardContent>
+            </Card>}
+            {!(data) && <MDButton
+                variant='outlined' 
+                color='secondary' 
+                fullWidth
+                startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
+                onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment })}
+            >
+                <MDTypography variant='body2' color='secondary'>{`${data ? 'Edit' : 'Create'} ${attainment} Background`}</MDTypography>
+            </MDButton>}
+            {!(data) && required && <MDTypography color='error' variant='button'>{attainment} is required</MDTypography>}
+        </MDBox>
+    )
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -75,37 +135,16 @@ function Educational(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Education Attainment</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Educational Background</MDTypography>
                         <Divider />
-                        {education && Object.keys(education).map((item, index) => (
-                            <Card position='relative' sx={{ my: 2 }}>
-                                <MDBox display='flex' position='absolute' right={0} p={1}>
-                                    <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: education[item].id })}><Icon>edit</Icon></IconButton>
-                                    <IconButton onClick={() => handleDelete(education[item].id)}><Icon>delete</Icon></IconButton>
-                                </MDBox>
-                                <CardContent>
-                                    <MDTypography variant='h5'>{education[item].education}</MDTypography>
-                                    <MDTypography variant='body2'>{education[item].course}</MDTypography>
-                                    <MDTypography variant='body2'>{education[item].school}</MDTypography>
-                                    <MDTypography variant='body2'>
-                                        {formatDateTime(education[item].start_date, 'MMMM YYYY')} to {education[item].present ? `Present` : formatDateTime(education[item].end_date, 'MMMM YYYY')}
-                                    </MDTypography>
-                                </CardContent>
-                            </Card>
-                        ))}
-                        {education && Object.keys(education).length < 3 && <MDButton
-                            variant='outlined' 
-                            color='secondary' 
-                            fullWidth
-                            startIcon={<Icon>add</Icon>}
-                            onClick={() => toPage('/careers/personalinfo/educational/form')}
-                        >
-                            <MDTypography variant='body2' color='secondary'>Add Educational Attainment</MDTypography>
-                        </MDButton>}
-                        <MDTypography education={err} color='error' variant='button'>Add atleast 4 attainment</MDTypography>
+                        <EducationAttainment attainment='Elementary' data={elem} required />
+                        <EducationAttainment attainment='Secondary (High School)' data={high} required />
+                        <EducationAttainment attainment='Senior High' data={senior} required />
+                        <EducationAttainment attainment='College' data={college} required />
+                        <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} />
                         <Divider />
                         <form onSubmit={handleSubmit}>
-                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Submit Application</MDButton>
+                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
                         </form>
                     </CardContent>
                 </Card>

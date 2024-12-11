@@ -17,7 +17,8 @@ Coded by www.creative-tim.com
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
-    FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Fab, CardMedia, CardContent, Chip, Popover } from "@mui/material";
+    FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Fab, CardMedia, CardContent, Chip, Popover, 
+    Switch} from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -410,9 +411,18 @@ function Questions() {
                                 }
                             </Grid>
                             <MDBox>
-                                <MDBox my={3}>
-                                    <MDInput InputProps={{ readOnly: action == 'view' }} value={question?.title} onChange={(e) => handleQuestion('title', e.target.value)} label="Question" fullWidth sx={{ mb: '1rem' }} />
-                                    <MDInput InputProps={{ readOnly: action == 'view' }} value={question?.type} onClick={(e) => action != 'view' && setSwipeIndex(0)} fullWidth sx={{ mb: '1rem' }} />
+                                <MDBox m={2}>
+                                    <MDInput disabled={action == 'view' || false} value={question?.title} onChange={(e) => handleQuestion('title', e.target.value)} label="Question" fullWidth sx={{ mb: '1rem' }} />
+                                    <MDInput disabled={action == 'view' || false} value={question?.type} onClick={(e) => action != 'view' && setSwipeIndex(0)} fullWidth sx={{ mb: '1rem' }} />
+                                    <FormControlLabel 
+                                        label='Required' 
+                                        sx={{ mb: '1rem' }}
+                                        disabled={action == 'view' || false}
+                                        control={<Switch
+                                            checked={question?.required}
+                                            onChange={(value) => handleQuestion('required', value.target.checked)}
+                                        />} 
+                                    />
                                     <Divider />
                                     <MDTypography sx={{ display: question.type == 'input' ? 'none' : 'block' }} fontWeight="bold" variant="caption">Options:</MDTypography>
                                     {

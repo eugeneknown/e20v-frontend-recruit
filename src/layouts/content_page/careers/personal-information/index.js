@@ -54,7 +54,7 @@ function PersonalInformation(){
                 target: 'id',
                 value: entity_id,
             }],
-            relations: ['details', 'education']
+            relations: ['details']
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
@@ -181,6 +181,71 @@ function PersonalInformation(){
 
         }).catch((err) => {
             console.log('debug experience error result', err);
+
+        })
+
+        // entity education
+        dataServicePrivate('POST', 'entity/education/all', {
+            filter: [{
+                operator: '=',
+                target: 'entity_id',
+                value: entity_id,
+            }],
+        }).then((result) => {
+            result = result.data['entity_education']
+            var seq = [
+                "Elementary",
+                "Secondary (High School)",
+                "Senior High",
+                "College",
+                "Graduate School (Master's or Doctorate)"
+            ]
+            var check = ['education', 'course', 'school', 'start_date', 'end_date']
+            var title = []
+            Object.keys(result).map((item, index) => {
+                var tempTitle = []
+                var idx = 0
+                Object.keys(result).forEach(_index => { if ( result[_index]['education'] == seq[index] ) idx = _index })
+                console.log('asdwwwdsa', idx);
+                check.forEach((_item) => {
+                    if ( result[idx][_item] ) tempTitle.push(_item)
+                })
+                title.push(tempTitle)
+            })
+            console.log('w3w', title);
+            var color = []
+            var variant = ['h6']
+
+            if (result.length) {
+                var temp = []
+                Object.keys(title).map((item, index) => {
+                    var _temp = []
+                    var idx = 0
+                    Object.keys(result).forEach(_index => { if ( result[_index]['education'] == seq[index] ) idx = _index })
+                    Object.keys(title[item]).map((_item, _index) => {
+                        if ( title[item][_item] != 'start_date' ) {
+                            _temp.push({
+                                title: title[item][_item] == 'end_date' ? 
+                                result[idx]['start_date'] ? 
+                                <MDTypography variant='body2'>
+                                    {formatDateTime(result[idx]['start_date'], 'YYYY')} to {result[idx]['end_date'] ?  formatDateTime(result[idx]['end_date'], 'YYYY') : `Present`}
+                                </MDTypography> :
+                                <MDTypography variant='body2'>
+                                    {formatDateTime(result[idx]['end_date'], 'YYYY')}
+                                </MDTypography> : result[idx][title[item][_item]],
+                                color: color[_index] ? color[_index] : 'inherit',
+                                variant: variant[_index] ? variant[_index] : 'body2',
+                            })
+                        }
+                    })
+
+                    temp.push(_temp)
+                })
+                setEducations(temp)
+            }
+
+        }).catch((err) => {
+            console.log('debug entity error result', err);
 
         })
     }, [])

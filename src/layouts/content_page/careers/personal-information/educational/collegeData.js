@@ -10,6 +10,7 @@ export default [
         type: 'select',
         required: true,
         options: educationalAttainment,
+        hidden: true,
     },
     {
         id: 'course',
@@ -20,25 +21,19 @@ export default [
     },
     {
         id: 'school',
-        label: 'School',
+        label: 'Name of School',
         type: 'text',
         required: true,
     },
     {
-        id: 'present',
-        label: 'Currently Enrolled',
-        type: 'switch',
-        required: false,
-    },
-    {
         id: 'start_date',
-        label: 'Start Date',
+        label: 'Year start attended',
         type: 'date',
         required: true,
         options: { 
-            views: ['month', 'year'],
+            views: ['year'],
             disableFuture: true,
-            },
+        },
             validations: [
             {
                 type: 'when',
@@ -53,11 +48,11 @@ export default [
     },
     {
         id: 'end_date',
-        label: 'End Date',
+        label: 'Year end attended',
         type: 'date',
         required: true,
-        options: { 
-            views: ['month', 'year'],
+        options: {
+            views: ['year'],
             disableFuture: true,
         },
         validations: [
@@ -71,10 +66,10 @@ export default [
             },
         ]
     },
-    // {
-    //     id: 'description',
-    //     label: 'Description',
-    //     type: 'textfield',
-    //     required: false,
-    // },
+    {
+        id: 'present',
+        label: 'Currently Enrolled',
+        type: 'switch',
+        required: false,
+    },
 ]

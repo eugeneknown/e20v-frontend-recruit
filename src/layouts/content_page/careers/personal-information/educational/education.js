@@ -16,12 +16,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import * as yup from 'yup';
 import { FieldArray, Form, Formik } from 'formik';
-import data from "./educationData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import moment from "moment";
+import elemData from "./elemData";
+import seniorData from "./seniorData";
+import collegeData from "./collegeData";
 
 
 function EducationalAttainmentForm(){
@@ -38,11 +40,15 @@ function EducationalAttainmentForm(){
     const id = location.state?.id || null
     const [education, setEducation] = useState()
     const [endDate, setEndDate] = useState()
+    const [data, setData] = useState({})
 
     const local = localStorage.getItem('education')
     const removeLocal = () => {
         localStorage.removeItem('education')
     }
+
+    var ed = location.state.education
+    
 
     // init validation
     var yupObject = generateObjectSchema(data)
@@ -56,6 +62,7 @@ function EducationalAttainmentForm(){
                 console.log('debug education result', result);
                 result = result.data['entity_education'][0]
     
+                setData(init(result['education']))
                 setEducation(result)
             }).catch((err) => {
                 console.log('debug education error result', err);
@@ -66,7 +73,8 @@ function EducationalAttainmentForm(){
             if (local) {
                 setEducation(JSON.parse(local))
             }
-            setEducation({})
+            setData(init(location.state.education))
+            setEducation({ education: location.state.education })
         }
         
         
@@ -84,6 +92,13 @@ function EducationalAttainmentForm(){
             }
         }
     },[education])
+
+    const init = (ed) => {
+        if ( ed == 'Elementary' || ed == 'Secondary (High School)' ) return elemData
+        if ( ed == 'Senior High' ) return seniorData
+        if ( ed == 'College' || ed == "Graduate School (Master's or Doctorate)" ) return collegeData
+
+    }
 
     const handleSubmit = (data) => {
         if (id) data['id'] = id;
@@ -110,7 +125,6 @@ function EducationalAttainmentForm(){
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Add educational attainment</MDTypography>
                         <Divider />
-                        {console.log('w3w ', education)}
                         {education && <Formik
                             initialValues={education}
                             validationSchema={validationSchema}
@@ -138,72 +152,31 @@ function EducationalAttainmentForm(){
                                                         }
                                                     })
                                                 }
-
-                                                var stay_length = `0 years 0 months`
-                                                if ( 'start_date' in values && ('end_date' in values || ('present' in values && (values.present))) ) {
-                                                    var start = moment(values.start_date)
-                                                    var end = ''
-
-                                                    if ( 'end_date' in values ) end = moment(values.end_date)
-                                                    if ( 'present' in values && (values.present) ) end = moment()
-    
-                                                    var years = end.diff(start, 'year')
-                                                    start.add(years, 'years')
-    
-                                                    var months = end.diff(start, 'months')
-                                                    start.add(months, 'months')
-    
-                                                    if ( start && end ) stay_length = `${years} years ${months} months`
-                                                }
+                                                if ( data[item].id == 'education' ) disabled = true
 
                                                 // universal format
                                                 var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
                                                 var error = data[item].type == 'date' ? !(disabled) && errors[data[item].id] : errors[data[item].id]
 
-                                                if ( data[item].id == 'present' ) {
-                                                    return (
-                                                        <MDBox display='flex' justifyContent='space-between' alignItems='center'>
-                                                            {generateFormInput({
-                                                                variant: 'outlined',
-                                                                fullWidth: true,
-                                                                disabled,
-                                                                type: data[item].type,
-                                                                id: data[item].id,
-                                                                name: data[item].id,
-                                                                label: data[item].label,
-                                                                value: values[data[item].id],
-                                                                required: data[item].required,
-                                                                onChange: handleChange,
-                                                                onBlur: handleBlur,
-                                                                setFieldValue,
-                                                                setFieldTouched,
-                                                                error: touched[data[item].id] && Boolean(errors[data[item].id]),
-                                                                helperText: touched[data[item].id] && errors[data[item].id],
-                                                                options: data[item].options ? data[item].options : undefined
-                                                            })}
-                                                            <MDTypography sx={{ mx: 2 }} variant='button'>Length of stay: {stay_length}</MDTypography>
-                                                        </MDBox>
-                                                    )
-                                                } else {
-                                                    return (generateFormInput({
-                                                        variant: 'outlined',
-                                                        fullWidth: true,
-                                                        disabled,
-                                                        type: data[item].type,
-                                                        id: data[item].id,
-                                                        name: data[item].id,
-                                                        label: data[item].label,
-                                                        value: values[data[item].id],
-                                                        required: data[item].required,
-                                                        onChange: handleChange,
-                                                        onBlur: handleBlur,
-                                                        setFieldValue,
-                                                        setFieldTouched,
-                                                        error: touch && Boolean(error),
-                                                        helperText: touch && error,
-                                                        options: data[item].options ? data[item].options : undefined
-                                                    }))
-                                                }
+                                                return (generateFormInput({
+                                                    variant: 'outlined',
+                                                    fullWidth: true,
+                                                    disabled,
+                                                    type: data[item].type,
+                                                    id: data[item].id,
+                                                    name: data[item].id,
+                                                    label: data[item].label,
+                                                    value: values[data[item].id],
+                                                    required: data[item].required,
+                                                    hidden: data[item].hidden,
+                                                    onChange: handleChange,
+                                                    onBlur: handleBlur,
+                                                    setFieldValue,
+                                                    setFieldTouched,
+                                                    error: touch && Boolean(error),
+                                                    helperText: touch && error,
+                                                    options: data[item].options ? data[item].options : undefined
+                                                }))
                                             })}
                                         </MDBox>
                                         )}
