@@ -41,11 +41,14 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import googleIcon from "assets/images/icons/google.png"
 
 import axios from "api/axios";
 import useAuth from "hooks/useAuth";
 import { useSnackbar } from "notistack";
-import { Icon, IconButton } from "@mui/material";
+import { Divider, Icon, IconButton } from "@mui/material";
+
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 
 function Basic() {
@@ -57,6 +60,10 @@ function Basic() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+
+  const googleClientId = '739972801733-bb5obcrbpclmaiupbl2057re25uear8a.apps.googleusercontent.com'
+  const googleCallbackUri = 'http://localhost:8000/api/entity/google/login/callback/'
+  const googleSignInUrl = `https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${googleCallbackUri}&prompt=consent&response_type=code&client_id=${googleClientId}&scope=openid%20email%20profile&access_type=offline`;
 
   const userRef = useRef('');
   const errRef = useRef('');
@@ -129,6 +136,32 @@ function Basic() {
   useEffect(() => {
     localStorage.setItem("persist", true);
   })
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      const authorizationCode = credentialResponse.code;
+
+      // Send the authorization code to your Django backend
+      const response = await axios.post(googleCallbackUri, {
+        code: authorizationCode,
+      });
+
+      // Process the JWT tokens returned by the backend
+      const { access, refresh, user } = response.data;
+
+      console.log("Access Token:", access);
+      console.log("User Info:", user);
+
+      // Save tokens in localStorage or context (securely)
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("refresh_token", refresh);
+
+      alert(`Welcome, ${user.name}!`);
+    } catch (error) {
+      console.error("Google login failed:", error);
+      alert("Google login failed. Please try again.");
+    }
+  };
 
   return (
     <BasicLayout image={bgImage}>
@@ -225,6 +258,33 @@ function Basic() {
                 sign in
               </MDButton>
             </MDBox>
+            <Divider />
+            {/*<MDButton 
+              href={googleSignInUrl}
+              target="_blank" 
+              rel="noopener noreferrer"
+              variant='outlined' 
+              color="secondary" 
+              startIcon={<MDBox component='img' src={googleIcon} 
+              width='25px' />} 
+              fullWidth 
+
+            >
+              Sign in with Google
+            </MDButton>*/}
+            <GoogleOAuthProvider clientId='739972801733-bb5obcrbpclmaiupbl2057re25uear8a.apps.googleusercontent.com'>
+              <div style={{ marginTop: "50px", textAlign: "center" }}>
+                <h2>Login with Google</h2>
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => {
+                    console.log("Login Failed");
+                  }}
+                  useOneTap
+                  flow="auth-code" // Use authorization code flow
+                />
+              </div>
+            </GoogleOAuthProvider>
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Don&apos;t have an account?{" "}

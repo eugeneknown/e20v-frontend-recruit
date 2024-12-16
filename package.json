@@ -23,6 +23,7 @@
     "@mui/system": "^6.1.6",
     "@mui/x-charts": "^7.12.0",
     "@mui/x-date-pickers": "^7.22.0",
+    "@react-oauth/google": "^0.12.1",
     "@tiptap/extension-color": "^2.2.4",
     "@tiptap/extension-document": "^2.2.4",
     "@tiptap/extension-history": "^2.2.4",
@@ -39,9 +40,11 @@
     "chart.js": "4.3.0",
     "chroma-js": "2.4.2",
     "classnames": "^2.5.1",
+    "dayjs": "^1.11.13",
     "exceljs": "^4.4.0",
     "formik": "^2.4.6",
     "formik-mui": "^5.0.0-alpha.1",
+    "formik-mui-lab": "^1.0.0",
     "formik-mui-x-date-pickers": "^2.0.0-alpha.0",
     "jwt-decode": "^4.0.0",
     "material-ui-audio-player": "^1.7.1",
@@ -68,7 +71,7 @@
     "yup": "^1.1.1"
   },
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false PORT=3100 react-scripts start",
+    "start": "set GENERATE_SOURCEMAP=false && set PORT=3100 && react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
