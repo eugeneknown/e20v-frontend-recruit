@@ -13,6 +13,12 @@ export default [
         hidden: true,
     },
     {
+        id: 'school',
+        label: 'Name of School',
+        type: 'text',
+        required: true,
+    },
+    {
         id: 'course',
         label: 'Strand',
         type: 'select',
@@ -20,14 +26,8 @@ export default [
         options: strand,
     },
     {
-        id: 'school',
-        label: 'Name of School',
-        type: 'text',
-        required: true,
-    },
-    {
         id: 'end_date',
-        label: 'Year Attended',
+        label: 'Year graduated',
         type: 'date',
         required: true,
         options: { 

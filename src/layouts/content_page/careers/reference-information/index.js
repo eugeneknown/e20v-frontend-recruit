@@ -201,6 +201,7 @@ function ReferenceInformation(){
                             <CardContent>
                                 <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                                 <MDTypography sx={{ mt: 3 }} variant='h3'>Character References</MDTypography>
+                                <MDTypography variant='button' color='error'>(please exclude relatives/friends; kindly provide previous employment head, colleague, and HR)</MDTypography>
                                 <Divider />
                                 {ref && Object.keys(ref).map((item, index) => (
                                     <Card position='relative' sx={{ my: 2 }}>

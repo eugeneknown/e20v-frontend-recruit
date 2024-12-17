@@ -23,7 +23,7 @@ function GenerateExel({
 
     const workbook = new xlsx.Workbook()
     const sheet = workbook.addWorksheet('example')
-    sheet.getColumn('A').width = 42
+    sheet.getColumn('A').width = 65.3
     sheet.getColumn('B').width = 37.2
     sheet.getColumn('C').width = 27
     sheet.getColumn('D').width = 43.1
@@ -130,6 +130,7 @@ function GenerateExel({
                         value: data['entity_id'],
                     },
                 ],
+                relations: ['platforms']
             }).then((result) => {
                 console.log('debug generate other details result', result);
                 result = result.data['entity_details'][0]
@@ -282,7 +283,7 @@ function GenerateExel({
 
         // other details
         if (details) {
-            details['platforms'] = platforms['title']
+            details['platforms_title'] = details['platforms_data']?.title || null
 
             sheet.mergeCells(`A${detailsCell-1}:B${detailsCell-1}`)
             sheet.getCell(`A${detailsCell-1}`).font = {

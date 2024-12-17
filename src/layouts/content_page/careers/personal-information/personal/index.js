@@ -23,6 +23,7 @@ import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
+import moment from "moment";
 
 
 function PersonalForm(){
@@ -36,6 +37,7 @@ function PersonalForm(){
 
     const {isAuth, auth} = useAuth();
     const [entity, setEntity] = useState()
+    const [age, setAge] = useState()
 
     const localEntity = localStorage.getItem('entity')
     const removeLocalEntity = () => {
@@ -89,7 +91,7 @@ function PersonalForm(){
     },[entity])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/entities/define', data).then((result) => {
+        dataServicePrivate('POST', 'entity/entities/define', {...data, age}).then((result) => {
             console.log('debug entity define result', result);
             removeLocalEntity()
             navigate('/careers/personalinfo', { replace: true })
@@ -123,27 +125,58 @@ function PersonalForm(){
                                         <MDBox>
                                             {setEntity(values)}
                                             {Object.keys(entityData).map((item, index) => {
-
+                                                console.log('values', values);
                                                 // universal format
                                                 var touch = entityData[item].type == 'date' ? typeof touched[entityData[item].id] == 'undefined' ? true : touched[entityData[item].id] : touched[entityData[item].id]
                                                 var error = entityData[item].type == 'date' ? entityData[item].required && errors[entityData[item].id] : errors[entityData[item].id]
-                                                return (generateFormInput({
-                                                    variant: 'outlined',
-                                                    fullWidth: true,
-                                                    type: entityData[item].type,
-                                                    id: entityData[item].id,
-                                                    name: entityData[item].id,
-                                                    label: entityData[item].label,
-                                                    value: values[entityData[item].id],
-                                                    required: entityData[item].required,
-                                                    onChange: handleChange,
-                                                    onBlur: handleBlur,
-                                                    setFieldValue,
-                                                    setFieldTouched,
-                                                    error: touch && Boolean(error),
-                                                    helperText: touch && error,
-                                                    options: entityData[item].options ? entityData[item].options : undefined
-                                                }))
+                                                if ( entityData[item].id == 'birthday' ) {
+                                                    var age = 0
+                                                    if ( values?.birthday ) {
+                                                        age = moment().diff(values.birthday, 'years')
+                                                        setAge(age)
+                                                    }
+
+                                                    return (
+                                                        <MDBox display='flex' justifyContent='space-between' alignItems='center'>
+                                                            {generateFormInput({
+                                                                variant: 'outlined',
+                                                                fullWidth: false,
+                                                                type: entityData[item].type,
+                                                                id: entityData[item].id,
+                                                                name: entityData[item].id,
+                                                                label: entityData[item].label,
+                                                                value: values[entityData[item].id],
+                                                                required: entityData[item].required,
+                                                                onChange: handleChange,
+                                                                onBlur: handleBlur,
+                                                                setFieldValue,
+                                                                setFieldTouched,
+                                                                error: touch && Boolean(error),
+                                                                helperText: touch && error,
+                                                                options: entityData[item].options ? entityData[item].options : undefined
+                                                            })}
+                                                            <MDTypography sx={{ mx: 2 }} variant='button'>Age: {age} years old</MDTypography>
+                                                        </MDBox>
+                                                    )
+                                                } else {
+                                                    return (generateFormInput({
+                                                        variant: 'outlined',
+                                                        fullWidth: true,
+                                                        type: entityData[item].type,
+                                                        id: entityData[item].id,
+                                                        name: entityData[item].id,
+                                                        label: entityData[item].label,
+                                                        value: values[entityData[item].id],
+                                                        required: entityData[item].required,
+                                                        onChange: handleChange,
+                                                        onBlur: handleBlur,
+                                                        setFieldValue,
+                                                        setFieldTouched,
+                                                        error: touch && Boolean(error),
+                                                        helperText: touch && error,
+                                                        options: entityData[item].options ? entityData[item].options : undefined
+                                                    }))
+                                                }
                                             })}
                                         </MDBox>
                                         )}

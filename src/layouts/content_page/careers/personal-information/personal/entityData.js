@@ -34,7 +34,7 @@ export default [
         label: 'Civil Status',
         type: 'select',
         required: true,
-        options: ['Single', 'Married', 'Widowed'],
+        options: ['Single', 'Married', 'Widowed', 'Separated'],
     },
     {
         id: 'contact_number',
@@ -54,12 +54,6 @@ export default [
         type: 'select',
         required: true,
         options: ['Male', 'Female', 'Others'],
-    },
-    {
-        id: 'age',
-        label: 'Age',
-        type: 'number',
-        required: true,
     },
     {
         id: 'email',

@@ -32,6 +32,7 @@ function PersonalInformation(){
     // save this career id in cache
 
     const {isAuth, auth} = useAuth();
+    console.log('auth', auth);
     const [entity, setEntity] = useState()
     const [experience, setExperience] = useState()
     const [details, setDetails] = useState()
@@ -89,35 +90,6 @@ function PersonalInformation(){
                 })
                 setDetails(temp)
             }
-
-            var education = result['education']
-            var title = []
-            Object.keys(education).map((item, index) => {
-                title.push(['education', 'course', 'school', 'start_date'])
-            })
-            var color = []
-            var variant = ['h6']
-
-            if (education.length) {
-                var temp = []
-                Object.keys(title).map((item, index) => {
-                    var _temp = []
-                    Object.keys(title[item]).map((_item, _index) => {
-                        _temp.push({
-                            title: title[item][_item] == 'start_date' ? 
-                            <MDTypography variant='body2'>
-                                {formatDateTime(education[item]['start_date'], 'MMMM YYYY')} to {education[item]['end_date'] ?  formatDateTime(education[item]['end_date'], 'MMMM YYYY') : `Present`}
-                            </MDTypography> : education[item][title[item][_item]],
-                            color: color[_index] ? color[_index] : 'inherit',
-                            variant: variant[_index] ? variant[_index] : 'body2',
-                        })
-                    })
-
-                    temp.push(_temp)
-                })
-                setEducations(temp)
-            }
-
         }).catch((err) => {
             console.log('debug entity error result', err);
 
@@ -274,7 +246,7 @@ function PersonalInformation(){
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Create'} ${title}`}
+                    {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -311,7 +283,7 @@ function PersonalInformation(){
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Create'} ${title}`}
+                    {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -325,13 +297,13 @@ function PersonalInformation(){
                     <MDBox maxWidth="sm" mx={{ xs: 3, md: 'auto', lg: 3, xl: 'auto' }} pt="5rem">
                         <Card variant="outlined">
                             <CardHeader 
-                                title={<MDTypography variant='h3'>Informations</MDTypography>} 
+                                title={<MDTypography variant='h3'>Information</MDTypography>} 
                                 subheader='Add a personal information'
                                 avatar={<Icon fontSize="large">person_outline</Icon>} 
                             />
                             <CardContent>
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
-                                <WorkExpContent title='Educational Attainment' data={educations} url='/careers/personalinfo/educational' />
+                                <WorkExpContent title='Educational Background' data={educations} url='/careers/personalinfo/educational' />
                                 <WorkExpContent title='Work Experience' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
                                 <MDButton onClick={() => toPage('/careers/questions')} disabled={!(entity) && !(experience) && !(details)} fullWidth color={!entity && !experience && !details ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>

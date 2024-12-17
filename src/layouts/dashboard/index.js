@@ -52,11 +52,14 @@ import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
 import { Card, colors, Paper } from "@mui/material";
 import { dataServicePrivate } from "global/function";
+import useAuth from "hooks/useAuth";
 
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
 
+  const { auth } = useAuth()
+  console.log('autgh', auth);
   const [ weeklyReport, setWeeklyReport ] = useState()
   const [ monthlyReport, setMonthlyReport ] = useState({})
   const [ tagsMonthlyReport, setTagsMonthlyReport ] = useState({})

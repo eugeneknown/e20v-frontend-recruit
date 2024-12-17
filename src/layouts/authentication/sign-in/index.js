@@ -41,7 +41,6 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
-import googleIcon from "assets/images/icons/google.png"
 
 import axios from "api/axios";
 import useAuth from "hooks/useAuth";
@@ -49,6 +48,7 @@ import { useSnackbar } from "notistack";
 import { Divider, Icon, IconButton } from "@mui/material";
 
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { dataService } from "global/function";
 
 
 function Basic() {
@@ -139,27 +139,38 @@ function Basic() {
 
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const authorizationCode = credentialResponse.code;
+      const jwtCredential = credentialResponse.credential;
+      // console.log('auth token', jwtCredential);
 
       // Send the authorization code to your Django backend
       const response = await axios.post(googleCallbackUri, {
-        code: authorizationCode,
+        token: jwtCredential,
       });
+      
+      console.log('callback response', response);
 
       // Process the JWT tokens returned by the backend
-      const { access, refresh, user } = response.data;
+      const { access, refresh, user, entity } = response.data;
 
-      console.log("Access Token:", access);
-      console.log("User Info:", user);
+      console.log("Access Token:", jwtDecode(access));
+      console.log("Refresh Token:", jwtDecode(refresh));
 
-      // Save tokens in localStorage or context (securely)
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
+      const { id, is_superuser, is_staff } = jwtDecode(access)
+      const is_admin = is_superuser || is_staff
 
-      alert(`Welcome, ${user.name}!`);
+      console.log('debug result', is_superuser, is_staff, is_admin, id[0]);
+
+      setAuth({
+        accessToken: access,
+        is_admin: is_admin,
+        id: id[0],
+      });
+      setIsAuth(true);
+      localStorage.setItem('refreshToken', refresh)
+      navigate(is_admin ? '/dashboard' : from, { replace: true });
+
     } catch (error) {
-      console.error("Google login failed:", error);
-      alert("Google login failed. Please try again.");
+      console.log("Google login failed:", error);
     }
   };
 
@@ -273,17 +284,14 @@ function Basic() {
               Sign in with Google
             </MDButton>*/}
             <GoogleOAuthProvider clientId='739972801733-bb5obcrbpclmaiupbl2057re25uear8a.apps.googleusercontent.com'>
-              <div style={{ marginTop: "50px", textAlign: "center" }}>
-                <h2>Login with Google</h2>
-                <GoogleLogin
-                  onSuccess={handleGoogleLogin}
-                  onError={() => {
-                    console.log("Login Failed");
-                  }}
-                  useOneTap
-                  flow="auth-code" // Use authorization code flow
-                />
-              </div>
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+                useOneTap
+                flow="auth-code" // Use authorization code flow
+              />
             </GoogleOAuthProvider>
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">

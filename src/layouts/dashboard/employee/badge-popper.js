@@ -11,8 +11,7 @@ import { useSnackbar } from "notistack";
 
 function BadgePopper({
     id,
-    badgeContent,
-    color,
+    badgeId,
     variant,
     content,
     data,
@@ -25,12 +24,14 @@ function BadgePopper({
     const [dataId, setDataId] = useState()
     const [title, setTitle] = useState()
     const [action, setAction] = useState()
+    const [currentBadge, setCurrentBadge] = useState()
 
     // snackbar nostick
     const { enqueueSnackbar } = useSnackbar()
 
     useEffect(() => {
         console.log('debug badge popper content:', content);
+        setCurrentBadge(content[Object.keys(content).find(key => content[key].id == badgeId)] || 0)
     },[])
 
     const [state, setState] = useState({
@@ -130,11 +131,18 @@ function BadgePopper({
             <MDButton
                 onClick={handleToggle}
             >
-                <MDBadge
-                    badgeContent={badgeContent}
-                    color={color}
-                    variant={variant}
-                />
+                {currentBadge 
+                ?   <MDBadge
+                        badgeContent={currentBadge.title}
+                        color={currentBadge.color}
+                        variant={variant}
+                    />
+                :   <MDBadge
+                        badgeContent='unassigned'
+                        color='#D3D3D3'
+                        variant={variant}
+                    />
+                }
             </MDButton>
 
             <Popper
@@ -159,7 +167,7 @@ function BadgePopper({
                                 onKeyDown={handleListKeyDown}
                             >
                                 {
-                                    Object.keys(content).map((item, key) => (
+                                    content && Object.keys(content).map((item, key) => (
                                         <MenuItem 
                                             key={key} 
                                             onClick={(e) => handleClose(content[item].id)}

@@ -34,6 +34,7 @@ function Educational(){
     const [elem, setElem] = useState()
     const [high, setHigh] = useState()
     const [senior, setSenior] = useState()
+    const [tech, setTech] = useState()
     const [college, setCollege] = useState()
     const [master, setMaster] = useState()
     const err = useRef()
@@ -70,6 +71,7 @@ function Educational(){
             if ( data[item]['education'] == 'Elementary' ) setElem(data[item]) 
             if ( data[item]['education'] == 'Secondary (High School)' ) setHigh(data[item]) 
             if ( data[item]['education'] == 'Senior High' ) setSenior(data[item]) 
+            if ( data[item]['education'] == 'Technical Education' ) setTech(data[item]) 
             if ( data[item]['education'] == 'College' ) setCollege(data[item]) 
             if ( data[item]['education'] == "Graduate School (Master's or Doctorate)" ) setMaster(data[item]) 
         })
@@ -81,6 +83,7 @@ function Educational(){
             setElem()
             setHigh()
             setSenior()
+            setTech()
             setCollege()
             setMaster()
             init()
@@ -139,8 +142,9 @@ function Educational(){
                         <Divider />
                         <EducationAttainment attainment='Elementary' data={elem} required />
                         <EducationAttainment attainment='Secondary (High School)' data={high} required />
-                        <EducationAttainment attainment='Senior High' data={senior} required />
-                        <EducationAttainment attainment='College' data={college} required />
+                        <EducationAttainment attainment='Senior High School' data={senior} required />
+                        <EducationAttainment attainment='Vocational & Technical Education' data={tech} />
+                        <EducationAttainment attainment='College' data={college} />
                         <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} />
                         <Divider />
                         <form onSubmit={handleSubmit}>

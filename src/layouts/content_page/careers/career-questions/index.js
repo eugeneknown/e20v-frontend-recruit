@@ -235,6 +235,7 @@ function CareerQuestionsForm(){
                                                             options: data.options ? data.options : undefined
                                                         }))
                                                     })}
+                                                    <Divider />
                                                 </MDBox>
                                                 )}
                                             />

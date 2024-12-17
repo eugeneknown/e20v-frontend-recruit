@@ -13,6 +13,12 @@ export default [
         hidden: true,
     },
     {
+        id: 'school',
+        label: 'Name of School',
+        type: 'text',
+        required: true,
+    },
+    {
         id: 'course',
         label: 'Course',
         type: 'select',
@@ -20,14 +26,8 @@ export default [
         options: courses,
     },
     {
-        id: 'school',
-        label: 'Name of School',
-        type: 'text',
-        required: true,
-    },
-    {
         id: 'start_date',
-        label: 'Year start attended',
+        label: 'Year Attended',
         type: 'date',
         required: true,
         options: { 
@@ -48,7 +48,7 @@ export default [
     },
     {
         id: 'end_date',
-        label: 'Year end attended',
+        label: 'Year Graduated',
         type: 'date',
         required: true,
         options: {
@@ -68,7 +68,13 @@ export default [
     },
     {
         id: 'present',
-        label: 'Currently Enrolled',
+        label: 'Presently Enrolled',
+        type: 'switch',
+        required: false,
+    },
+    {
+        id: 'undergrad',
+        label: 'Undergraduate',
         type: 'switch',
         required: false,
     },

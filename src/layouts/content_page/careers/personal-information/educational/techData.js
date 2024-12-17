@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import educationalAttainment from './educational-attainment';
-import courses from './courses';
+import strand from './strand';
 
 
 export default [
@@ -8,19 +8,19 @@ export default [
         id: 'education',
         label: 'Educational Attainment',
         type: 'select',
-        required: false,
+        required: true,
         options: educationalAttainment,
         hidden: true,
     },
     {
-        id: 'school',
-        label: 'Name of School',
+        id: 'course',
+        label: 'Strand',
         type: 'text',
         required: true,
     },
     {
         id: 'end_date',
-        label: 'Year Graduated',
+        label: 'Year Completed',
         type: 'date',
         required: true,
         options: { 

@@ -132,11 +132,11 @@ function Employee() {
             console.log('debug employee formHandle response', result)
             result = result.data['career_answers']
 
-            var orderlist = ['full_name', 'first_name', 'middle_name', 'last_name', 'email', 'contact_number']
-            var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users']
+            var orderlist = ['full_name', 'first_name', 'middle_name', 'last_name', 'nickname', 'email', 'contact_number', 'alternative_number']
+            var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users', 'details']
 
             const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].entity_data
-            const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
+            // const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
 
             setContent((
                 <Grid container>
@@ -246,7 +246,7 @@ function Employee() {
                 {key.split('_').join(' ')}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="text">
-                &nbsp;{moment(value).isValid() && typeof value != 'number' ? formatDateTime(value, 'MM-DD-YYYY') : value}
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'MM-DD-YYYY') : value}
             </MDTypography>
         </MDBox>
     )
@@ -380,11 +380,11 @@ function Employee() {
         console.log('debug handle platform data:', data);
 
         if ( data.action == 'select' ) {
-            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, platforms_id: data.data_id }).then((result) => {
-                console.log("debug update career platform", result.data);
+            dataServicePrivate('POST', 'entity/details/define', { entity_id: data.id, platforms_id: data.data_id }).then((result) => {
+                console.log("debug update entity platform", result.data);
                 getInit();
             }, (err) => {
-                console.log("debug update career platform error", err);
+                console.log("debug update entity platform error", err);
             });
         }
 
@@ -447,9 +447,8 @@ function Employee() {
                     platform: (
                         <MDBox ml={-1}>
                             <BadgePopper
-                                id={recruit[key].id}
-                                badgeContent={recruit[key]['platforms_data']?.title} 
-                                color={recruit[key]['platforms_data']?.color} 
+                                id={recruit[key]['entity_data'].id}
+                                badgeId={recruit[key]['entity_data']?.details[0]?.platforms_id} 
                                 variant="customGradient" 
                                 content={platforms}
                                 data={handlePlatformData}
@@ -466,9 +465,8 @@ function Employee() {
                     status: (
                         <MDBox ml={-1}>
                             <BadgePopper
-                                id={recruit[key].id}
-                                badgeContent={recruit[key].tags != null ? recruit[key]['tags_data'].title : 'unassigned'} 
-                                color={recruit[key].tags != null ? recruit[key]['tags_data'].color : 'light_grey'} 
+                                id={recruit[key]['entity_data'].id}
+                                badgeId={recruit[key]['tags_data']?.id} 
                                 variant="gradient" 
                                 content={tags}
                                 data={handleTagsData}
