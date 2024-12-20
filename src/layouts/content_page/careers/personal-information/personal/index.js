@@ -137,7 +137,7 @@ function PersonalForm(){
                                                     }
 
                                                     return (
-                                                        <MDBox display='flex' justifyContent='space-between' alignItems='center'>
+                                                        <MDBox my={2} display='flex' justifyContent='space-between' alignItems='center'>
                                                             {generateFormInput({
                                                                 variant: 'outlined',
                                                                 fullWidth: false,
@@ -147,6 +147,7 @@ function PersonalForm(){
                                                                 label: entityData[item].label,
                                                                 value: values[entityData[item].id],
                                                                 required: entityData[item].required,
+                                                                sx: [{ my: 0 }],
                                                                 onChange: handleChange,
                                                                 onBlur: handleBlur,
                                                                 setFieldValue,

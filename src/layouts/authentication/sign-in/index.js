@@ -61,10 +61,6 @@ function Basic() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-  const googleClientId = '739972801733-bb5obcrbpclmaiupbl2057re25uear8a.apps.googleusercontent.com'
-  const googleCallbackUri = 'http://localhost:8000/api/entity/google/login/callback/'
-  const googleSignInUrl = `https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${googleCallbackUri}&prompt=consent&response_type=code&client_id=${googleClientId}&scope=openid%20email%20profile&access_type=offline`;
-
   const userRef = useRef('');
   const errRef = useRef('');
 
@@ -143,7 +139,7 @@ function Basic() {
       // console.log('auth token', jwtCredential);
 
       // Send the authorization code to your Django backend
-      const response = await axios.post(googleCallbackUri, {
+      const response = await axios.post(process.env.REACT_APP_GOOGLE_CALLBACK_URI, {
         token: jwtCredential,
       });
       
@@ -214,9 +210,9 @@ function Basic() {
             <MDBox mb={2}>
               <MDInput 
                 type="text" 
-                label="Username" 
+                label="Email" 
                 fullWidth
-                id="username"
+                id="email"
                 ref={userRef}
                 autoComplete="off"
                 onChange={(e) => setUser(e.target.value)}
@@ -260,7 +256,7 @@ function Basic() {
                   fontWeight="medium"
                   textGradient
                 >
-                  Forgot the password?
+                  Forgot password?
                 </MDTypography>
               </MDBox>
             </MDBox>
@@ -269,21 +265,8 @@ function Basic() {
                 sign in
               </MDButton>
             </MDBox>
-            <Divider />
-            {/*<MDButton 
-              href={googleSignInUrl}
-              target="_blank" 
-              rel="noopener noreferrer"
-              variant='outlined' 
-              color="secondary" 
-              startIcon={<MDBox component='img' src={googleIcon} 
-              width='25px' />} 
-              fullWidth 
-
-            >
-              Sign in with Google
-            </MDButton>*/}
-            <GoogleOAuthProvider clientId='739972801733-bb5obcrbpclmaiupbl2057re25uear8a.apps.googleusercontent.com'>
+            <MDBox display='flex' justifyContent='center'><MDTypography variant='button'>or</MDTypography></MDBox>
+            <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
               <GoogleLogin
                 onSuccess={handleGoogleLogin}
                 onError={() => {
@@ -294,17 +277,17 @@ function Basic() {
               />
             </GoogleOAuthProvider>
             <MDBox mt={3} mb={1} textAlign="center">
-              <MDTypography variant="button" color="text">
+              <MDTypography variant="body2">
                 Don&apos;t have an account?{" "}
                 <MDTypography
                   component={Link}
                   to="/authentication/sign-up"
-                  variant="button"
-                  color="info"
-                  fontWeight="medium"
+                  variant="body2"
+                  color="error"
                   textGradient
+                  sx={{ fontWeight: '400' }}
                 >
-                  Sign up
+                  REGISTER HERE
                 </MDTypography>
               </MDTypography>
             </MDBox>

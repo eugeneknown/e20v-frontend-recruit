@@ -37,6 +37,7 @@ function PersonalInformation(){
     const [experience, setExperience] = useState()
     const [details, setDetails] = useState()
     const [educations, setEducations] = useState()
+    const [disabled, setDisable] = useState(true)
 
     // remove personal local data
     localStorage.removeItem('entity')
@@ -168,7 +169,8 @@ function PersonalInformation(){
             var seq = [
                 "Elementary",
                 "Secondary (High School)",
-                "Senior High",
+                "Senior High School",
+                "Vocational & Technical Education",
                 "College",
                 "Graduate School (Master's or Doctorate)"
             ]
@@ -221,6 +223,16 @@ function PersonalInformation(){
 
         })
     }, [])
+
+    useEffect(() => {
+        console.log('personal entity', entity);
+        console.log('personal details', details);
+        console.log('personal educations', educations);
+        console.log('personal experience', experience);
+
+        if ( entity && details && educations && experience ) setDisable(false) 
+
+    },[entity, details, educations, experience])
 
     const InformationContent = ({title, data, url}) => (
         <Card sx={{ mx: 5, my: 3 }}>
@@ -306,7 +318,7 @@ function PersonalInformation(){
                                 <WorkExpContent title='Educational Background' data={educations} url='/careers/personalinfo/educational' />
                                 <WorkExpContent title='Work Experience' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
-                                <MDButton onClick={() => toPage('/careers/questions')} disabled={!(entity) && !(experience) && !(details)} fullWidth color={!entity && !experience && !details ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
+                                <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
                             </CardContent>
                         </Card>
                     </MDBox>

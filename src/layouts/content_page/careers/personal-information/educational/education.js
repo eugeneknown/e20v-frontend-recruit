@@ -24,6 +24,8 @@ import moment from "moment";
 import elemData from "./elemData";
 import seniorData from "./seniorData";
 import collegeData from "./collegeData";
+import techData from "./techData";
+import masterData from "./masterData";
 
 
 function EducationalAttainmentForm(){
@@ -95,9 +97,10 @@ function EducationalAttainmentForm(){
 
     const init = (ed) => {
         if ( ed == 'Elementary' || ed == 'Secondary (High School)' ) return elemData
-        if ( ed == 'Senior High' ) return seniorData
+        if ( ed == 'Senior High School' ) return seniorData
+        if ( ed == 'Vocational & Technical Education' ) return techData
         if ( ed == 'College' || ed == "Graduate School (Master's or Doctorate)" ) return collegeData
-
+        if ( ed == "Graduate School (Master's or Doctorate)" ) return masterData
     }
 
     const handleSubmit = (data) => {
@@ -123,7 +126,7 @@ function EducationalAttainmentForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add educational attainment</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add {location.state.education}</MDTypography>
                         <Divider />
                         {education && <Formik
                             initialValues={education}

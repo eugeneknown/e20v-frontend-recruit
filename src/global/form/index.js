@@ -11,7 +11,7 @@ import MDTypography from 'components/MDTypography'
 
 export const generateFormInput = (props) => {
     var sx = { my: 2, display: props?.hidden ? 'none' : 'block' }
-    props['sx'] = [sx]
+    if (typeof props.sx == 'undefined') props['sx'] = [sx]
     // console.log('props', props);
 
     // revise the touched, touched must be pass then init the error and helper for global and custom variables
@@ -98,7 +98,6 @@ export const generateFormInput = (props) => {
             // console.log('checkbox', props);
 
             const checkValue = (data, value) => {
-                console.log('w3w', data);
                 if (data.indexOf(value)) {
                     var index = data.indexOf(value)
                     data.splice(index, 1)

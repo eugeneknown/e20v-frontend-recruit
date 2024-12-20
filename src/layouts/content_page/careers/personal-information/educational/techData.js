@@ -13,6 +13,12 @@ export default [
         hidden: true,
     },
     {
+        id: 'school',
+        label: 'Name of School',
+        type: 'text',
+        required: true,
+    },
+    {
         id: 'course',
         label: 'Strand',
         type: 'text',

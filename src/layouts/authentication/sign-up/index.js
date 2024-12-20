@@ -187,21 +187,11 @@ function Cover() {
                     Join us today
                     </MDTypography>
                     <MDTypography display="block" variant="button" color="white" my={1}>
-                    Enter your username and password to register
+                    Enter your email and password to register
                     </MDTypography>
                 </MDBox>
                 <MDBox pt={4} pb={3} px={3}>
                     <MDBox component="form" role="form">
-                        <MDBox mb={2}>
-                        <TextField 
-                            onChange={(e) => setUsername(e.target.value)} 
-                            value={username} 
-                            type="text" 
-                            label="Username" 
-                            variant="standard" 
-                            fullWidth autoComplete="off" 
-                        />
-                        </MDBox>
                         <MDBox mb={2}>
                         <TextField 
                             onChange={(e) => setEmail(e.target.value)} 
@@ -265,7 +255,7 @@ function Cover() {
                                 sign up
                             </MDButton>
                         </MDBox>
-                        <MDBox mt={3} mb={1} textAlign="center">
+                        {/* <MDBox mt={3} mb={1} textAlign="center">
                             <MDTypography variant="button" color="text">
                                 Already have an account?{" "}
                                 <MDTypography
@@ -279,7 +269,7 @@ function Cover() {
                                 Sign In
                                 </MDTypography>
                             </MDTypography>
-                        </MDBox>
+                        </MDBox> */}
                     </MDBox>
                 </MDBox>
             </Card>

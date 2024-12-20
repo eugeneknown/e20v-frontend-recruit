@@ -176,10 +176,7 @@ function ReferenceInformation(){
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        console.log('w3w submit');
-        toPage('/careers/submitted')
-
-        if ( ref && (Object.keys(ref).length > 2) ) {
+        if ( ref && (Object.keys(ref).length >= 2) ) {
             toPage('/careers/submitted')
         } else {
             err.current.scrollIntoView({
@@ -226,9 +223,9 @@ function ReferenceInformation(){
                                     startIcon={<Icon>add</Icon>}
                                     onClick={() => toPage('/careers/reference/referenceform')}
                                 >
-                                    <MDTypography variant='body2' color='secondary'>Add Reference</MDTypography>
+                                    <MDTypography ref={err} variant='body2' color='secondary'>Add Reference</MDTypography>
                                 </MDButton>}
-                                <MDTypography ref={err} color='error' variant='button'>Add atleast 2 reference</MDTypography>
+                                <MDTypography my={1} sx={{ display: ref && (Object.keys(ref).length >= 2) ? 'none' : 'block' }} color='error' variant='button'>Add atleast 2 reference</MDTypography>
                                 <Divider />
                                 <form onSubmit={handleSubmit}>
                                 <AuthLetter />

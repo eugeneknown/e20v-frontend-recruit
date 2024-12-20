@@ -15,9 +15,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
 import { dataServicePrivate } from "global/function";
-import elemData from "./elemData";
-import seniorData from "./seniorData";
-import collegeData from "./collegeData";
 
 
 function Educational(){
@@ -70,8 +67,8 @@ function Educational(){
         Object.keys(data).map((item, index) => {
             if ( data[item]['education'] == 'Elementary' ) setElem(data[item]) 
             if ( data[item]['education'] == 'Secondary (High School)' ) setHigh(data[item]) 
-            if ( data[item]['education'] == 'Senior High' ) setSenior(data[item]) 
-            if ( data[item]['education'] == 'Technical Education' ) setTech(data[item]) 
+            if ( data[item]['education'] == 'Senior High School' ) setSenior(data[item]) 
+            if ( data[item]['education'] == 'Vocational & Technical Education' ) setTech(data[item]) 
             if ( data[item]['education'] == 'College' ) setCollege(data[item]) 
             if ( data[item]['education'] == "Graduate School (Master's or Doctorate)" ) setMaster(data[item]) 
         })

@@ -71,7 +71,7 @@
     "yup": "^1.1.1"
   },
   "scripts": {
-    "start": "set GENERATE_SOURCEMAP=false && set PORT=3100 && react-scripts start",
+    "start": "GENERATE_SOURCEMAP=false PORT=3100 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
