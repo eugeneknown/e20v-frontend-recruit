@@ -265,7 +265,7 @@ function Basic() {
                 sign in
               </MDButton>
             </MDBox>
-            <MDBox display='flex' justifyContent='center'><MDTypography variant='button'>or</MDTypography></MDBox>
+            <MDBox my={1} display='flex' justifyContent='center'><MDTypography variant='button'>or</MDTypography></MDBox>
             <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
               <GoogleLogin
                 onSuccess={handleGoogleLogin}

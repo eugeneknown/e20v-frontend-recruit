@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import * as yup from 'yup';
 import { FieldArray, Form, Formik } from 'formik';
-import data from "./referenceData";
+import formData from "./dependentsData";
 import { generateObjectSchema } from "global/validation";
 import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
@@ -24,7 +24,7 @@ import Footer from "examples/Footer";
 import moment from "moment";
 
 
-function ReferenceForm(){
+function DependentsForm(){
 
     // navigation
     const navigate = useNavigate();
@@ -38,41 +38,40 @@ function ReferenceForm(){
     console.log('location id', id);
 
     const {isAuth, auth} = useAuth();
-    const [ref, setRef] = useState()
-    var entity_id = auth['id']
+    const [dependents, setDependents] = useState()
 
-    const local = localStorage.getItem('reference')
+    const local = localStorage.getItem('dependents')
     const removeLocal = () => {
-        localStorage.removeItem('reference')
+        localStorage.removeItem('dependents')
     }
 
     // init validation
-    var yupObject = generateObjectSchema(data)
+    var yupObject = generateObjectSchema(formData)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
 
     useEffect(() => {
-
-        // fetch reference
-        if (id) {
-            dataServicePrivate('POST', 'entity/reference/fetch', {id}).then((result) => {
-                console.log('debug experience result', result);
-                result = result.data['entity_reference'][0]
-                setRef(result)
+        // fetch dependents
+        if ( id ) {
+            dataServicePrivate('POST', 'entity/dependents/fetch', {id}).then((result) => {
+                console.log('debug dependents result', result);
+                result = result.data['entity_dependents'][0]
+                setDependents(result)
+    
             }).catch((err) => {
-                console.log('debug experience error result', err);
+                console.log('debug dependents error result', err);
     
             })
         } else {
-            setRef({})
+            setDependents({})
         }
 
     }, [])
 
     useEffect(() => {
-        if (ref) {
+        if (dependents) {
             const onbeforeunloadFn = () => {
-                localStorage.setItem('ref', JSON.stringify(ref))
+                localStorage.setItem('dependents', JSON.stringify(dependents))
             }
           
             window.addEventListener('beforeunload', onbeforeunloadFn);
@@ -80,17 +79,15 @@ function ReferenceForm(){
                 window.removeEventListener('beforeunload', onbeforeunloadFn);
             }
         }
-    },[ref])
+    },[dependents])
 
     const handleSubmit = (data) => {
-        console.log('submit', data);
-
-        dataServicePrivate('POST', 'entity/reference/define', {entity_id, ...data}).then((result) => {
-            console.log('debug reference define result', result);
+        dataServicePrivate('POST', 'entity/dependents/define', {...data, entity_id: auth['id']}).then((result) => {
+            console.log('debug dependents result', result);
             removeLocal()
             prevPage()
         }).catch((err) => {
-            console.log('debug reference define error result', err);
+            console.log('debug dependents error result', err);
 
         })
     }
@@ -102,10 +99,10 @@ function ReferenceForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add reference</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add dependents</MDTypography>
                         <Divider />
-                        {ref && <Formik
-                            initialValues={ref}
+                        {dependents && <Formik
+                            initialValues={dependents}
                             validationSchema={validationSchema}
                             onSubmit={(data) => {
                                 handleSubmit(data)
@@ -116,27 +113,29 @@ function ReferenceForm(){
                                     <FieldArray
                                         render={arrayHelper => (
                                         <MDBox>
-                                            {setRef(values)}
-                                            {Object.keys(data).map((item, index) => {
+                                            {setDependents(values)}
+                                            {console.log('values', values, isValid)}
+                                            {Object.keys(formData).map((item, index) => {
                                                 // universal format
-                                                var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
-                                                var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
+                                                var touch = formData[item].type == 'date' ? typeof touched[formData[item].id] == 'undefined' ? true : touched[formData[item].id] : touched[formData[item].id]
+                                                var error = formData[item].type == 'date' ? formData[item].required && errors[formData[item].id] : errors[formData[item].id]
+
                                                 return (generateFormInput({
                                                     variant: 'outlined',
                                                     fullWidth: true,
-                                                    type: data[item].type,
-                                                    id: data[item].id,
-                                                    name: data[item].id,
-                                                    label: data[item].label,
-                                                    value: values[data[item].id],
-                                                    required: data[item].required,
+                                                    type: formData[item].type,
+                                                    id: formData[item].id,
+                                                    name: formData[item].id,
+                                                    label: formData[item].label,
+                                                    value: values[formData[item].id],
+                                                    required: formData[item].required,
                                                     onChange: handleChange,
                                                     onBlur: handleBlur,
                                                     setFieldValue,
                                                     setFieldTouched,
                                                     error: touch && Boolean(error),
                                                     helperText: touch && error,
-                                                    options: data[item].options ? data[item].options : undefined
+                                                    options: formData[item].options ? formData[item].options : undefined
                                                 }))
                                             })}
                                         </MDBox>
@@ -154,4 +153,4 @@ function ReferenceForm(){
     );
 }
 
-export default ReferenceForm;
+export default DependentsForm;

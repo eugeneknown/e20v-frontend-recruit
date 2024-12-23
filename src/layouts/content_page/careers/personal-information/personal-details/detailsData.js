@@ -70,10 +70,12 @@ export default [
     },
     {
         id: 'government_requirements',
-        label: 'Government Requirements (Please check to select)',
+        label: 'Pre-Employment Req',
         type: 'check',
         required: true,
-        options: ['SSS (Social Security System)', 'PhilHealth', 'Pag-IBIG Fund', 'TIN (Tax Identification Number)'],
+        options: ['SSS ID', 'PHIC ID', 'HDMF ID', '2316 from previous employer', 'Birth Certificate (preferably PSA)', 'Picture with white background (for ID)',
+            'Certificate of Employment (recent previous employer', 'TOR'
+        ],
     },
   
 ]

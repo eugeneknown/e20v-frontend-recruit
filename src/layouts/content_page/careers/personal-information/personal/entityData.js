@@ -84,9 +84,10 @@ export default [
     },
     {
         id: 'children',
-        label: 'Children (if applicable)',
-        type: 'text',
+        label: 'Dependents',
+        type: 'select',
         required: true,
+        options: ['Yes', 'No'],
     },
     {
         id: 'permanent_address',

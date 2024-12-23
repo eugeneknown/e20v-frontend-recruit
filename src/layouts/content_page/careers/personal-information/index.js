@@ -37,6 +37,8 @@ function PersonalInformation(){
     const [experience, setExperience] = useState()
     const [details, setDetails] = useState()
     const [educations, setEducations] = useState()
+    const [hasDependents, setHasDependents] = useState(false)
+    const [dependents, setDependents] = useState()
     const [disabled, setDisable] = useState(true)
 
     // remove personal local data
@@ -60,6 +62,10 @@ function PersonalInformation(){
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
+
+            // fetch dependents
+            if ( result['children'] == 'Yes' ) setHasDependents(true)
+
             var title = ['full_name', 'contact_number', 'email', 'permanent_address']
             var color = []
             var variant = ['h6']
@@ -165,6 +171,7 @@ function PersonalInformation(){
                 value: entity_id,
             }],
         }).then((result) => {
+            console.log('debug entity education result', result);
             result = result.data['entity_education']
             var seq = [
                 "Elementary",
@@ -175,18 +182,63 @@ function PersonalInformation(){
                 "Graduate School (Master's or Doctorate)"
             ]
             var check = ['education', 'course', 'school', 'start_date', 'end_date']
+            
+            if ( Object.keys(result).length ) {
+                var color = []
+                var variant = ['h6']
+
+                var temp = []
+                seq.forEach((item) => {
+                    var _temp = []
+                    var index = Object.keys(result).findIndex((e) => result[e].education == item)
+
+                    if ( index >= 0 ) {
+
+                        check.forEach((_item, _index) => {
+                            if ( result[index][_item] ) {
+                                if ( _item != 'start_date' ) {
+                                    _temp.push({
+                                        title: _item == 'end_date' ? 
+                                            result[index]['start_date'] ? 
+                                            <MDTypography variant='body2'>
+                                                {formatDateTime(result[index]['start_date'], 'YYYY')} to {result[index]['end_date'] ?  formatDateTime(result[index]['end_date'], 'YYYY') : `Present`}
+                                            </MDTypography>
+                                            : <MDTypography variant='body2'>
+                                                {formatDateTime(result[index]['end_date'], 'YYYY')}
+                                            </MDTypography> 
+                                        : result[index][_item],
+                                        color: color[_index] ? color[_index] : 'inherit',
+                                        variant: variant[_index] ? variant[_index] : 'body2',
+                                    })
+                                }
+                            }
+                        })
+                        temp.push(_temp)
+
+                    }
+
+                })
+                setEducations(temp)
+            }
+
+        }).catch((err) => {
+            console.log('debug entity education error result', err);
+
+        })
+
+        // entity dependents
+        dataServicePrivate('POST', 'entity/dependents/all', {
+            filter: [{
+                operator: '=',
+                target: 'entity_id',
+                value: entity_id,
+            }],
+        }).then((result) => {
+            result = result.data['entity_dependents']
             var title = []
             Object.keys(result).map((item, index) => {
-                var tempTitle = []
-                var idx = 0
-                Object.keys(result).forEach(_index => { if ( result[_index]['education'] == seq[index] ) idx = _index })
-                console.log('asdwwwdsa', idx);
-                check.forEach((_item) => {
-                    if ( result[idx][_item] ) tempTitle.push(_item)
-                })
-                title.push(tempTitle)
+                title.push(['name', 'birthday', 'relationship'])
             })
-            console.log('w3w', title);
             var color = []
             var variant = ['h6']
 
@@ -194,28 +246,20 @@ function PersonalInformation(){
                 var temp = []
                 Object.keys(title).map((item, index) => {
                     var _temp = []
-                    var idx = 0
-                    Object.keys(result).forEach(_index => { if ( result[_index]['education'] == seq[index] ) idx = _index })
                     Object.keys(title[item]).map((_item, _index) => {
-                        if ( title[item][_item] != 'start_date' ) {
-                            _temp.push({
-                                title: title[item][_item] == 'end_date' ? 
-                                result[idx]['start_date'] ? 
-                                <MDTypography variant='body2'>
-                                    {formatDateTime(result[idx]['start_date'], 'YYYY')} to {result[idx]['end_date'] ?  formatDateTime(result[idx]['end_date'], 'YYYY') : `Present`}
-                                </MDTypography> :
-                                <MDTypography variant='body2'>
-                                    {formatDateTime(result[idx]['end_date'], 'YYYY')}
-                                </MDTypography> : result[idx][title[item][_item]],
-                                color: color[_index] ? color[_index] : 'inherit',
-                                variant: variant[_index] ? variant[_index] : 'body2',
-                            })
-                        }
+                        _temp.push({
+                            title: title[item][_item] == 'birthday' ? 
+                            <MDTypography variant='body2'>
+                                {formatDateTime(result[item]['birthday'], 'MMMM DD, YYYY')}
+                            </MDTypography> : result[item][title[item][_item]] ,
+                            color: color[_index] ? color[_index] : 'inherit',
+                            variant: variant[_index] ? variant[_index] : 'body2',
+                        })
                     })
 
                     temp.push(_temp)
                 })
-                setEducations(temp)
+                setDependents(temp)
             }
 
         }).catch((err) => {
@@ -229,10 +273,11 @@ function PersonalInformation(){
         console.log('personal details', details);
         console.log('personal educations', educations);
         console.log('personal experience', experience);
+        console.log('personal dependents', dependents);
 
-        if ( entity && details && educations && experience ) setDisable(false) 
+        if ( entity && details && educations && experience && ( hasDependents ? dependents : true ) ) setDisable(false) 
 
-    },[entity, details, educations, experience])
+    },[entity, details, educations, experience, dependents])
 
     const InformationContent = ({title, data, url}) => (
         <Card sx={{ mx: 5, my: 3 }}>
@@ -315,6 +360,7 @@ function PersonalInformation(){
                             />
                             <CardContent>
                                 <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
+                                { hasDependents && <WorkExpContent title='Dependents' data={dependents} url='/careers/personalinfo/dependents' /> }
                                 <WorkExpContent title='Educational Background' data={educations} url='/careers/personalinfo/educational' />
                                 <WorkExpContent title='Work Experience' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
