@@ -63,14 +63,8 @@ export default [
         required: true,
     },
     {
-        id: 'dependents',
-        label: 'Dependents',
-        type: 'text',
-        required: true,
-    },
-    {
         id: 'government_requirements',
-        label: 'Pre-Employment Req',
+        label: 'Pre-Employment Requirement (check if applicable or available)',
         type: 'check',
         required: true,
         options: ['SSS ID', 'PHIC ID', 'HDMF ID', '2316 from previous employer', 'Birth Certificate (preferably PSA)', 'Picture with white background (for ID)',

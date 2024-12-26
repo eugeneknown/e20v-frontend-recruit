@@ -84,7 +84,7 @@ export default [
     },
     {
         id: 'children',
-        label: 'Dependents',
+        label: 'Dependents / Children',
         type: 'select',
         required: true,
         options: ['Yes', 'No'],

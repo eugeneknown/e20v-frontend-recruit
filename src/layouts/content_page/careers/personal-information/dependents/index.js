@@ -83,7 +83,7 @@ function Dependents(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Dependents</MDTypography>
                         <Divider />
                         {dependents && Object.keys(dependents).map((item, index) => (
                             <Card position='relative' sx={{ my: 2 }}>
@@ -107,7 +107,7 @@ function Dependents(){
                             startIcon={<Icon>add</Icon>}
                             onClick={() => toPage('/careers/personalinfo/dependentsform')}
                         >
-                            <MDTypography variant='body2' color='secondary'>Add Work Experience</MDTypography>
+                            <MDTypography variant='body2' color='secondary'>Add Dependent</MDTypography>
                         </MDButton>}
                         <form onSubmit={handleSubmit}>
                         <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>

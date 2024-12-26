@@ -37,9 +37,9 @@ export default [
             validations: [
             {
                 type: 'when',
-                params: [['present', 'end_date'], {
-                    is: ((present, end_date) => {
-                        return typeof present == 'undefined' || (!(present)) && typeof end_date != 'undefined'
+                params: [['present', 'end_date', 'undergrad'], {
+                    is: ((present, end_date, undergrad) => {
+                        return typeof present == 'undefined' || typeof undergrad == 'undefined' || ((!(present)) || (!(undergrad))) && typeof end_date != 'undefined'
                     }),
                     then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
                 }]
@@ -58,8 +58,10 @@ export default [
         validations: [
             {
                 type: 'when',
-                params: ['present', {
-                    is: (present => typeof present == 'undefined' || (!(present))),
+                params: [['present', 'undergrad'], {
+                    is: ((present, undergrad) => {
+                        return typeof present == 'undefined' || (!(present)) || typeof undergrad == 'undefined' || (!(undergrad))
+                    }),
                     then: (schema) => schema.min(yup.ref('start_date'), 'End date cannot be less than Start date'),
                     otherwise: (schema) => schema.notRequired()
                 }]

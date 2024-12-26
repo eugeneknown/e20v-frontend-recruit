@@ -99,7 +99,7 @@ function DependentsForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add dependents</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add dependent</MDTypography>
                         <Divider />
                         {dependents && <Formik
                             initialValues={dependents}

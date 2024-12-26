@@ -303,7 +303,7 @@ function PersonalInformation(){
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Add'} ${title}`}
+                    {`${data ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -340,7 +340,7 @@ function PersonalInformation(){
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Add'} ${title}`}
+                    {`${data ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
