@@ -100,7 +100,7 @@ function Dependents(){
                                 </CardContent>
                             </Card>
                         ))}
-                        {dependents && Object.keys(dependents).length < 3 && <MDButton
+                        {dependents && <MDButton
                             variant='outlined' 
                             color='secondary' 
                             fullWidth

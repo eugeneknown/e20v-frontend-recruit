@@ -126,7 +126,7 @@ function Educational(){
                         startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                         onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment })}
                     >
-                        <MDTypography variant='body2' color='secondary'>{`${data ? 'Edit' : 'Create'} ${attainment} Background`}</MDTypography>
+                        <MDTypography variant='body2' color='secondary'>{`${data ? 'Edit' : 'Add'} ${attainment} Background`}</MDTypography>
                     </MDButton>}
                     {!(option) && !(data) && required && <MDTypography color='error' variant='button'>{attainment} is required</MDTypography>}
                 </MDBox>

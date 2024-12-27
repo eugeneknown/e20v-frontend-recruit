@@ -17,7 +17,8 @@ Coded by www.creative-tim.com
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
-    FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Popover } from "@mui/material";
+    FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Popover, Dialog, DialogContent, DialogActions, DialogTitle, IconButton, CardContent, CardHeader, Chip, 
+    Link} from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -45,32 +46,25 @@ import FilterDialog from "./filter-dialog";
 
 import PersonIcon from "@mui/icons-material/Person";
 import BadgePopper from "./badge-popper";
-import Notifications from "../../notifications/dynamic-notification";
 
 import { useSnackbar } from "notistack";
+import ImgsViewer from 'react-images-viewer';
+import { dataServicePrivate } from "global/function";
+import { ChromePicker } from 'react-color'
+import ConfirmDialog from "../dynamic/confirm-dialog";
+import ImageView from "./image-viewer";
+import AudioPlayer from "material-ui-audio-player";
+import GenerateExel from "./generate-exel";
 
 
 function Employee() {
 
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: "60%",
-        bgcolor: 'white.main',
-        borderRadius: '8px',
-        border: '1px solid',
-        borderColor: 'grey.700',
-        boxShadow: 24,
-        p: 4,
-    };
-
     const [recruit, setRecruit] = useState({});
-    const [tags, setTags] = useState({})
+    const [tags, setTags] = useState()
+    const [platforms, setPlatforms] = useState()
     const [selectedTag, setSelectedTag] = useState(0)
     const [recruitID, setRecruitID] = useState(0)
-    const [notif, setNotif] = useState()
+    const [experience, setExperience] = useState()
 
     const [rows, setRows] = useState([]);
     const [open, setOpen] = useState(false);
@@ -89,6 +83,22 @@ function Employee() {
     // snackbar nostick
     const { enqueueSnackbar } = useSnackbar()
 
+    // file viewer
+    const fileOpenEvent = () => {
+        console.log('w3w')
+    } 
+
+    // add data
+    const [openAddData, setOpenAddData] = useState(false)
+    const [addData, setAddData] = useState()
+    const [addDataColor, setAddDataColor] = useState()
+
+    // region confirm modal
+    const [confirmModal, setConfirmModal] = useState(false)
+    const [idDelete, setIdDelete] = useState()
+    const [confirmContent, setConfirmContent] = useState()
+    const [contentURL, setContentURL] = useState()
+
     const handlePopOpen = (e, data) => {
         setRecruitID(data)
         setPopOpen(e.currentTarget)
@@ -100,273 +110,119 @@ function Employee() {
         setFilterModal(false)
     }
 
-    const profileHandle = (data) => {
-        console.log('debug employee profileHandle:', data);
-        setContent((
-            <MDBox>
-                <Grid container spacing={3} alignItems="center">
-                    <Grid item>
-                        <MDAvatar src={burceMars} alt="profile-image" size="xl" shadow="sm" />
-                    </Grid>
-                    <Grid item>
-                        <MDBox height="100%" mt={0.5} lineHeight={1}>
-                            <MDTypography variant="h5" fontWeight="medium">
-                                {data.full_name}
-                            </MDTypography>
-                            {/* <MDTypography variant="button" color="text" fontWeight="regular">
-                                CEO / Co-Founder
-                            </MDTypography> */}
-                        </MDBox>
-                    </Grid>
-                </Grid>
-                <MDBox mt={5} mb={3}>
-                    <Grid container spacing={1}>
-                        <Grid item xs={6} sx={{ display: "flex" }}>
-                            <Card sx={{ height: "100%", boxShadow: "none" }}>
-                                <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={2} px={2}>
-                                    <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
-                                        Profile Information
-                                    </MDTypography>
-                                    <MDTypography variant="body2" color="secondary">
-                                        <Tooltip title='profile edit' placement="top">
-                                            <Icon>edit</Icon>
-                                        </Tooltip>
-                                    </MDTypography>
-                                </MDBox>
-                                <MDBox p={2}>
-                                    <MDBox mb={2} lineHeight={1}>
-                                    <MDTypography variant="button" color="text" fontWeight="light">
-                                        Eiusmod excepteur ea Lorem est dolor occaecat ea officia esse minim ullamco.
-                                    </MDTypography>
-                                    </MDBox>
-                                    <MDBox opacity={0.3}>
-                                    <Divider />
-                                    </MDBox>
-                                    <MDBox>
-                                        <MDBox display="flex" py={1} pr={2}>
-                                            <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
-                                                Email: &nbsp;
-                                            </MDTypography>
-                                            <MDTypography variant="button" fontWeight="regular" color="text">
-                                                &nbsp;{data.email}
-                                            </MDTypography>
-                                        </MDBox>
-                                        <MDBox display="flex" py={1} pr={2}>
-                                            <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
-                                                Contact Number: &nbsp;
-                                            </MDTypography>
-                                            <MDTypography variant="button" fontWeight="regular" color="text">
-                                                &nbsp;{data.contact_number}
-                                            </MDTypography>
-                                        </MDBox>
-                                        <MDBox display="flex" py={1} pr={2}>
-                                            <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
-                                                Address: &nbsp;
-                                            </MDTypography>
-                                            <MDTypography variant="button" fontWeight="regular" color="text">
-                                                &nbsp;{data.address}
-                                            </MDTypography>
-                                        </MDBox>
-                                    </MDBox>
-                                </MDBox>
-                            </Card>
-                        <Divider orientation="vertical" sx={{ mx: 0 }} />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Card sx={{ height: "100%", boxShadow: "none" }}>
-                                <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={2} px={2}>
-                                    <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
-                                        Additional Information
-                                    </MDTypography>
-                                </MDBox>
-                                <MDBox p={2}>
-                                    <MDBox mb={2} lineHeight={1}>
-                                        <MDTypography variant="button" color="text" fontWeight="light">
-                                            Resume Image
-                                        </MDTypography>
-                                    </MDBox>
-                                </MDBox>
-                            </Card>
-                        </Grid>
-                    </Grid>
-                </MDBox>
-            </MDBox>
-        ));
-        handleOpen();
-    }
-
-    const formHandle = async (entity_id, careers_id, readOnly=true) => {
+    const formHandle = (entity_id, careers_id, readOnly=true) => {
         console.log('debug employee formHandle:', entity_id +' '+ careers_id);
 
-        await axiosPrivate.post('hr/careers/answers/all', {
-            entity_id,
-            careers_id
+        // entity_career_id for filtering
+        dataService('POST', 'hr/careers/answers/all', {
+            filter: [
+                {
+                    operator: '=',
+                    target: 'entity_id',
+                    value: entity_id,
+                },
+                {
+                    operator: '=',
+                    target: 'careers_id',
+                    value: careers_id,
+                },
+            ],
+            'relations': ['question']
         }).then((result) => {
-            result = result.data['career_answers'];
             console.log('debug employee formHandle response', result)
-    
+            result = result.data['career_answers']
+
+            var orderlist = ['full_name', 'first_name', 'middle_name', 'last_name', 'nickname', 'email', 'contact_number', 'alternative_number']
+            var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users', 'details']
+
+            const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].entity_data
+            // const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
+
             setContent((
-                <MDBox>
-                    <MDTypography variant="h2" fontWeight="Bold" textAlign="center">
-                        Form Application
-                    </MDTypography>
-                    <Grid my={3} container spacing={2}>
+                <Grid container>
+                    <Grid item xs={6} style={{maxHeight: '100vh', overflow: 'auto'}}>
                         {
-                            Object.keys(result).map((key, item) => {
-                                const question = result[key].question_data;
-    
-                                switch (question?.type) {
-                                    case 'text':
-                                        return (
-                                            <Grid key={key} item xs={6}>
-                                                <FormControl fullWidth>
-                                                    {
-                                                        readOnly ? (
-                                                            <MDInput 
-                                                                type="text" 
-                                                                label={question?.title}
-                                                                fullWidth
-                                                                autoComplete="off"
-                                                                readOnly
-                                                                value={result[key].value !== undefined ? result[key].value : ''}
-                                                            />
-                                                        ) : (
-                                                            <MDInput 
-                                                                type="text" 
-                                                                label={question?.title}
-                                                                fullWidth
-                                                                autoComplete="off"
-                                                            />
-                                                        )
-                                                    }
-                                                </FormControl>
-                                            </Grid>
-                                        );
-    
-                                    case 'select':
-                                        return (
-                                            <Grid key={key} item xs={6}>
+                            orderlist.map(key => renderEntityInfo(key, entity[key]))
+                        }
+                        {
+                            Object.keys(entity).map((key, item) => {
+                                if (!blacklist.includes(key) && !orderlist.includes(key)) {
+                                    return renderEntityInfo(key, entity[key])
+                                }
+                            })
+                        }
+                        <GenerateExel data={{entity_id, careers_id}} />
+                    </Grid>
+                    <Grid item xs={6} px={2} style={{maxHeight: '100vh', overflow: 'auto'}}>
+                        {
+                            Object.keys(result).map((item, key) => {
+                                if (result[item]['question_data']['type'] == 'input') {
+                                    return (
+                                        <Card sx={{ my: 2 }} key={key}>
+                                            <CardContent>
+                                                <MDTypography>{result[item]['question_data']['title']}</MDTypography>
+                                                <Divider />
+                                                <MDTypography textTransform="capitalize" variant="caption">{result[item]['value']}</MDTypography>
+                                            </CardContent>
+                                        </Card>
+                                    )
+                                } else {
+                                    return (
+                                        <Card sx={{ my: 2 }} key={key}>
+                                            <CardContent>
+                                                <MDTypography>{result[item]['question_data']['title']}</MDTypography>
+                                                <Divider />
                                                 {
-                                                    readOnly ? (
-                                                        <FormControl fullWidth>
-                                                            <InputLabel>{question.title}</InputLabel>
-                                                            <Select
-                                                            label={question.title}
-                                                            sx={{ height: "44px" }}
-                                                            value={result[key].value !== undefined ? result[key].value : ''}
-                                                            readOnly
-                                                            >
+                                                    result[item]['files'] != null ? 
+                                                        (
+                                                            <MDBox
+                                                            display="flex"
+                                                            justifyContent='center'>
                                                                 {
-                                                                    result[key].value?.split(', ').map((_item, _key) => (
-                                                                        <MenuItem key={_key} value={_item}>{_item}</MenuItem>
-                                                                    ))
+                                                                    String(result[item]['files']['file_type']).split('/')[1] == 'pdf' &&
+                                                                    <Link href={result[item]['files_url']} target="_blank">
+                                                                        Open File
+                                                                    </Link>
                                                                 }
-                                                            </Select>
-                                                        </FormControl>
-                                                    ) : (
-                                                        <FormControl fullWidth>
-                                                            <InputLabel>{question.title}</InputLabel>
-                                                            <Select
-                                                            label={question.title}
-                                                            sx={{ height: "44px" }}
-                                                            value={result[key].value !== undefined ? result[key].value : ''}
-                                                            >
                                                                 {
-                                                                    result[key].value?.split(', ').map((_item, _key) => (
-                                                                        <MenuItem key={_key} value={_item}>{_item}</MenuItem>
-                                                                    ))
+                                                                    String(result[item]['files']['file_type']).split('/')[0] == 'image' &&
+                                                                    <ImageView data={result[item]} />
                                                                 }
-                                                            </Select>
-                                                        </FormControl>
-                                                    )
+                                                                {
+                                                                    String(result[item]['files']['file_type']).split('/')[0] == 'audio' &&
+                                                                    <MDBox width='100%'>
+                                                                        <AudioPlayer 
+                                                                            elevation={1}
+                                                                            src={[result[item]['files_url']]} 
+                                                                            width="100%"
+                                                                        />
+                                                                        <Link href={result[item]['files_url']} target="_blank">
+                                                                            <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
+                                                                        </Link>
+                                                                    </MDBox>
+                                                                }
+                                                            </MDBox>
+                                                        ) 
+                                                    :
+                                                        result[item]['question_data']['value'].split(', ').map((_key) => {
+                                                            if (result[item]['value'].split(', ').includes(_key)) {
+                                                                return (<Chip key={_key} label={_key} sx={{ m: "5px" }} />)
+                                                            } 
+                                                        }) 
                                                 }
-                                            </Grid>
-                                        );
-    
-                                    case 'check':
-                                        return (
-                                            <Grid key={key} item xs={6}>
-                                                <FormControl fullWidth>
-                                                    <FormLabel>{question.title}</FormLabel>
-                                                        <FormGroup>
-                                                            {
-                                                                question.value?.split(', ').map((_item, _key) => {
-                                                                    if (readOnly) {
-                                                                        if ( result[key].value.split(', ').includes(_item) ) {
-                                                                            return (
-                                                                                <FormControlLabel key={_key} control={
-                                                                                    <Checkbox disabled checked />
-                                                                                } label={_item} />
-                                                                            );
-                                                                        } else {
-                                                                            return (
-                                                                                <FormControlLabel key={_key} control={
-                                                                                    <Checkbox disabled />
-                                                                                } label={_item} />
-                                                                            );
-                                                                        }
-                                                                    } else {
-                                                                        return (
-                                                                            <FormControlLabel key={_key} control={
-                                                                                <Checkbox />
-                                                                            } label={_item} />
-                                                                        );
-                                                                    }
-                                                                })
-                                                            }
-                                                        </FormGroup>
-                                                </FormControl>
-                                            </Grid>
-                                        )
-    
-                                    case 'radio':
-                                        return (
-                                            <Grid key={key} item xs={6}>
-                                                <FormControl fullWidth>
-                                                    <FormLabel>{question.title}</FormLabel>
-                                                    {
-                                                        readOnly ? (
-                                                            <RadioGroup
-                                                            readOnly
-                                                            value={result[key].value !== undefined ? result[key].value : ''}
-                                                            >
-                                                                {
-                                                                    question.value?.split(', ').map((_item, _key) => (
-                                                                        <FormControlLabel key={_key} value={_item} control={<Radio disabled />} label={_item} />
-                                                                    ))
-                                                                }
-                                                            </RadioGroup>
-                                                        ) : (
-                                                            <RadioGroup
-                                                            value={result[key].value !== undefined ? result[key].value : ''}
-                                                            >
-                                                                {
-                                                                    question.value?.split(', ').map((_item, _key) => (
-                                                                        <FormControlLabel key={_key} value={_item} control={<Radio />} label={_item} />
-                                                                    ))
-                                                                }
-                                                            </RadioGroup>
-                                                        )
-                                                    }
-                                                </FormControl>
-                                            </Grid>
-                                        )
+                                            </CardContent>
+                                        </Card>
+                                    )
                                 }
                             })
                         }
                     </Grid>
-                </MDBox>
-            ));
+                </Grid>
+            ))
 
             handleOpen();
         }, (err) => {
             console.log('debug employee formHandle error response', err)
-            // setNotif({
-            //     color: 'error',
-            //     icon: "warning",
-            //     title: err.name,
-            //     content: err.message,
-            // })
             enqueueSnackbar(err.message, {
                 variant: 'error',
                 preventDuplicate: true,
@@ -375,8 +231,25 @@ function Employee() {
                     vertical: 'top',
                 }
             })
-        });
+
+        })
+
     }
+
+    // const audioPlayer = () => (
+
+    // )
+
+    const renderEntityInfo = (key, value) => (
+        <MDBox key={key} display="flex" py={1} pr={2}>
+            <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
+                {key.split('_').join(' ')}: &nbsp;
+            </MDTypography>
+            <MDTypography variant="button" fontWeight="regular" color="text">
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'MM-DD-YYYY') : value}
+            </MDTypography>
+        </MDBox>
+    )
 
     const dataService = async (method, url, data) =>{
         switch (method) {
@@ -393,13 +266,52 @@ function Employee() {
     }
 
     useEffect(() => {
-        const getInit = () => {
-            getRecruit()
-            getTags()
-        }
+        getInit()
+        getTags()
+        getPlatforms()
 
-        getInit();
     },[]);
+
+    // revice generate excel
+    const getEntityExperience = (id) => {
+        dataServicePrivate('POST', 'entity/experience/all', {
+            filter: [
+                {
+                    operator: '=',
+                    target: 'entity_id',
+                    value: id,
+                },
+            ],
+            relations: ['details']
+        }).then((result) => {
+            console.log('debug entity experience result:', result);
+            return result.data['experience']
+            
+        }).catch((err) => {
+            console.log('debug entity experience error result:', err);
+            
+        })
+    }
+
+    const getInit = () => {
+        getRecruit({
+            'order': {
+                'target': 'created_at',
+                'value': 'desc',
+            }
+        })
+    }
+
+    const getPlatforms = () => {
+        dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
+            console.log('debug platform result:', result);
+            result = result.data['career_platforms']
+            setPlatforms(result)
+        }).catch((err) => {
+            console.log('debug platform error result:', err);
+            
+        })
+    }
 
     const getRecruit = async (data = {}) => {
         await axiosPrivate.post('hr/careers/entity/all', data).then((result) => {
@@ -413,30 +325,107 @@ function Employee() {
     const getTags = async (data = {}) => {
         await axiosPrivate.post('hr/careers/tags/all', data).then((result) => {
             console.log("debug career tags", result.data);
-            setTags(result.data['career_tags'])
+            result = result.data['career_tags']
+            var tags = [{
+                id: null,
+                title: 'unnasigned',
+                color: 'light_grey',
+            }]
+            for (let i=0; i<Object.keys(result).length; i++) {
+                tags[i+1] = {
+                    id: result[i].id,
+                    title: result[i].title,
+                    color: result[i].color,
+                }
+            }
+            console.log("debug career tags result", tags);
+            setTags(tags)
+
         }, (err) => {
             console.log("debug career tags error", err);
         });
     }
 
-    const handleBadgePopperData = async (id, tags_id) => {
-        console.log('debug badge popper data:', id, tags_id)
+    const handleTagsData = async (data) => {
+        console.log('debug badge popper tags data:', data)
 
-        await axiosPrivate.post('hr/careers/entity/define', { id, tags_id }).then((result) => {
-            console.log("debug update career tag", result.data);
-            getRecruit(selectedTag != 0 ? {
-                'filter': [
-                    {
-                        target: 'tags',
-                        operator: '=',
-                        value: selectedTag != 'null' ? selectedTag : null
-                    }
-                ]
-            } : {})
-        }, (err) => {
-            console.log("debug update career tag error", err);
-        });
+        if ( data.action == 'select' ) {
+            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, tags_id: data.data_id }).then((result) => {
+                console.log("debug update career tag", result.data);
+                getInit();
+            }, (err) => {
+                console.log("debug update career tag error", err);
+            });
+        }
+
+        if ( data.action == 'add' || data.action == 'edit' ) {
+            dataServicePrivate('POST', 'hr/careers/tags/define', data).then((result) => {
+                console.log("debug define tag", result.data);
+                getTags();
+            }, (err) => {
+                console.log("debug define tag error", err);
+            });
+        }
+
+        if ( data.action == 'delete' ) {
+            setConfirmModal(true)
+            setIdDelete(data.id)
+            setContentURL('hr/careers/tags/delete')
+            setConfirmContent('Are you sure to Delete this Tag?')
+        }
+
     }
+
+    const handlePlatformData = (data) => {
+        console.log('debug handle platform data:', data);
+
+        if ( data.action == 'select' ) {
+            dataServicePrivate('POST', 'entity/details/define', { entity_id: data.id, platforms_id: data.data_id }).then((result) => {
+                console.log("debug update entity platform", result.data);
+                getInit();
+            }, (err) => {
+                console.log("debug update entity platform error", err);
+            });
+        }
+
+        if ( data.action == 'add' || data.action == 'edit' ) {
+            dataServicePrivate('POST', 'hr/careers/platform/define', data).then((result) => {
+                console.log("debug define platform", result.data);
+                getPlatforms()
+            }, (err) => {
+                console.log("debug define platform error", err);
+            });
+
+        } 
+
+        if (data.action == 'delete') {
+            setConfirmModal(true)
+            setIdDelete(data.id)
+            setContentURL('hr/careers/platform/delete')
+            setConfirmContent('Are you sure to Delete this Plaform?')
+        }
+
+    }
+
+    const handleDeleteData = (data) => {
+        if (data) {
+            dataServicePrivate('POST', contentURL, {id: idDelete}).then((result) => {
+                console.log("debug delete", result.data);
+                getPlatforms()
+                getTags()
+                getInit()
+                setConfirmModal(false)
+            }, (err) => {
+                console.log("debug delete error", err);
+            });
+        }
+    }
+
+    function formatPhoneNumber(data) {
+        var cleaned = ('' + data).replace(/\\D/g, '');
+        var match = cleaned.match(/(\d{4})(\d{3})(\d{4})/);
+        return match ? match[1] + '-' + match[2] + '-' + match[3] : 'Invalid Number'
+      }
 
     useEffect(() => {
         var rows = []
@@ -445,48 +434,79 @@ function Employee() {
                 {
                     name: <Employee image={team3} name={recruit[key]['entity_data'].full_name} email={recruit[key]['entity_data'].email} />,
                     career: <Career title={recruit[key]['careers_data'].title} />,
+                    number: (
+                        <MDTypography variant="caption" color="text" fontWeight="medium">
+                            {formatPhoneNumber(recruit[key]['entity_data'].contact_number)}
+                        </MDTypography>
+                    ),
+                    alternative: (
+                        <MDTypography variant="caption" color="text" fontWeight="medium">
+                            {formatPhoneNumber(recruit[key]['entity_data'].alternative_number)}
+                        </MDTypography>
+                    ),
+                    platform: (
+                        <MDBox ml={-1}>
+                            <BadgePopper
+                                id={recruit[key]['entity_data'].id}
+                                badgeId={recruit[key]['entity_data']?.details[0]?.platforms_id} 
+                                variant="customGradient" 
+                                content={platforms}
+                                data={handlePlatformData}
+                                editable={true}
+                                deletable={true}
+                            />
+                        </MDBox>
+                    ),
                     applied: (
                         <MDTypography variant="caption" color="text" fontWeight="medium">
-                            {formatDateTime(recruit[key].created_at, 'YYYY-MM-DD')}
+                            {formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
                         </MDTypography>
                     ),
                     status: (
                         <MDBox ml={-1}>
                             <BadgePopper
-                                id={recruit[key].id}
-                                badgeContent={recruit[key].tags != null ? recruit[key]['tags_data'].title : 'unassigned'} 
-                                color={recruit[key].tags != null ? recruit[key]['tags_data'].color : 'light_grey'} 
+                                id={recruit[key]['entity_data'].id}
+                                badgeId={recruit[key]['tags_data']?.id} 
                                 variant="gradient" 
                                 content={tags}
-                                data={handleBadgePopperData}
+                                data={handleTagsData}
+                                editable={true}
+                                deletable={true}
                             />
                         </MDBox>
                     ),
-                    // profile: (
-                    // <MDTypography onClick={() => profileHandle(recruit[key]['entity_data'])} component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                    //     View
-                    // </MDTypography>
-                    // ),
-                    form: (
-                    <MDTypography onClick={() => formHandle(recruit[key].entity, recruit[key].careers)} component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                        View
-                    </MDTypography>
-                    ),
+                    actions: (
+                        <MDBox>
+                            <Grid container spacing={.5}>
+                                <Grid item>
+                                    <MDButton onClick={() => formHandle(recruit[key].entity, recruit[key].careers)} color='secondary'>View</MDButton>
+                                </Grid> 
+                                {/* <Grid item>
+                                    <MDButton color='primary'>Download</MDButton>
+                                </Grid>  */}
+                                <Grid item>
+                                    <MDButton onClick={() => handleDeleteRecruit(recruit[key].id)} color='error'>Delete</MDButton>
+                                </Grid> 
+                            </Grid>
+                        </MDBox>
+                    )
                 }
             )
         })
 
         if (rows) setRows(rows)
 
-    },[recruit])
+    },[recruit, tags, platforms])
 
     const columns = [
-        { Header: "name", accessor: "name", width: "45%", align: "left" },
-        { Header: "career", accessor: "career", align: "left" },
+        { Header: "name", accessor: "name",  align: "left" },
+        { Header: "number", accessor: "number",  align: "left" },
+        { Header: "alternative", accessor: "alternative",  align: "left" },
+        { Header: "position", accessor: "career", align: "left" },
+        { Header: "platform", accessor: "platform", align: "center" },
         { Header: "applied", accessor: "applied", align: "center" },
         { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
-        // { Header: "profile", accessor: "profile", align: "center" },
-        { Header: "form", accessor: "form", align: "center" },
+        { Header: "actions", accessor: "actions", align: "center" },
     ]
 
     const Employee = ({ image, name, email }) => (
@@ -509,22 +529,38 @@ function Employee() {
         </MDBox>
     );
 
+    const handleDeleteRecruit = (id) => {
+        setIdDelete(id)
+        setContentURL('hr/careers/entity/delete')
+        setConfirmContent('Are you sure to Delete this Candidate?')
+        setConfirmModal(true)
+    }
+
     const handleDataModal = (e) => {
         console.log('debug handle data modal', e, selectedTag)
 
         if (e) {
-            getRecruit(selectedTag != 0 ? {
-                'filter': [
-                    {
-                        target: 'tags',
-                        operator: '=',
-                        value: selectedTag != 'null' ? selectedTag : null
-                    }
-                ]
-            } : {})
+            if (selectedTag) {
+                getRecruit({
+                    'filter': [
+                        {
+                            target: 'tags',
+                            operator: '=',
+                            value: selectedTag != 'null' ? selectedTag : null
+                        }
+                    ]
+                })
+            } else {
+                getInit()
+            }
+            
         }
 
         handleCloseModal()
+    }
+
+    const handleDebugPicker = (e) => {
+        console.log('debug color picker:', e);
     }
 
     return (
@@ -585,26 +621,33 @@ function Employee() {
                     </FormControl>
                 </MDBox>
             )} data={handleDataModal} /> }
-            <Notifications data={notif} />
-            <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            open={open}
-            onClose={handleClose}
-            closeAfterTransition
-            slots={{ backdrop: Backdrop }}
-            slotProps={{
-                backdrop: {
-                    timeout: 500,
-                },
-            }}
+
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth="lg"
+                fullWidth
             >
-                <Fade in={open}>
-                    <MDBox sx={style}>
-                        {content}
-                    </MDBox>
-                </Fade>
-            </Modal>
+                <DialogTitle textAlign='center' sx={{ m: 0, p: 2 }}>
+                    Application
+                </DialogTitle>
+                <IconButton
+                onClick={handleClose}
+                sx={{
+                    position: 'absolute',
+                    right: 8,
+                    top: 8,
+                    color: 'grey.500',
+                }}
+                >
+                    <Icon>close</Icon>
+                </IconButton>
+                <DialogContent>
+                    {content}
+                </DialogContent>
+            </Dialog>
+
+            { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> }
         </DashboardLayout>
     );
 }
