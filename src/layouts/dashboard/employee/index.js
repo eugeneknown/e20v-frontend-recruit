@@ -446,7 +446,7 @@ function Employee() {
                     ),
                     platform: (
                         <MDBox ml={-1}>
-                            <BadgePopper
+                            {/* <BadgePopper
                                 id={recruit[key]['entity_data'].id}
                                 badgeId={recruit[key]['entity_data']?.details[0]?.platforms_id} 
                                 variant="customGradient" 
@@ -454,7 +454,7 @@ function Employee() {
                                 data={handlePlatformData}
                                 editable={true}
                                 deletable={true}
-                            />
+                            /> */}
                         </MDBox>
                     ),
                     applied: (
@@ -464,7 +464,7 @@ function Employee() {
                     ),
                     status: (
                         <MDBox ml={-1}>
-                            <BadgePopper
+                            {/* <BadgePopper
                                 id={recruit[key]['entity_data'].id}
                                 badgeId={recruit[key]['tags_data']?.id} 
                                 variant="gradient" 
@@ -472,7 +472,7 @@ function Employee() {
                                 data={handleTagsData}
                                 editable={true}
                                 deletable={true}
-                            />
+                            /> */}
                         </MDBox>
                     ),
                     actions: (
@@ -499,14 +499,14 @@ function Employee() {
     },[recruit, tags, platforms])
 
     const columns = [
-        { Header: "name", accessor: "name",  align: "left" },
-        { Header: "number", accessor: "number",  align: "left" },
-        { Header: "alternative", accessor: "alternative",  align: "left" },
-        { Header: "position", accessor: "career", align: "left" },
-        { Header: "platform", accessor: "platform", align: "center" },
-        { Header: "applied", accessor: "applied", align: "center" },
-        { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
-        { Header: "actions", accessor: "actions", align: "center" },
+        { Header: "name", accessor: "name",  align: "left",  sort: true },
+        { Header: "number", accessor: "number",  align: "left", sort: true },
+        { Header: "alternative", accessor: "alternative",  align: "left", sort: true },
+        { Header: "position", accessor: "career", align: "left", sort: true },
+        { Header: "platform", accessor: "platform", align: "center", sort: true },
+        { Header: "applied", accessor: "applied", align: "center", sort: true },
+        { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center", sort: true },
+        { Header: "actions", accessor: "actions", align: "center", sort: false },
     ]
 
     const Employee = ({ image, name, email }) => (
@@ -587,7 +587,7 @@ function Employee() {
                             <MDBox pt={3}>
                             <DataTable
                                 table={{ columns, rows }}
-                                isSorted={false}
+                                isSorted={true}
                                 entriesPerPage={false}
                                 showTotalEntries={false}
                                 noEndBorder

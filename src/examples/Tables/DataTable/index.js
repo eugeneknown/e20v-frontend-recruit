@@ -19,7 +19,7 @@ import { useMemo, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 // react-table components
-import { useTable, usePagination, useGlobalFilter, useAsyncDebounce, useSortBy } from "react-table";
+import { useTable, usePagination, useGlobalFilter, useAsyncDebounce, useSortBy, useFilters } from "react-table";
 
 // @mui material components
 import Table from "@mui/material/Table";
@@ -38,6 +38,13 @@ import MDPagination from "components/MDPagination";
 // Material Dashboard 2 React example components
 import DataTableHeadCell from "examples/Tables/DataTable/DataTableHeadCell";
 import DataTableBodyCell from "examples/Tables/DataTable/DataTableBodyCell";
+import DrawerRoot from "global/component/Drawer/DrawerRoot";
+
+// Material Dashboard 2 React context
+import {
+  useMaterialUIController,
+} from "context";
+import { Divider, IconButton } from "@mui/material";
 
 function DataTable({
   entriesPerPage,
@@ -62,12 +69,13 @@ function DataTable({
     : ["5", "10", "15", "20", "25"];
   const columns = useMemo(() => table.columns, [table]);
   const data = useMemo(() => table.rows, [table]);
+  const [open, setOpen] = useState(false)
 
   const tableInstance = useTable(
     { columns, data, initialState: { pageIndex: 0 } },
-    useGlobalFilter,
+    useFilters,
     useSortBy,
-    usePagination
+    usePagination,
   );
 
   const {
@@ -84,8 +92,7 @@ function DataTable({
     nextPage,
     previousPage,
     setPageSize,
-    setGlobalFilter,
-    state: { pageIndex, pageSize, globalFilter },
+    state: { pageIndex, pageSize, filters },
   } = tableInstance;
   // console.log('debug data table:', table)
   // console.log('debug data table headergroup', headerGroups)
@@ -119,21 +126,13 @@ function DataTable({
   // Setting value for the pagination input
   const handleInputPaginationValue = ({ target: value }) => gotoPage(Number(value.value - 1));
 
-  // Search input value state
-  const [search, setSearch] = useState(globalFilter);
-
-  // Search input state handle
-  const onSearchChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
-  }, 100);
-
   // A function that sets the sorted value for the table
   const setSortedValue = (column) => {
     let sortedValue;
 
-    if (isSorted && column.isSorted) {
+    if (column.sort && column.isSorted) {
       sortedValue = column.isSortedDesc ? "desc" : "asce";
-    } else if (isSorted) {
+    } else if (column.sort) {
       sortedValue = "none";
     } else {
       sortedValue = false;
@@ -154,6 +153,69 @@ function DataTable({
     entriesEnd = rows.length;
   } else {
     entriesEnd = pageSize * (pageIndex + 1);
+  }
+
+  const Filter = ({ column, ...rest }) => {
+    const value = column.filterValue
+    console.log('filter column', column);
+
+    return (<MDInput
+      {...rest}
+      value={value ?? ''}
+      onChange={(e) => column.setFilter(e.target.value)}
+    />)
+  }
+
+  const Drawer = ({ title, sx}) => {
+    const [controller] = useMaterialUIController();
+    const {
+      darkMode,
+    } = controller;
+    
+    
+    return (
+      <MDBox {...sx}>
+        <IconButton onClick={() => setOpen(!open)} ><Icon>filter_list</Icon></IconButton>
+
+        <DrawerRoot variant="permanent" ownerState={{open}}>
+          <MDBox
+            display="flex"
+            justifyContent="space-between"
+            alignItems="baseline"
+            pt={4}
+            pb={0.5}
+            px={3}
+          >
+            <MDTypography variant="h5">{title}</MDTypography>
+            <Icon
+              sx={({ typography: { size }, palette: { dark, white } }) => ({
+                fontSize: `${size.lg} !important`,
+                color: darkMode ? white.main : dark.main,
+                stroke: "currentColor",
+                strokeWidth: "2px",
+                cursor: "pointer",
+                transform: "translateY(5px)",
+              })}
+              onClick={() => setOpen(false)}
+            >
+              close
+            </Icon>
+          </MDBox>
+          <Divider />
+          <Table {...getTableProps()}>
+            <MDBox component="thead">
+              {headerGroups.map((headerGroup, key) => (
+                <TableRow key={key} {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column, idx) => (
+                    <Filter key={idx} column={column} />
+                  ))}
+                </TableRow>
+              ))}
+            </MDBox>
+          </Table>
+        </DrawerRoot>
+      </MDBox>
+    )
   }
 
   return (
@@ -178,7 +240,7 @@ function DataTable({
               </MDTypography>
             </MDBox>
           )}
-          {canSearch && (
+          {/* {canSearch && (
             <MDBox width="12rem" ml="auto">
               <MDInput
                 placeholder="Search..."
@@ -191,9 +253,10 @@ function DataTable({
                 }}
               />
             </MDBox>
-          )}
+          )} */}
         </MDBox>
       ) : null}
+      <Drawer sx={{ mx: 2 }} title='Filter' />
       <Table {...getTableProps()}>
         <MDBox component="thead">
           {headerGroups.map((headerGroup, key) => (
@@ -201,7 +264,7 @@ function DataTable({
               {headerGroup.headers.map((column, idx) => (
                 <DataTableHeadCell
                   key={idx}
-                  {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
+                  {...column.getHeaderProps(column.sort && column.getSortByToggleProps())}
                   width={column.width ? column.width : "auto"}
                   align={column.align ? column.align : "left"}
                   sorted={setSortedValue(column)}
@@ -276,6 +339,13 @@ function DataTable({
           </MDPagination>
         )}
       </MDBox>
+      <pre>
+        {JSON.stringify(
+          { columnFilters: tableInstance.state.filters },
+          null,
+          2
+        )}
+      </pre>
     </TableContainer>
   );
 }
