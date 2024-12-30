@@ -380,7 +380,7 @@ function Employee() {
         console.log('debug handle platform data:', data);
 
         if ( data.action == 'select' ) {
-            dataServicePrivate('POST', 'entity/details/define', { entity_id: data.id, platforms_id: data.data_id }).then((result) => {
+            dataServicePrivate('POST', 'entity/details/define', { id: data.id, platforms_id: data.data_id }).then((result) => {
                 console.log("debug update entity platform", result.data);
                 getInit();
             }, (err) => {
@@ -432,31 +432,13 @@ function Employee() {
         Object.keys(recruit).map((key) => {
             rows.push(
                 {
-                    name: <Employee image={team3} name={recruit[key]['entity_data'].full_name} email={recruit[key]['entity_data'].email} />,
-                    career: <Career title={recruit[key]['careers_data'].title} />,
-                    number: (
-                        <MDTypography variant="caption" color="text" fontWeight="medium">
-                            {formatPhoneNumber(recruit[key]['entity_data'].contact_number)}
-                        </MDTypography>
-                    ),
-                    alternative: (
-                        <MDTypography variant="caption" color="text" fontWeight="medium">
-                            {formatPhoneNumber(recruit[key]['entity_data'].alternative_number)}
-                        </MDTypography>
-                    ),
-                    platform: (
-                        <MDBox ml={-1}>
-                            <BadgePopper
-                                id={recruit[key]['entity_data'].id}
-                                badgeId={recruit[key]['entity_data']?.details[0]?.platforms_id} 
-                                variant="customGradient" 
-                                content={platforms}
-                                data={handlePlatformData}
-                                editable={true}
-                                deletable={true}
-                            />
-                        </MDBox>
-                    ),
+                    full_name: recruit[key]['entity_data'].full_name,
+                    email: recruit[key]['entity_data'].email,
+                    career: recruit[key]['careers_data'].title,
+                    number: recruit[key]['entity_data'].contact_number,
+                    alternative: recruit[key]['entity_data'].alternative_number,
+                    details_id: recruit[key]['entity_data'].details[0]?.id,
+                    platforms_id: recruit[key]['entity_data']?.details[0]?.platforms_id,
                     applied: (
                         <MDTypography variant="caption" color="text" fontWeight="medium">
                             {formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
@@ -464,7 +446,7 @@ function Employee() {
                     ),
                     status: (
                         <MDBox ml={-1}>
-                            <BadgePopper
+                            {tags && <BadgePopper
                                 id={recruit[key]['entity_data'].id}
                                 badgeId={recruit[key]['tags_data']?.id} 
                                 variant="gradient" 
@@ -472,7 +454,7 @@ function Employee() {
                                 data={handleTagsData}
                                 editable={true}
                                 deletable={true}
-                            />
+                            />}
                         </MDBox>
                     ),
                     actions: (
@@ -499,11 +481,33 @@ function Employee() {
     },[recruit, tags, platforms])
 
     const columns = [
-        { Header: "name", accessor: "name",  align: "left" },
-        { Header: "number", accessor: "number",  align: "left" },
-        { Header: "alternative", accessor: "alternative",  align: "left" },
-        { Header: "position", accessor: "career", align: "left" },
-        { Header: "platform", accessor: "platform", align: "center" },
+        { Header: "name", accessor: (row) => `${row.full_name} ${row.email}`, id: 'name', Cell: ({row}) => (
+            <Employee image={team3} name={row.original.full_name} email={row.original.email} />
+        ), align: "left", sort: true },
+        { Header: "number", accessor: "number", Cell: ({value}) => (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+                {formatPhoneNumber(value)}
+            </MDTypography>
+        ), align: "left", sort: true },
+        { Header: "alternative", accessor: "alternative", Cell: ({value}) => (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+                {formatPhoneNumber(value)}
+            </MDTypography>
+        ), align: "left", sort: true },
+        { Header: "position", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
+        { Header: "platform", accessor: (row) => (
+            platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
+        ), id: "platform", Cell: ({row}) => {
+            return (platforms && <BadgePopper
+                id={row.original.details_id}
+                badgeId={row.original.platforms_id} 
+                variant="customGradient" 
+                content={platforms}
+                data={handlePlatformData}
+                editable={true}
+                deletable={true}
+            />)
+        }, align: "center", sort: false },
         { Header: "applied", accessor: "applied", align: "center" },
         { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },
@@ -587,10 +591,10 @@ function Employee() {
                             <MDBox pt={3}>
                             <DataTable
                                 table={{ columns, rows }}
-                                isSorted={false}
                                 entriesPerPage={false}
                                 showTotalEntries={false}
                                 noEndBorder
+                                canSearch
                             />
                             </MDBox>
                         </Card>

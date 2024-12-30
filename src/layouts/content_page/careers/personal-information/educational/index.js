@@ -132,7 +132,7 @@ function Educational(){
                 </MDBox>
                 {optional && 
                 <FormControlLabel 
-                    label='not Applicable'
+                    label='Not Applicable'
                     sx={{ my: 1 }}
                     control={<Switch
                         name='option'

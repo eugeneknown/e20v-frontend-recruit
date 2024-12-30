@@ -19,7 +19,7 @@ import { useMemo, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 // react-table components
-import { useTable, usePagination, useGlobalFilter, useAsyncDebounce, useSortBy } from "react-table";
+import { useTable, usePagination, useGlobalFilter, useAsyncDebounce, useSortBy, useFilters } from "react-table";
 
 // @mui material components
 import Table from "@mui/material/Table";
@@ -45,7 +45,6 @@ function DataTable({
   showTotalEntries,
   table,
   pagination,
-  isSorted,
   noEndBorder,
 }) {
   // console.log('debug datatable:', 
@@ -131,9 +130,9 @@ function DataTable({
   const setSortedValue = (column) => {
     let sortedValue;
 
-    if (isSorted && column.isSorted) {
+    if (column.sort && column.isSorted) {
       sortedValue = column.isSortedDesc ? "desc" : "asce";
-    } else if (isSorted) {
+    } else if (column.sort) {
       sortedValue = "none";
     } else {
       sortedValue = false;
@@ -201,7 +200,7 @@ function DataTable({
               {headerGroup.headers.map((column, idx) => (
                 <DataTableHeadCell
                   key={idx}
-                  {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
+                  {...column.getHeaderProps(column.sort && column.getSortByToggleProps())}
                   width={column.width ? column.width : "auto"}
                   align={column.align ? column.align : "left"}
                   sorted={setSortedValue(column)}
