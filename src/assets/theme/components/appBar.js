@@ -12,10 +12,14 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+import colors from "assets/theme/base/colors";
+
+const { dark, transparent, white } = colors;
+
 
 const appBar = {
   defaultProps: {
-    color: "transparent",
+    color: transparent.main,
   },
 
   styleOverrides: {
