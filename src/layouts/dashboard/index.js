@@ -59,7 +59,6 @@ function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
 
   const { auth } = useAuth()
-  console.log('autgh', auth);
   const [ weeklyReport, setWeeklyReport ] = useState()
   const [ monthlyReport, setMonthlyReport ] = useState({})
   const [ tagsMonthlyReport, setTagsMonthlyReport ] = useState({})
@@ -273,8 +272,12 @@ function Dashboard() {
       result = result.data['entity_career']
 
       var total = 0
-      for (var i=0; i<result.length; i++) {
-        total += result[i].count
+      if ( result ) {
+        for (var i=0; i<result.length; i++) {
+          total += result[i].count
+        }
+      } else {
+        total = 1
       }
 
       getTagsData({}).then((_result) => {
@@ -363,41 +366,6 @@ function Dashboard() {
     { Header: "percentage", accessor: "percentage", align: "center" },
   ]
 
-  const randomNumber = (min, max) => {
-    return Math.floor(Math.random() * (max - min) + min);
-  }
-
-  const randomDate = (start, end, startHour=0, endHour=23) => {
-    var date = new Date(+start + Math.random() * (end - start));
-    var hour = startHour + Math.random() * (endHour - startHour) | 0;
-    date.setHours(hour);
-    return date;
-  }
-
-  const addRandomShit = async () => {
-    console.log('debug:', columns, rows)
-
-    // for ( var i=0; i<50; i++ ) {
-    //   var created_at = formatDateTime(randomDate(new Date(2023, 12, 1), new Date()))
-    //   var careers_id = randomNumber(1, 13)
-    //   var entity_id = randomNumber(1, 18)
-    //   var tags_id = randomNumber(1, 6)
-    //   // console.log('random shit:', randomNumber(1, 16),  formatDateTime(created_at))
-
-    //   await axiosPrivate.post('hr/careers/entity/define', {
-    //     careers_id,
-    //     entity_id,
-    //     tags_id,
-    //     created_at
-    //   }).then((result) => {
-    //     console.log("debug update career tag", result.data);
-    //   }, (err) => {
-    //     console.log("debug update career tag error", err);
-    //   });
-    // }
-
-  }
-
   const Progress = ({ color, value }) => (
     <MDBox display="flex" alignItems="center">
       <MDTypography variant="caption" color="text" fontWeight="medium">
@@ -408,26 +376,6 @@ function Dashboard() {
       </MDBox>
     </MDBox>
   );
-
-  // const fileUpload = async (data) => {
-  //   return await axiosPrivate.post('files/files/upload', data, { 
-  //     headers: { 
-  //       "Content-Type": "multipart/form-data",
-  //     } 
-  //   })
-  // }
-
-  // const upload = (file) => {
-  //   let formData = new FormData();
-
-  //   formData.append("file", file);
-  //   formData.append("group", 'hr');
-  //   formData.append("type", file['type']);
-
-  //   console.log('debug upload file', file, formData)
-
-  //   fileUpload(formData)
-  // }
 
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -455,23 +403,26 @@ function Dashboard() {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
-        {/* <Button
-          component="label"
-          role={undefined}
-          variant="contained"
-          tabIndex={-1}
-          startIcon={<Icon >cloudupload</Icon>}
-        >
-          Upload file
-          <VisuallyHiddenInput type="file" accept="image/*" onChange={(e) => upload(e.target.files[0])} />
-        </Button> */}
-        {/* <Grid container spacing={3}>
+        <Grid container spacing={3}>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              <MDButton onClick={addRandomShit}>Add Random Shit</MDButton> // comment this out
               <ComplexStatisticsCard
                 icon="person_add"
-                title="Today's Applicants"
+                title="Job Offer"
+                count="2,300"
+                percentage={{
+                  color: "success",
+                  amount: "+3%",
+                  label: "than yesterday",
+                }}
+              />
+            </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <ComplexStatisticsCard
+                icon="person_add"
+                title="Shortlisted"
                 count="2,300"
                 percentage={{
                   color: "success",
@@ -486,7 +437,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="dark"
                 icon="leaderboard"
-                title="Shortlisted"
+                title="Initial Interview"
                 count={281}
                 percentage={{
                   color: "success",
@@ -501,7 +452,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="success"
                 icon="work"
-                title="Job Offer"
+                title="Final Interview"
                 count="34k"
                 percentage={{
                   color: "success",
@@ -516,7 +467,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="error"
                 icon="person_minus"
-                title="Rejected"
+                title="Hired"
                 count="+91"
                 percentage={{
                   color: "success",
@@ -526,7 +477,7 @@ function Dashboard() {
               />
             </MDBox>
           </Grid>
-        </Grid> */}
+        </Grid>
         <MDBox mt={4.5}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={8}>
@@ -543,9 +494,7 @@ function Dashboard() {
                         dataKey: 'date',
                         tickPlacement: 'middle',
                         valueFormatter: (value, context) => {
-                          // console.log('debug value formatter:', value, context);
                           if ( context.location == 'tick' ) {
-                            // return `${formatDateTime(value, 'MMM DD')} \n${formatDateTime(value, 'ddd')}`
                             return `${formatDateTime(value, 'MMM DD')}`
                           } else {
                             return value
@@ -556,29 +505,11 @@ function Dashboard() {
                         disableLine: true,
                         disableTicks: true,
                         valueFormatter: (value, context) => {
-                          // console.log('debug top axis value formatter', value, context);
-                          // if ( context.location == 'tick' ) {
-                          //   var total = weeklyReport['dataSets'].find((item) => item.date == value).total
-                          //   // console.log('debug top axis value formatter get total', total);
-                          //   return `Total: ${total}`
-                          // }
-
                           if (context.location == 'tick') {
                             return `${formatDateTime(value, 'ddd')}`
                           }
                         }
                       }}
-                      yAxis={[{
-                        valueFormatter: (value, context) => {
-                          // console.log('debug bar yaxis', value, index)
-                        }
-                      }]}
-                      // barLabel={(item, context) => {
-                      //   // console.log('debug bar label', item, context);
-                      //   var total = weeklyReport['dataSets'][item.dataIndex].total
-                      //   var percentage = Math.round((item.value/total)*100)
-                      //   return context.bar.height < 60 || context.bar.width < 30 ? null : `${percentage}%`
-                      // }}
                       slotProps={{
                         legend: {
                           position: { vertical: 'bottom' },
