@@ -1,4 +1,4 @@
-/**
+6/**
 =========================================================
 * Material Dashboard 2 React - v2.2.0
 =========================================================
@@ -45,6 +45,7 @@ import {
   useMaterialUIController,
 } from "context";
 import { Divider, IconButton } from "@mui/material";
+import Drawer from "global/component/Drawer";
 
 function DataTable({
   entriesPerPage,
@@ -70,8 +71,23 @@ function DataTable({
   const data = useMemo(() => table.rows, [table]);
   const [open, setOpen] = useState(false)
 
+  const DefaultFilterColumn = ({ column }) => {
+    const { filterValue, setFilter, Header } = column
+
+    return (
+      <MDInput
+        label={<MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{Header}</MDTypography>}
+        fullWidth
+        size='small'
+        value={filterValue || ""}
+        onChange={(e) => setFilter(e.target.value || undefined)}
+      />
+    )
+  }
+
   const tableInstance = useTable(
-    { columns, data, initialState: { pageIndex: 0 } },
+    { columns, data, initialState: { pageIndex: 0 }, defaultColumn: { Filter: DefaultFilterColumn } },
+    useGlobalFilter,
     useFilters,
     useSortBy,
     usePagination,
@@ -91,7 +107,9 @@ function DataTable({
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, filters },
+    setGlobalFilter,
+    setFilter,
+    state: { pageIndex, pageSize, filters, globalFilter },
   } = tableInstance;
   // console.log('debug data table:', table)
   // console.log('debug data table headergroup', headerGroups)
@@ -125,6 +143,14 @@ function DataTable({
   // Setting value for the pagination input
   const handleInputPaginationValue = ({ target: value }) => gotoPage(Number(value.value - 1));
 
+  // Search input value state
+  const [search, setSearch] = useState(globalFilter);
+
+  // Search input state handle
+  const onSearchChange = useAsyncDebounce((value) => {
+    setGlobalFilter(value || undefined);
+  }, 100);
+
   // A function that sets the sorted value for the table
   const setSortedValue = (column) => {
     let sortedValue;
@@ -154,69 +180,6 @@ function DataTable({
     entriesEnd = pageSize * (pageIndex + 1);
   }
 
-  const Filter = ({ column, ...rest }) => {
-    const value = column.filterValue
-    console.log('filter column', column);
-
-    return (<MDInput
-      {...rest}
-      value={value ?? ''}
-      onChange={(e) => column.setFilter(e.target.value)}
-    />)
-  }
-
-  const Drawer = ({ title, sx}) => {
-    const [controller] = useMaterialUIController();
-    const {
-      darkMode,
-    } = controller;
-    
-    
-    return (
-      <MDBox {...sx}>
-        <IconButton onClick={() => setOpen(!open)} ><Icon>filter_list</Icon></IconButton>
-
-        <DrawerRoot variant="permanent" ownerState={{open}}>
-          <MDBox
-            display="flex"
-            justifyContent="space-between"
-            alignItems="baseline"
-            pt={4}
-            pb={0.5}
-            px={3}
-          >
-            <MDTypography variant="h5">{title}</MDTypography>
-            <Icon
-              sx={({ typography: { size }, palette: { dark, white } }) => ({
-                fontSize: `${size.lg} !important`,
-                color: darkMode ? white.main : dark.main,
-                stroke: "currentColor",
-                strokeWidth: "2px",
-                cursor: "pointer",
-                transform: "translateY(5px)",
-              })}
-              onClick={() => setOpen(false)}
-            >
-              close
-            </Icon>
-          </MDBox>
-          <Divider />
-          <Table {...getTableProps()}>
-            <MDBox component="thead">
-              {headerGroups.map((headerGroup, key) => (
-                <TableRow key={key} {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column, idx) => (
-                    <Filter key={idx} column={column} />
-                  ))}
-                </TableRow>
-              ))}
-            </MDBox>
-          </Table>
-        </DrawerRoot>
-      </MDBox>
-    )
-  }
-
   return (
     <TableContainer sx={{ boxShadow: "none" }}>
       {entriesPerPage || canSearch ? (
@@ -239,7 +202,17 @@ function DataTable({
               </MDTypography>
             </MDBox>
           )}
-          {/* {canSearch && (
+          <IconButton onClick={() => setOpen(!open)} ><Icon>filter_list</Icon></IconButton>
+          <Drawer open={open} title='Filter'>
+            <MDBox p={3}>
+              {tableInstance.columns.map((item) => (
+                <MDBox m={1} my={2}>
+                  {item.canFilter && item.render('Filter')}
+                </MDBox>
+              ))}
+            </MDBox>
+          </Drawer>
+          {canSearch && (
             <MDBox width="12rem" ml="auto">
               <MDInput
                 placeholder="Search..."
@@ -252,10 +225,9 @@ function DataTable({
                 }}
               />
             </MDBox>
-          )} */}
+          )}
         </MDBox>
       ) : null}
-      <Drawer sx={{ mx: 2 }} title='Filter' />
       <Table {...getTableProps()}>
         <MDBox component="thead">
           {headerGroups.map((headerGroup, key) => (

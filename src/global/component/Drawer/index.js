@@ -42,7 +42,7 @@ import {
   useMaterialUIController,
 } from "context";
 
-function Drawer({ title, sx, children }) {
+function Drawer({ open: i, title, sx, children }) {
   const [controller] = useMaterialUIController();
   const {
     darkMode,
@@ -50,10 +50,12 @@ function Drawer({ title, sx, children }) {
 
   const [open, setOpen] = useState(false)
 
+  useEffect(() => {
+    setOpen(i)
+  },[i])
+
   return (
     <MDBox {...sx}>
-      <IconButton onClick={() => setOpen(!open)} ><Icon>filter_list</Icon></IconButton>
-
       <DrawerRoot variant="permanent" ownerState={{open}}>
         <MDBox
           display="flex"

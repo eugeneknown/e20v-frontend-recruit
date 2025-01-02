@@ -34,7 +34,7 @@ import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 import useAuth from "hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { axiosPrivate } from "api/axios";
 import team3 from "assets/images/team-3.jpg";
 import burceMars from "assets/images/bruce-mars.jpg";
@@ -55,6 +55,11 @@ import ConfirmDialog from "../dynamic/confirm-dialog";
 import ImageView from "./image-viewer";
 import AudioPlayer from "material-ui-audio-player";
 import GenerateExel from "./generate-exel";
+import { DateRangePicker } from "react-date-range";
+
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+
 
 
 function Employee() {
@@ -425,7 +430,7 @@ function Employee() {
         var cleaned = ('' + data).replace(/\\D/g, '');
         var match = cleaned.match(/(\d{4})(\d{3})(\d{4})/);
         return match ? match[1] + '-' + match[2] + '-' + match[3] : 'Invalid Number'
-      }
+    }
 
     useEffect(() => {
         var rows = []
@@ -439,11 +444,7 @@ function Employee() {
                     alternative: recruit[key]['entity_data'].alternative_number,
                     details_id: recruit[key]['entity_data'].details[0]?.id,
                     platforms_id: recruit[key]['entity_data']?.details[0]?.platforms_id,
-                    applied: (
-                        <MDTypography variant="caption" color="text" fontWeight="medium">
-                            {formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
-                        </MDTypography>
-                    ),
+                    applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
                     status: (
                         <MDBox ml={-1}>
                             {tags && <BadgePopper
@@ -480,6 +481,137 @@ function Employee() {
 
     },[recruit, tags, platforms])
 
+    const DateRangeFilterFN = (rows, id, filterValues) => {
+        console.log('date filter', rows, id, filterValues);
+        const sd = filterValues[0] ? new Date(filterValues[0]) : undefined;
+        const ed = filterValues[1] ? new Date(filterValues[1]) : undefined;
+        if (ed || sd) {
+            return rows.filter((r) => {
+            const cellDate = moment(r.values[id]).toDate()
+
+            if (ed && sd) {
+                return cellDate >= sd && cellDate <= ed;
+            } else if (sd) {
+                return cellDate >= sd;
+            } else {
+                return cellDate <= ed;
+            }
+            });
+        } else {
+            return rows;
+        }
+    }
+
+    const DateRangeFilterColumnFN = ({
+        column: { filterValue = [], preFilteredRows, setFilter, id }
+    }) => {
+        console.log('date filter column', filterValue, preFilteredRows, setFilter, id);
+        const [start, end] = useMemo(() => {
+            let start = preFilteredRows.length
+            ? moment(preFilteredRows[0].values[id])
+            : moment(0)
+
+            let end = preFilteredRows.length
+            ? moment(preFilteredRows[0].values[id])
+            : moment(0)
+
+            preFilteredRows.forEach((row) => {
+                const date = moment(row.values[id])
+
+                start = date <= start ? date : start;
+                end = date >= end ? date : end;
+            })
+
+            return [start, end]
+        },[id, preFilteredRows])
+        const [open, setOpen] = useState(false)
+        const [state, setState] = useState([
+            {
+              startDate: moment().toDate(),
+              endDate: moment().toDate(),
+              key: 'selection'
+            }
+        ]);
+
+        const ApplyFilter = () => {
+            const { startDate, endDate } = state[0]
+            console.log('date format', formatDateTime(startDate, 'YYYY-MM-DDT23:59:59.999Z'));
+            setFilter((old = []) => [formatDateTime(startDate, 'YYYY-MM-DD'), old[1]]);
+            setFilter((old = []) => [old[0], formatDateTime(endDate, 'YYYY-MM-DDT23:59:59.999Z')]);
+            setOpen(!open)
+        }
+
+        const ClearFilter = () => {
+            setState([
+                {
+                  startDate: moment().toDate(),
+                  endDate: moment().toDate(),
+                  key: 'selection'
+                }
+            ])
+            setFilter([])
+        }
+
+        return (
+            <MDBox>
+                <MDInput
+                    label={<MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography>}
+                    fullWidth
+                    size='small'
+                    value={filterValue.length ? `${formatDateTime(filterValue[0], 'MM-DD-YYYY')} to ${formatDateTime(filterValue[1], 'MM-DD-YYYY')}` : ''}
+                    onClick={()=>setOpen(!open)}
+                    />
+                <Dialog
+                    open={open}
+                    onClose={()=>setOpen(!open)}
+                    maxWidth='unset'
+                >
+                    <DialogContent>
+                        <DateRangePicker
+                            onChange={item => setState([item.selection])}
+                            showSelectionPreview={true}
+                            editableDateInputs={true}
+                            ranges={state}
+                            direction="horizontal"
+                            preventSnapRefocus={true}
+                            calendarFocus="backwards"
+                        />
+                    </DialogContent>
+                    <DialogActions sx={{ justifyContent: 'space-between' }}>
+                        <MDButton color='error' onClick={()=>setOpen(!open)} autoFocus>
+                            Close
+                        </MDButton>
+                        <MDBox>
+                            <MDButton color='warning' onClick={ClearFilter}>
+                                Clear
+                            </MDButton>
+                            <MDButton sx={{ ml: 1 }} color='info' onClick={ApplyFilter}>
+                                Apply
+                            </MDButton>
+                        </MDBox>
+                    </DialogActions>
+                </Dialog>
+            </MDBox>
+        )
+    }
+
+    const PlatformFilterColumnFN = ({ column: { filterValue, setFilter, id } }) => (
+        <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel><MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography></InputLabel>
+            <Select
+                label={<MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography>}
+                value={filterValue ?? ''}
+                onChange={(e) => setFilter(e.target.value)}
+                sx={{ padding: '0.625rem!important' }}
+            >
+                <MenuItem value="">No Filter</MenuItem>
+                {platforms && platforms.map((item, index) => (
+                    <MenuItem key={index} value={item.title}>{item.title}</MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    )
+
     const columns = [
         { Header: "name", accessor: (row) => `${row.full_name} ${row.email}`, id: 'name', Cell: ({row}) => (
             <Employee image={team3} name={row.original.full_name} email={row.original.email} />
@@ -497,8 +629,8 @@ function Employee() {
         { Header: "position", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
         { Header: "platform", accessor: (row) => (
             platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
-        ), id: "platform", Cell: ({row}) => {
-            return (platforms && <BadgePopper
+        ), id: "platform", align: "center", sort: false, Cell: ({row}) => {
+            return (<BadgePopper
                 id={row.original.details_id}
                 badgeId={row.original.platforms_id} 
                 variant="customGradient" 
@@ -507,10 +639,14 @@ function Employee() {
                 editable={true}
                 deletable={true}
             />)
-        }, align: "center", sort: false },
-        { Header: "applied", accessor: "applied", align: "center" },
+        }, Filter: PlatformFilterColumnFN},
+        { Header: "applied", accessor: "applied", align: "center", Cell: ({value}) => (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+                {value}
+            </MDTypography>
+        ), Filter: DateRangeFilterColumnFN, filter: DateRangeFilterFN},
         { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
-        { Header: "actions", accessor: "actions", align: "center" },
+        { Header: "actions", accessor: "actions", align: "center", disableFilters: true, disableGlobalFilter: true },
     ]
 
     const Employee = ({ image, name, email }) => (
