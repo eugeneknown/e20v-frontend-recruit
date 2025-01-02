@@ -333,7 +333,7 @@ function Employee() {
             result = result.data['career_tags']
             var tags = [{
                 id: null,
-                title: 'unnasigned',
+                title: 'Unnasigned',
                 color: 'light_grey',
             }]
             for (let i=0; i<Object.keys(result).length; i++) {
@@ -445,19 +445,8 @@ function Employee() {
                     details_id: recruit[key]['entity_data'].details[0]?.id,
                     platforms_id: recruit[key]['entity_data']?.details[0]?.platforms_id,
                     applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
-                    status: (
-                        <MDBox ml={-1}>
-                            {tags && <BadgePopper
-                                id={recruit[key]['entity_data'].id}
-                                badgeId={recruit[key]['tags_data']?.id} 
-                                variant="gradient" 
-                                content={tags}
-                                data={handleTagsData}
-                                editable={true}
-                                deletable={true}
-                            />}
-                        </MDBox>
-                    ),
+                    entity_careers_id: recruit[key].id,
+                    tags_id: recruit[key]['tags_data']?.id,
                     actions: (
                         <MDBox>
                             <Grid container spacing={.5}>
@@ -482,7 +471,6 @@ function Employee() {
     },[recruit, tags, platforms])
 
     const DateRangeFilterFN = (rows, id, filterValues) => {
-        console.log('date filter', rows, id, filterValues);
         const sd = filterValues[0] ? new Date(filterValues[0]) : undefined;
         const ed = filterValues[1] ? new Date(filterValues[1]) : undefined;
         if (ed || sd) {
@@ -505,7 +493,6 @@ function Employee() {
     const DateRangeFilterColumnFN = ({
         column: { filterValue = [], preFilteredRows, setFilter, id }
     }) => {
-        console.log('date filter column', filterValue, preFilteredRows, setFilter, id);
         const [start, end] = useMemo(() => {
             let start = preFilteredRows.length
             ? moment(preFilteredRows[0].values[id])
@@ -535,7 +522,6 @@ function Employee() {
 
         const ApplyFilter = () => {
             const { startDate, endDate } = state[0]
-            console.log('date format', formatDateTime(startDate, 'YYYY-MM-DDT23:59:59.999Z'));
             setFilter((old = []) => [formatDateTime(startDate, 'YYYY-MM-DD'), old[1]]);
             setFilter((old = []) => [old[0], formatDateTime(endDate, 'YYYY-MM-DDT23:59:59.999Z')]);
             setOpen(!open)
@@ -612,6 +598,23 @@ function Employee() {
         </FormControl>
     )
 
+    const TagsFilterColumnFN = ({ column: { filterValue, setFilter, id } }) => (
+        <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel><MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography></InputLabel>
+            <Select
+                label={<MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography>}
+                value={filterValue ?? ''}
+                onChange={(e) => setFilter(e.target.value)}
+                sx={{ padding: '0.625rem!important' }}
+            >
+                <MenuItem value="">No Filter</MenuItem>
+                {tags && tags.map((item, index) => (
+                    <MenuItem key={index} value={item.title}>{item.title}</MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    )
+
     const columns = [
         { Header: "name", accessor: (row) => `${row.full_name} ${row.email}`, id: 'name', Cell: ({row}) => (
             <Employee image={team3} name={row.original.full_name} email={row.original.email} />
@@ -629,7 +632,7 @@ function Employee() {
         { Header: "position", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
         { Header: "platform", accessor: (row) => (
             platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
-        ), id: "platform", align: "center", sort: false, Cell: ({row}) => {
+        ), id: "platform", align: "center", sort: true, Cell: ({row}) => {
             return (<BadgePopper
                 id={row.original.details_id}
                 badgeId={row.original.platforms_id} 
@@ -644,8 +647,20 @@ function Employee() {
             <MDTypography variant="caption" color="text" fontWeight="medium">
                 {value}
             </MDTypography>
-        ), Filter: DateRangeFilterColumnFN, filter: DateRangeFilterFN},
-        { Header: (<MDBox onClick={() => setFilterModal(true)} component="a" href="#">Tags</MDBox>), accessor: "status", align: "center" },
+        ), Filter: DateRangeFilterColumnFN, filter: DateRangeFilterFN, sort: true},
+        { Header: 'tags', accessor: (row) => (
+            tags[Object.keys(tags).find(key => tags[key].id == row.tags_id)]?.title || 'unassigned' 
+        ), id: 'status', align: "center", sort: true, Cell: ({row}) => {
+            return (<BadgePopper
+                id={row.original.entity_careers_id}
+                badgeId={row.original.tags_id} 
+                variant="gradient" 
+                content={tags}
+                data={handleTagsData}
+                editable={true}
+                deletable={true}
+            />)
+        }, Filter: TagsFilterColumnFN},
         { Header: "actions", accessor: "actions", align: "center", disableFilters: true, disableGlobalFilter: true },
     ]
 
