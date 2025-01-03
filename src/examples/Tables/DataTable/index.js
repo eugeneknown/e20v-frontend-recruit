@@ -310,13 +310,13 @@ function DataTable({
           </MDPagination>
         )}
       </MDBox>
-      <pre>
+      {/* <pre>
         {JSON.stringify(
           { columnFilters: tableInstance.state.filters },
           null,
           2
         )}
-      </pre>
+      </pre> */}
     </TableContainer>
   );
 }
