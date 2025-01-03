@@ -189,14 +189,14 @@ function Dashboard() {
     // console.log('debug report:', formatDateTime(weekStart, 'dddd, MM DD YYYY, HH:mm:ss'), formatDateTime(weekEnd, 'dddd, MM DD YYYY, HH:mm:ss'))
     // console.log('debug report:', weekEnd.diff(weekStart, 'days'))
   }
-
+  
   const monthlyReportSequence = () => {
     var monthStart = moment().startOf('year')
     var currentMonth = moment().set('month', moment().month())
     var count = currentMonth.diff(monthStart, 'month')
-
+    
     // console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
-
+    
     getRecruitData({
       filter: [
         {
@@ -213,7 +213,7 @@ function Dashboard() {
     }).then((result) => {
       console.log('monthly recruit data:', result.data)
       result = result.data['entity_career']
-
+      
       var monthCounts = {}
       for (var i=0; i<result.length; i++) {
         var getMonth = moment(result[i].date).month()
@@ -225,12 +225,12 @@ function Dashboard() {
         }
       }
       // console.log('debug per month counts:', monthCounts)
-
+      
       var labels = []
       var dataArray = []
       for (var i=0; i<=count; i++) {
         labels.push(formatDateTime(moment().set('month', i), 'MMM'))
-
+        
         if ( monthCounts[i] == undefined ) {
           dataArray.push(0)
         } else {
@@ -238,7 +238,7 @@ function Dashboard() {
         }
       }
       // console.log('debug data array:', dataArray)
-
+      
       setMonthlyReport({
         labels,
         datasets: {
@@ -250,18 +250,34 @@ function Dashboard() {
       console.log('monthly recruit error data:', err)
     })
   }
-
-  const tagsReportSequence = () => {
-    var monthStart = moment().startOf('year')
+  
+  const dailyTagsReport = () => {
+    var monthStart = moment().startOf('year').subtract(1, 'year')
     var currentMonth = moment().set('month', moment().month())
-    var count = currentMonth.diff(monthStart, 'month')
-
-    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
 
     getRecruitData({
       filter: [
         {
-          target: 'created_at',
+          target: 'updated_at',
+          operator: 'range',
+          value: [monthStart, currentMonth],
+        }
+      ],
+      tags: {},
+    })
+  }
+  
+  const tagsReportSequence = () => {
+    var monthStart = moment().startOf('year').subtract(1, 'year')
+    var currentMonth = moment().set('month', moment().month())
+    var count = currentMonth.diff(monthStart, 'month')
+    
+    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
+    
+    getRecruitData({
+      filter: [
+        {
+          target: 'updated_at',
           operator: 'range',
           value: [monthStart, currentMonth],
         }
@@ -358,13 +374,6 @@ function Dashboard() {
       console.log('monthly tags recruit error data:', err)
     })
   }
-
-  const columns = [
-    { Header: "tags", accessor: "tags", width: "45%", align: "left" },
-    // { Header: "members", accessor: "members", width: "10%", align: "left" },
-    { Header: "total", accessor: "total", align: "center" },
-    { Header: "percentage", accessor: "percentage", align: "center" },
-  ]
 
   const Progress = ({ color, value }) => (
     <MDBox display="flex" alignItems="center">
@@ -536,7 +545,7 @@ function Dashboard() {
                               return `${percentage}%`
                             }
                           }
-                          console.log('series data', series);
+                          // console.log('series data', series);
                           return series
                         })
                       }
