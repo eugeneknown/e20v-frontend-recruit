@@ -30,7 +30,7 @@ function BadgePopper({
     const { enqueueSnackbar } = useSnackbar()
 
     useEffect(() => {
-        console.log('debug badge popper content:', content);
+        // console.log('debug badge popper content:', content);
         setCurrentBadge(content[Object.keys(content).find(key => content[key].id == badgeId)] || 0)
     },[])
 
