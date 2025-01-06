@@ -59,6 +59,7 @@ import { DateRangePicker } from "react-date-range";
 
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+import { isSameDay, startOfDay } from "date-fns";
 
 
 
@@ -355,7 +356,7 @@ function Employee() {
         console.log('debug badge popper tags data:', data)
 
         if ( data.action == 'select' ) {
-            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, tags_id: data.data_id }).then((result) => {
+            dataServicePrivate('POST', 'hr/careers/entity/tag', { id: data.id, tags_id: data.data_id }).then((result) => {
                 console.log("debug update career tag", result.data);
                 getInit();
             }, (err) => {
@@ -471,19 +472,20 @@ function Employee() {
     },[recruit, tags, platforms])
 
     const DateRangeFilterFN = (rows, id, filterValues) => {
-        const sd = filterValues[0] ? new Date(filterValues[0]) : undefined;
-        const ed = filterValues[1] ? new Date(filterValues[1]) : undefined;
+        const sd = filterValues[0] ? moment(filterValues[0]).startOf('day').toDate() : undefined;
+        const ed = filterValues[1] ? moment(filterValues[1]).endOf('day').toDate() : undefined;
         if (ed || sd) {
             return rows.filter((r) => {
-            const cellDate = moment(r.values[id]).toDate()
+                const cellDate = moment(r.values[id]).toDate()
+                console.log('range filter', sd, ed, cellDate);
 
-            if (ed && sd) {
-                return cellDate >= sd && cellDate <= ed;
-            } else if (sd) {
-                return cellDate >= sd;
-            } else {
-                return cellDate <= ed;
-            }
+                if (ed && sd) {
+                    return cellDate >= sd && cellDate <= ed;
+                } else if (sd) {
+                    return cellDate >= sd;
+                } else {
+                    return cellDate <= ed;
+                }
             });
         } else {
             return rows;
@@ -493,24 +495,6 @@ function Employee() {
     const DateRangeFilterColumnFN = ({
         column: { filterValue = [], preFilteredRows, setFilter, id }
     }) => {
-        const [start, end] = useMemo(() => {
-            let start = preFilteredRows.length
-            ? moment(preFilteredRows[0].values[id])
-            : moment(0)
-
-            let end = preFilteredRows.length
-            ? moment(preFilteredRows[0].values[id])
-            : moment(0)
-
-            preFilteredRows.forEach((row) => {
-                const date = moment(row.values[id])
-
-                start = date <= start ? date : start;
-                end = date >= end ? date : end;
-            })
-
-            return [start, end]
-        },[id, preFilteredRows])
         const [open, setOpen] = useState(false)
         const [state, setState] = useState([
             {
@@ -520,10 +504,129 @@ function Employee() {
             }
         ]);
 
+        // var exMoment = moment().startOf('day').toDate()
+        // var exFns = startOfDay(new Date())
+        // console.log('date comparison', exMoment, exFns );
+
+        const staticRanges = [
+            {
+                label: 'Today',
+                range: () => ({
+                    startDate: moment().startOf('day').toDate(),
+                    endDate: moment().endOf('day').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'Yesterday',
+                range: () => ({
+                    startDate: moment().startOf('day').subtract(1, 'day').toDate(),
+                    endDate: moment().endOf('day').subtract(1, 'day').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'This Week',
+                range: () => ({
+                    startDate: moment().startOf('week').toDate(),
+                    endDate: moment().endOf('week').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'Last Week',
+                range: () => ({
+                    startDate: moment().startOf('week').subtract(1, 'week').toDate(),
+                    endDate: moment().endOf('week').subtract(1, 'week').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'This Month',
+                range: () => ({
+                    startDate: moment().startOf('month').toDate(),
+                    endDate: moment().endOf('month').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'Last Month',
+                range: () => ({
+                    startDate: moment().startOf('month').subtract(1, 'month').toDate(),
+                    endDate: moment().endOf('month').subtract(1, 'month').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'This Year',
+                range: () => ({
+                    startDate: moment().startOf('year').toDate(),
+                    endDate: moment().endOf('year').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+            {
+                label: 'Last Year',
+                range: () => ({
+                    startDate: moment().startOf('year').subtract(1, 'year').toDate(),
+                    endDate: moment().endOf('year').subtract(1, 'year').toDate(),
+                }),
+                isSelected(range) {
+                    const definedRange = this.range();
+                    return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                    );
+                },
+            },
+        ]
+
         const ApplyFilter = () => {
             const { startDate, endDate } = state[0]
-            setFilter((old = []) => [formatDateTime(startDate, 'YYYY-MM-DD'), old[1]]);
-            setFilter((old = []) => [old[0], formatDateTime(endDate, 'YYYY-MM-DDT23:59:59.999Z')]);
+            setFilter((old = []) => [startDate, old[1]]);
+            setFilter((old = []) => [old[0], endDate]);
             setOpen(!open)
         }
 
@@ -561,6 +664,7 @@ function Employee() {
                             direction="horizontal"
                             preventSnapRefocus={true}
                             calendarFocus="backwards"
+                            staticRanges={staticRanges}
                         />
                     </DialogContent>
                     <DialogActions sx={{ justifyContent: 'space-between' }}>
@@ -742,8 +846,8 @@ function Employee() {
                             <MDBox pt={3}>
                             <DataTable
                                 table={{ columns, rows }}
-                                entriesPerPage={false}
-                                showTotalEntries={false}
+                                showTotalEntries
+                                entriesPerPage
                                 noEndBorder
                                 canSearch
                             />

@@ -63,10 +63,10 @@ function DataTable({
   // pagination,
   // isSorted,
   // noEndBorder)
-  const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 10;
+  const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 50;
   const entries = entriesPerPage.entries
     ? entriesPerPage.entries.map((el) => el.toString())
-    : ["5", "10", "15", "20", "25"];
+    : ["10", "20", "50", "100", "250", "500"];
   const columns = useMemo(() => table.columns, [table]);
   const data = useMemo(() => table.rows, [table]);
   const [open, setOpen] = useState(false)
@@ -184,24 +184,6 @@ function DataTable({
     <TableContainer sx={{ boxShadow: "none" }}>
       {entriesPerPage || canSearch ? (
         <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-          {entriesPerPage && (
-            <MDBox display="flex" alignItems="center">
-              <Autocomplete
-                disableClearable
-                value={pageSize.toString()}
-                options={entries}
-                onChange={(event, newValue) => {
-                  setEntriesPerPage(parseInt(newValue, 10));
-                }}
-                size="small"
-                sx={{ width: "5rem" }}
-                renderInput={(params) => <MDInput {...params} />}
-              />
-              <MDTypography variant="caption" color="secondary">
-                &nbsp;&nbsp;entries per page
-              </MDTypography>
-            </MDBox>
-          )}
           <IconButton onClick={() => setOpen(!open)} ><Icon>filter_list</Icon></IconButton>
           <Drawer open={open} title='Filter'>
             <MDBox p={3}>
@@ -272,15 +254,8 @@ function DataTable({
         flexDirection={{ xs: "column", sm: "row" }}
         justifyContent="space-between"
         alignItems={{ xs: "flex-start", sm: "center" }}
-        p={!showTotalEntries && pageOptions.length === 1 ? 0 : 3}
+        m={pageOptions.length === 1 ? 0 : 3}
       >
-        {showTotalEntries && (
-          <MDBox mb={{ xs: 3, sm: 0 }}>
-            <MDTypography variant="button" color="secondary" fontWeight="regular">
-              Showing {entriesStart} to {entriesEnd} of {rows.length} entries
-            </MDTypography>
-          </MDBox>
-        )}
         {pageOptions.length > 1 && (
           <MDPagination
             variant={pagination.variant ? pagination.variant : "gradient"}
@@ -310,6 +285,39 @@ function DataTable({
           </MDPagination>
         )}
       </MDBox>
+      {(entriesPerPage || showTotalEntries) && (
+        <MDBox 
+          display="flex" 
+          m={3}
+        >
+          {showTotalEntries && (
+            <MDBox mb={{ xs: 3, sm: 0 }}>
+              <MDTypography variant="button" color="secondary" fontWeight="regular">
+                {/* Showing {entriesStart} to {entriesEnd} of {rows.length} Entries */}
+                {rows.length} total Entries
+              </MDTypography>
+            </MDBox>
+          )}
+          {entriesPerPage && (
+            <MDBox display="flex" alignItems="center" mx={3}>
+              <Autocomplete
+                disableClearable
+                value={pageSize.toString()}
+                options={entries}
+                onChange={(event, newValue) => {
+                  setEntriesPerPage(parseInt(newValue, 10));
+                }}
+                size="small"
+                sx={{ width: "5rem" }}
+                renderInput={(params) => <MDInput {...params} />}
+              />
+              <MDTypography variant="caption" color="secondary">
+                &nbsp;&nbsp;entries per page
+              </MDTypography>
+            </MDBox>
+          )}
+        </MDBox>
+      )}
       {/* <pre>
         {JSON.stringify(
           { columnFilters: tableInstance.state.filters },
