@@ -344,7 +344,7 @@ function Dashboard() {
   }
 
   const dailyTagsFinder = (title) => {
-    return tagsCount[Object.keys(tagsCount).find(key => tagsCount[key].title == title)]
+    return tagsCount[Object.keys(tagsCount).find(key => tagsCount[key].title == title)] ?? 0
   }
   
   const tagsReportSequence = () => {
@@ -497,7 +497,7 @@ function Dashboard() {
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 icon="person_add"
-                title="Job Offer"
+                title="Total Applicants"
                 count={tagsCount && dailyTagsFinder('Job Offer').count}
                 percentage={{
                   color: "success",
@@ -539,6 +539,21 @@ function Dashboard() {
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
+                color="dark"
+                icon="leaderboard"
+                title="No show Initial Interview"
+                count={tagsCount && dailyTagsFinder('Initial Interview').count}
+                percentage={{
+                  color: "success",
+                  amount: "+55%",
+                  label: "than lask week",
+                }}
+              />
+            </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <ComplexStatisticsCard
                 color="success"
                 icon="work"
                 title="Final Interview"
@@ -550,6 +565,33 @@ function Dashboard() {
                 }}
               />
             </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <ComplexStatisticsCard
+                color="success"
+                icon="work"
+                title="No Show Final Interview"
+                count={tagsCount && dailyTagsFinder('Final Interview').count}
+                percentage={{
+                  color: "success",
+                  amount: "+1%",
+                  label: "than yesterday",
+                }}
+              />
+            </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <ComplexStatisticsCard
+              icon="person_add"
+              title="Job Offer"
+              count={tagsCount && dailyTagsFinder('Job Offer').count}
+              percentage={{
+                color: "success",
+                amount: "+3%",
+                label: "than yesterday",
+              }}
+            />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
