@@ -65,6 +65,7 @@ function Dashboard() {
   const [ rows, setRows ] = useState()
   const [ tags, setTags ] = useState()
   const [ tagsCount, setTagsCount ] = useState()
+  const [ total, setTotal ] = useState(0)
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -90,15 +91,16 @@ function Dashboard() {
       }
     }
 
+    totalApplicants()
     getTagsData({}).then((result) => {
       console.log('debug tags result', result);
       result = result.data['career_tags']
       setTags(result)
-      dailyTagsReport(result)
     })
+    dailyTagsReport()
     getUsers();
     weeklyReportSequence()
-    monthlyReportSequence()
+    // monthlyReportSequence()
     tagsReportSequence()
 
     return () => {
@@ -114,17 +116,35 @@ function Dashboard() {
   const getTagsData = async (data) => {
     return await axiosPrivate.post('hr/careers/tags/all', data)
   }
+  
+  const totalApplicants = () => {
+    dataServicePrivate('POST', 'hr/careers/entity/all', {
+      filter: [
+        {
+          target: 'created_at',
+          operator: 'range',
+          value: [moment().startOf('day'), moment().endOf('day')],
+        }
+      ],
+    }).then((result) => {
+      console.log('debug total applicants result', result);
+      result = result.data['entity_career']
+      setTotal(Object.keys(result).length)
+    }).catch((err) => {
+      console.log('debug total applicants error result', err);
 
-  // var weekStart = moment('2024-10-14T16:00:00.000Z')
-  // var weekEnd = moment('2024-10-18T15:59:59.999Z')
+    })
+  }
+
   
   const weeklyReportSequence = () => {
+    // var weekStart = moment('2024-10-14T16:00:00.000Z')
+    // var weekEnd = moment('2024-10-18T15:59:59.999Z')
     var weekStart = moment().startOf('week')
     var weekEnd = moment().endOf('week')
-    // console.log('debug report data:', data)
 
     var count = weekEnd.diff(weekStart, 'days')
-    console.log('debug moment week:', weekStart, weekEnd, count);
+    // console.log('debug moment week:', weekStart, weekEnd, count);
 
     getRecruitData({
       filter: [
@@ -140,9 +160,9 @@ function Dashboard() {
         value: 'id',
       },
     }).then((result) => {
-      console.log('weekly report data:', result.data)
+      console.log('weekly report data:', result)
       result = result.data['entity_career']
-
+//todo make platform report like report tags method
       var dataSeries = []
       // platform
       dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
@@ -176,7 +196,7 @@ function Dashboard() {
             tempDataSet[result[item]['platform_id']] = result[item]['count']
             totalCount += result[item]['count']
 
-            delete result[item]
+            // delete result[item]
           }
         })
 
@@ -307,13 +327,11 @@ function Dashboard() {
     })
   }
   
-  const dailyTagsReport = (tags) => {
+  const dailyTagsReport = () => {
     // var start = moment().startOf('year').subtract(1, 'year')
     // var end = moment().set('month', moment().month())
     var start = moment().startOf('day')
     var end = moment().endOf('day')
-
-    console.log('start end', start, end);
 
     getRecruitData({
       filter: [
@@ -328,16 +346,7 @@ function Dashboard() {
       console.log('debug daily tags report', result);
       result = result.data['entity_career']
 
-      var temp = []
-      Object.keys(tags).map((item, index) => {
-        const count = result[Object.keys(result).find(key => result[key].tag_id == tags[item].id)]?.count ?? 0
-        var tag = tags[item]
-        tag['count'] = count
-        temp.push(tag)
-      })
-      console.log('temp', temp);
-
-      setTagsCount(temp)
+      setTagsCount(result)
     }).catch((err) => {
       console.log('debug daily tags error report', err);
     })
@@ -376,80 +385,47 @@ function Dashboard() {
         total = 1
       }
 
-      getTagsData({}).then((_result) => {
-        console.log('debug tags data', _result.data)
-        _result = _result.data['career_tags']
-        _result.unshift({
-          id: 0,
-          title: 'Unassigned',
-          color: 'light_grey',
-        })
-
-        var labels = []
-        var dataArray = []
-        var bgColor = []
-
-        var row = []
-        for (var i=0; i<_result.length; i++) {
-
-          for (var j=0; j<result.length; j++) {
-            if ( result[j].tag_id == _result[i].id ) {
-              labels.push(_result[i].title)
-              dataArray.push(result[j].count)
-              bgColor.push(_result[i].color)
-              row.push({
-                tags: (
-                  <MDTypography variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-                    {_result[i].title}
-                  </MDTypography>
-                ),
-                total: (
-                  <MDTypography variant="caption" color="text" fontWeight="medium">
-                    {result[j].count}
-                  </MDTypography>
-                ),
-                percentage: <Progress color={_result[i].color} value={Math.round((result[j].count/total)*100).toFixed(2)} />,
-              })
-              break
-            }
-
-            if (j+1==result.length) {
-              labels.push(_result[i].title)
-              dataArray.push(0)
-              bgColor.push(_result[i].color)
-              row.push({
-                tags: (
-                  <MDTypography variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-                    {_result[i].title}
-                  </MDTypography>
-                ),
-                total: (
-                  <MDTypography variant="caption" color="text" fontWeight="medium">
-                    {0}
-                  </MDTypography>
-                ),
-                percentage: <Progress color={_result[i].color} value={0/total*100} />,
-              })
-            }
-          }
-        }
-        console.log('debug data array:', row)
-
-        setTagsMonthlyReport({
-          labels,
-          datasets: {
-            label: 'Total count',
-            data: dataArray,
-            backgroundColors: bgColor,
-          }
-        })
-        setRows(row)
-
-      }).catch((err) => {
-        console.log('debug tags err data', err)
+      result.unshift({
+        id: 0,
+        title: 'Unassigned',
+        color: 'light_grey',
+        count: 0,
       })
 
-      
+      var row = []
+      var labels = []
+      var dataArray = []
+      var bgColor = []
+
+      Object.keys(result).map((item, index) => {
+        labels.push(result[item].title)
+        dataArray.push(result[item].count)
+        bgColor.push(result[item].color)
+        row.push({
+          tags: (
+            <MDTypography variant="button" fontWeight="medium" ml={1} lineHeight={1}>
+              {result[item].title}
+            </MDTypography>
+          ),
+          total: (
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+              {result[item].count}
+            </MDTypography>
+          ),
+          percentage: <Progress color={result[item].color} value={Math.round((result[item].count/total)*100).toFixed(2)} />,
+        })
+      })
+
+      setTagsMonthlyReport({
+        labels,
+        datasets: {
+          label: 'Total count',
+          data: dataArray,
+          backgroundColors: bgColor,
+        }
+      })
+      setRows(row)
+
     }).catch((err) => {
       console.log('monthly tags recruit error data:', err)
     })
@@ -498,7 +474,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 icon="person_add"
                 title="Total Applicants"
-                count={tagsCount && dailyTagsFinder('Job Offer').count}
+                count={total}
                 percentage={{
                   color: "success",
                   amount: "+3%",

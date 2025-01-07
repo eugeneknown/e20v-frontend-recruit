@@ -335,7 +335,7 @@ function Employee() {
             var tags = [{
                 id: null,
                 title: 'Unnasigned',
-                color: 'light_grey',
+                color: '#D3D3D3',
             }]
             for (let i=0; i<Object.keys(result).length; i++) {
                 tags[i+1] = {
