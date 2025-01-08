@@ -20,7 +20,7 @@ export default [
     },
     {
         id: 'course',
-        label: 'Strand',
+        label: 'Course',
         type: 'select',
         required: true,
         options: strand,

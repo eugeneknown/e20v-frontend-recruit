@@ -65,7 +65,7 @@ function Dashboard() {
   const [ rows, setRows ] = useState()
   const [ tags, setTags ] = useState()
   const [ tagsCount, setTagsCount ] = useState()
-  const [ total, setTotal ] = useState(0)
+  const [ total, setTotal ] = useState()
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -100,7 +100,7 @@ function Dashboard() {
     dailyTagsReport()
     getUsers();
     weeklyReportSequence()
-    // monthlyReportSequence()
+    monthlyReportSequence()
     tagsReportSequence()
 
     return () => {
@@ -196,7 +196,7 @@ function Dashboard() {
             tempDataSet[result[item]['platform_id']] = result[item]['count']
             totalCount += result[item]['count']
 
-            // delete result[item]
+            delete result[item]
           }
         })
 
@@ -233,13 +233,13 @@ function Dashboard() {
           value: [monthStart, currentMonth],
         }
       ],
-      date: {
+      platforms: {
         target: 'created_at',
         operator: 'month',
         value: 'id',
       },
     }).then((result) => {
-      console.log('monthly recruit data:', result.data)
+      console.log('monthly recruit data:', result)
       result = result.data['entity_career']
 
       var dataSeries = []
@@ -264,64 +264,32 @@ function Dashboard() {
       var tempDataSet = {}
       var totalCount = 0
       for ( var i=0; i<=count; i++ ) {
-        monthStart.add(i, 'd')
+        monthStart.add(i, 'month')
         // console.log('debug report:', formatDateTime(monthStart))
 
-        tempDataSet['date'] = formatDateTime(monthStart, 'MMMM DD YYYY')
+        tempDataSet['date'] = formatDateTime(monthStart, 'MMMM YYYY')
         Object.keys(result).map((item, key) => {
           // console.log('debug report format:', formatDateTime(moment(result[item]['date'])))
-          if (monthStart.isSame(result[item]['date'], 'day')) {
+          if (monthStart.isSame(result[item]['date'], 'month')) {
             // console.log('debug report success:', data[item])
             tempDataSet[result[item]['platform_id']] = result[item]['count']
             totalCount += result[item]['count']
 
-            delete result[item]
+            // delete result[item]
           }
         })
 
         tempDataSet['total'] = totalCount
         totalCount = 0
 
-        monthStart.subtract(i, 'd')
+        monthStart.subtract(i, 'month')
         dataSets.push(tempDataSet)
         tempDataSet = {}
       }
 
-      console.log('debug report data array:', dataSets, dataSeries)
+      console.log('debug monthly report data array:', dataSets, dataSeries)
       setMonthlyReport({ dataSets, dataSeries })
       
-      // var monthCounts = {}
-      // for (var i=0; i<result.length; i++) {
-      //   var getMonth = moment(result[i].date).month()
-      //   // console.log('debug get month:', getMonth)
-      //   if ( monthCounts[getMonth] == undefined ) {
-      //     monthCounts[getMonth] = result[i].count
-      //   } else {
-      //     monthCounts[getMonth] += result[i].count
-      //   }
-      // }
-      // // console.log('debug per month counts:', monthCounts)
-      
-      // var labels = []
-      // var dataArray = []
-      // for (var i=0; i<=count; i++) {
-      //   labels.push(formatDateTime(moment().set('month', i), 'MMM'))
-        
-      //   if ( monthCounts[i] == undefined ) {
-      //     dataArray.push(0)
-      //   } else {
-      //     dataArray.push(monthCounts[i])
-      //   }
-      // }
-      // // console.log('debug data array:', dataArray)
-      
-      // setMonthlyReport({
-      //   labels,
-      //   datasets: {
-      //     label: 'Total count',
-      //     data: dataArray,
-      //   }
-      // })
     }).catch((err) => {
       console.log('monthly recruit error data:', err)
     })
@@ -677,65 +645,65 @@ function Dashboard() {
               <MDBox mb={3}>
                 <Card sx={{ height: "100%" }}>
                   <MDBox padding="1rem">
-                    {/* {
-                      monthlyReport &&
-                      <BarChart
-                        dataset={monthlyReport['dataSets']}
-                        xAxis={[{
-                          scaleType: 'band',
-                          dataKey: 'date',
-                          tickPlacement: 'middle',
-                          valueFormatter: (value, context) => {
-                            if ( context.location == 'tick' ) {
-                              return `${formatDateTime(value, 'MMM DD')}`
-                            } else {
-                              return value
-                            }
-                          },
-                        }]}
-                        topAxis={{
-                          disableLine: true,
-                          disableTicks: true,
-                          valueFormatter: (value, context) => {
-                            if (context.location == 'tick') {
-                              return `${formatDateTime(value, 'ddd')}`
-                            }
-                          }
-                        }}
-                        slotProps={{
-                          legend: {
-                            position: { vertical: 'bottom' },
-                          },
-                        }}
-                        sx={{
-                          '& .MuiBarLabel-root': {
-                            fill: 'white',
-                          },
-                          '& .MuiChartsLegend-series text': {
-                            fontSize: '1rem!important'
-                          }
-                        }}
-                        series={
-                          Object.keys(monthlyReport['dataSeries']).map((item, key) => {
-                            // console.log('debug series data', item, key, monthlyReport);
-                            var series = {
-                              ...monthlyReport['dataSeries'][item],
-                              valueFormatter: (value, context) => {
-                                // console.log('debug series value formatter:', value, context);
-                                var total = monthlyReport['dataSets'][context.dataIndex].total
-                                var percentage = total != 0 ? Math.round((value/total)*100) : 0
-                                // return `Total ${value} -> ${percentage}%`
-                                return `${percentage}%`
-                              }
-                            }
-                            // console.log('series data', series);
-                            return series
-                          })
-                        }
-                        height={300}
-                        margin={{ bottom: 70 }}
-                      />
-                    } */}
+                    {
+                      // monthlyReport &&
+                      // <BarChart
+                      //   dataset={monthlyReport['dataSets']}
+                      //   xAxis={[{
+                      //     scaleType: 'band',
+                      //     dataKey: 'date',
+                      //     tickPlacement: 'middle',
+                      //     valueFormatter: (value, context) => {
+                      //       if ( context.location == 'tick' ) {
+                      //         return `${formatDateTime(value, 'MMM')}`
+                      //       } else {
+                      //         return value
+                      //       }
+                      //     },
+                      //   }]}
+                      //   // topAxis={{
+                      //   //   disableLine: true,
+                      //   //   disableTicks: true,
+                      //   //   valueFormatter: (value, context) => {
+                      //   //     if (context.location == 'tick') {
+                      //   //       return `${formatDateTime(value, 'ddd')}`
+                      //   //     }
+                      //   //   }
+                      //   // }}
+                      //   slotProps={{
+                      //     legend: {
+                      //       position: { vertical: 'bottom' },
+                      //     },
+                      //   }}
+                      //   sx={{
+                      //     '& .MuiBarLabel-root': {
+                      //       fill: 'white',
+                      //     },
+                      //     '& .MuiChartsLegend-series text': {
+                      //       fontSize: '1rem!important'
+                      //     }
+                      //   }}
+                      //   series={
+                      //     Object.keys(monthlyReport['dataSeries']).map((item, key) => {
+                      //       // console.log('debug series data', item, key, monthlyReport);
+                      //       var series = {
+                      //         ...monthlyReport['dataSeries'][item],
+                      //         valueFormatter: (value, context) => {
+                      //           // console.log('debug series value formatter:', value, context);
+                      //           var total = monthlyReport['dataSets'][context.dataIndex].total
+                      //           var percentage = total != 0 ? Math.round((value/total)*100) : 0
+                      //           // return `Total ${value} -> ${percentage}%`
+                      //           return `${percentage}%`
+                      //         }
+                      //       }
+                      //       // console.log('series data', series);
+                      //       return series
+                      //     })
+                      //   }
+                      //   height={300}
+                      //   margin={{ bottom: 70 }}
+                      // />
+                    }
                     <MDBox pt={3} pb={1} px={1}>
                       <MDTypography variant="h6" textTransform="capitalize">
                         Monthly Tracker

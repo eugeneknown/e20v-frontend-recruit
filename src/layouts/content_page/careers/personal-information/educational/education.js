@@ -144,7 +144,7 @@ function EducationalAttainmentForm(){
                                             {/* {console.log('values', values, isValid)} */}
                                             {Object.keys(data).map((item, index) => {
                                                 var disabled = false
-                                                if ( data[item].id == 'end_date' && ('present' in values || 'undergrad' in values) ) {
+                                                if ( data[item].id == 'end_date' && ('present' in values ?? 'undergrad' in values) ) {
                                                     disabled = values.present || values.undergrad
                                                     Object.keys(data).map((item, index) => {
                                                         if (disabled) {
