@@ -166,24 +166,62 @@ export const generateFormInput = (props) => {
                 </FormControl>
             )
 
-        case 'file':
-            props['value'] ? props['value'] : props['value'] = null
-            console.log('file', props);
-
-            return (
-                <MuiFileInput
-                    {...props}
-                    onChange={(e) => props.setFieldValue(props.id, e, props.required)}
-                    InputProps={{
-                        inputProps: {
-                            accept: props?.options,
-                        },
-                        startAdornment: <Icon>attach_file</Icon>,
-                        endAdornment: <IconButton size="small" onClick={() => props.setFieldValue(props.id, null, props.required)}><Icon>close</Icon></IconButton>,
-                    }}
-                    placeholder="Attach File"
-                />
-            )
+            case 'file':
+                props['value'] = props['value'] || null;
+            
+                // Max file size in bytes (5MB)
+                const maxFileSize = 5 * 1024 * 1024; // 5MB
+                const allowedFormats = props?.options || []; // Allow formats based on the specific requirements
+            
+                const handleFileValidation = (file) => {
+                    if (!file) {
+                        return "No file selected.";
+                    }
+            
+                    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                    if (!allowedFormats.includes(fileExtension)) {
+                        return `Invalid file format. Allowed formats are: ${allowedFormats.join(', ')}`;
+                    }
+            
+                    if (file.size > maxFileSize) {
+                        return `File size exceeds 5MB. Please select a smaller file.`;
+                    }
+            
+                    return null; // No error
+                };
+            
+                const handleFileChange = (file) => {
+                    const errorMessage = handleFileValidation(file);
+                    if (errorMessage) {
+                        alert(errorMessage); // Alert user about the error
+                        props.setFieldValue(props.id, null, props.required); // Set the field value to null if invalid
+                        return; // Prevent further processing
+                    }
+                    props.setFieldValue(props.id, file, props.required); // Set valid file
+                };
+            
+                return (
+                    <MuiFileInput
+                        {...props}
+                        onChange={(file) => handleFileChange(file)}
+                        InputProps={{
+                            inputProps: {
+                                accept: allowedFormats.join(','), // Restrict file picker to these formats
+                            },
+                            startAdornment: <Icon>attach_file</Icon>,
+                            endAdornment: (
+                                <IconButton
+                                    size="small"
+                                    onClick={() => props.setFieldValue(props.id, null, props.required)}
+                                >
+                                    <Icon>close</Icon>
+                                </IconButton>
+                            ),
+                        }}
+                        placeholder="Attach File"
+                    />
+                );
+            
 
         case 'link':
             // console.log('link', props);

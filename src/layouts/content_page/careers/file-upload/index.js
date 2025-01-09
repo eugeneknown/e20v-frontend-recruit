@@ -1,19 +1,29 @@
-import { Button, Icon, IconButton } from "@mui/material";
-
-// Material Dashboard 2 React components
+import { Icon, IconButton } from "@mui/material";
 import MDBox from "components/MDBox";
 import { useState } from "react";
-import { MuiFileInput } from 'mui-file-input'
+import { MuiFileInput } from "mui-file-input";
 
-function FileUpload({question, data, disabled}) {
-
-    const [ file, setFile ] = useState(null)
+function FileUpload({ question, data, disabled }) {
+    const [file, setFile] = useState(null);
+    const [error, setError] = useState("");
 
     const handleFile = (e) => {
-        console.log('debug file upload data', e);
-        setFile(e)
-        data(e)
-    }
+        const allowedFormats = question.options || [];
+        const fileExtension = e?.name?.split(".").pop()?.toLowerCase();
+
+        // Validate file format
+        if (!allowedFormats.includes(fileExtension)) {
+            setError(`Invalid file format. Allowed formats: ${allowedFormats.join(", ")}`);
+            setFile(null);
+            data(null); // Reset the file data in parent
+            return;
+        }
+        else{
+            setError(""); // Clear error if valid
+            setFile(e);
+            data(e); // Pass the file data to parent
+        }
+    };
 
     return (
         <MDBox>
@@ -24,13 +34,19 @@ function FileUpload({question, data, disabled}) {
                         accept: question?.value,
                     },
                     startAdornment: <Icon>attach_file</Icon>,
-                    endAdornment: <IconButton size="small" onClick={e => setFile(null)}><Icon>close</Icon></IconButton>,
+                    endAdornment: (
+                        <IconButton size="small" onClick={() => setFile(null)}>
+                            <Icon>close</Icon>
+                        </IconButton>
+                    ),
                 }}
                 placeholder="Attach File"
                 value={file}
                 onChange={handleFile}
                 disabled={disabled}
+                error={Boolean(error)}
             />
+            {error && <p style={{ color: "red", fontSize: "0.75rem" }}>{error}</p>}
         </MDBox>
     );
 }

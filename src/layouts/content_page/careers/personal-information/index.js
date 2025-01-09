@@ -274,10 +274,34 @@ function PersonalInformation(){
         console.log('personal educations', educations);
         console.log('personal experience', experience);
         console.log('personal dependents', dependents);
-
-        if ( entity && details && educations && experience && ( hasDependents ? dependents : true ) ) setDisable(false) 
-
-    },[entity, details, educations, experience, dependents])
+    
+        const isEducationComplete = () => {
+            if (!educations || !educations.length) return false;
+    
+            const requiredLevels = ["Elementary", "Secondary (High School)"];
+            const optionalLevels = ["Senior High School", "Vocational & Technical Education", "College"];
+    
+            const hasRequiredLevels = requiredLevels.every((level) =>
+                educations.some((edu) =>
+                    edu.some((field) => field.title === level)
+                )
+            );
+    
+            const hasOptionalLevel = optionalLevels.some((level) =>
+                educations.some((edu) =>
+                    edu.some((field) => field.title === level)
+                )
+            );
+    
+            return hasRequiredLevels && hasOptionalLevel;
+        };
+    
+        const allFieldsFilled = entity && details && experience && (hasDependents ? dependents : true);
+        const isEducationValid = isEducationComplete();
+    
+        setDisable(!(allFieldsFilled && isEducationValid));
+    }, [entity, details, educations, experience, dependents]);
+    
 
     const InformationContent = ({title, data, url}) => (
         <Card sx={{ mx: 5, my: 3 }}>
