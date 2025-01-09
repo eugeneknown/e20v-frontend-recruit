@@ -103,7 +103,7 @@ function Educational(){
                     <MDTypography variant='h5'>{attainment}</MDTypography>
                     {!(option) && data && <Card variant="outlined" position='relative' sx={{ my: 2 }}>
                         <MDBox display='flex' position='absolute' right={0} p={1}>
-                            <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id })}><Icon>edit</Icon></IconButton>
+                            <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id, education: attainment })}><Icon>edit</Icon></IconButton>
                             <IconButton onClick={() => handleDelete(data.id)}><Icon>delete</Icon></IconButton>
                         </MDBox>
                         <CardContent>
@@ -112,7 +112,13 @@ function Educational(){
                             <MDTypography variant='body2'>School: {data.school}</MDTypography>
                             {data.start_date ? 
                             <MDTypography variant='body2'>
-                                Year: {formatDateTime(data.start_date, 'YYYY')} to {data?.present ? `Present` : formatDateTime(data.end_date, 'YYYY')}
+                                Year: {formatDateTime(data.start_date, 'YYYY')} {
+                                    data?.present 
+                                    ? `to Present` 
+                                    : data?.undergrad
+                                    ? `Undergraduate`
+                                    : `to ${formatDateTime(data.end_date, 'YYYY')}`
+                                }
                             </MDTypography> : 
                             <MDTypography variant='body2'>
                                 Year: {formatDateTime(data.end_date, 'YYYY')}

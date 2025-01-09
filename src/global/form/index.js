@@ -21,7 +21,8 @@ export const generateFormInput = (props) => {
         case 'number':
         case 'tel':
         case 'email':
-            return (<TextField {...props} />)
+            // console.log('text', props);
+            return (<TextField {...props} {...props?.options} />)
 
         case 'radio':
         case 'select':
@@ -94,8 +95,8 @@ export const generateFormInput = (props) => {
 
         case 'check':
             props['sx'] = [{ py: '0.75rem' }]
-            props['value'] = props['value'] ? props['value'] : []
-            // console.log('checkbox', props);
+            props['value'] = props['value'] ? typeof props['value'] === 'string' ? props['value'].split(', ') : props['value'] : []
+            console.log('checkbox', props);
 
             const checkValue = (data, value) => {
                 if (data.indexOf(value)) {
@@ -111,8 +112,8 @@ export const generateFormInput = (props) => {
                 const {
                     target: { value },
                 } = e;
-                
-                props.setFieldValue(props.id, typeof value === 'string' ? value.split(', ') : value, props.required)
+
+                props.setFieldValue(props.id, typeof value === 'string' ? value.split(', ') : value.join(', '), props.required)
             }
             props['onChange'] = handleChange
 

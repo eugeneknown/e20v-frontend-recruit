@@ -4,5 +4,6 @@ export default [
         label: 'Other Experience',
         type: 'text',
         required: true,
+        options: { multiline: true }
     },
 ]

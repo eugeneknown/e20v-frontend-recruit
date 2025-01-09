@@ -293,7 +293,7 @@ function PersonalInformation(){
                         sx={{ textTransform: 'capitalize' }}
                         >{data[item].title}{Object.keys(data).length == index+1 && '...'}</MDTypography>
                     )) 
-                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your {title} here</MDTypography></MDBox>
+                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
                 }
                 <MDButton   
                 onClick={() => toPage(url)} 
@@ -330,7 +330,7 @@ function PersonalInformation(){
                             </MDBox>
                         )
                     })
-                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your {title} here</MDTypography></MDBox>
+                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
                 }
                 <MDButton   
                 onClick={() => toPage(url)} 
@@ -354,16 +354,16 @@ function PersonalInformation(){
                     <MDBox maxWidth="sm" mx={{ xs: 3, md: 'auto', lg: 3, xl: 'auto' }} pt="5rem">
                         <Card variant="outlined">
                             <CardHeader 
-                                title={<MDTypography variant='h3'>Information</MDTypography>} 
+                                title={<MDTypography variant='h3'>INFORMATION</MDTypography>} 
                                 subheader='Add a personal information'
                                 avatar={<Icon fontSize="large">person_outline</Icon>} 
                             />
                             <CardContent>
-                                <InformationContent title='Personal Information' data={entity} url='/careers/personalinfo/personalform' />
-                                { hasDependents && <WorkExpContent title='Dependents' data={dependents} url='/careers/personalinfo/dependents' /> }
-                                <WorkExpContent title='Educational Background' data={educations} url='/careers/personalinfo/educational' />
-                                <WorkExpContent title='Work Experience' data={experience} url={'/careers/personalinfo/workexperienceform'} />
-                                <InformationContent title='Other Details' data={details} url='/careers/personalinfo/detailsform' />
+                                <InformationContent title='PERSONAL INFORMATION' data={entity} url='/careers/personalinfo/personalform' />
+                                { hasDependents && <WorkExpContent title='DEPENDENTS' data={dependents} url='/careers/personalinfo/dependents' /> }
+                                <WorkExpContent title='EDUCATIONAL BACKGROUND' data={educations} url='/careers/personalinfo/educational' />
+                                <WorkExpContent title='WORK EXPERIENCE' data={experience} url={'/careers/personalinfo/workexperienceform'} />
+                                <InformationContent title='OTHER DETAILS' data={details} url='/careers/personalinfo/detailsform' />
                                 <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
                             </CardContent>
                         </Card>

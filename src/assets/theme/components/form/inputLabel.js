@@ -27,6 +27,10 @@ const inputLabel = {
       color: black.main,
       lineHeight: 0.9,
 
+      ".MuiInputLabel-asterisk": {
+        display: 'none'
+      },
+
       "&.Mui-focused": {
         color: info.main,
       },

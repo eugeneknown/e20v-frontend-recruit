@@ -723,18 +723,18 @@ function Employee() {
         { Header: "name", accessor: (row) => `${row.full_name} ${row.email}`, id: 'name', Cell: ({row}) => (
             <Employee image={team3} name={row.original.full_name} email={row.original.email} />
         ), align: "left", sort: true },
-        { Header: "number", accessor: "number", Cell: ({value}) => (
+        { Header: "contact number", accessor: "number", Cell: ({value}) => (
             <MDTypography variant="caption" color="text" fontWeight="medium">
                 {formatPhoneNumber(value)}
             </MDTypography>
         ), align: "left", sort: true },
-        { Header: "alternative", accessor: "alternative", Cell: ({value}) => (
+        { Header: "alternative number", accessor: "alternative", Cell: ({value}) => (
             <MDTypography variant="caption" color="text" fontWeight="medium">
                 {formatPhoneNumber(value)}
             </MDTypography>
         ), align: "left", sort: true },
-        { Header: "position", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
-        { Header: "platform", accessor: (row) => (
+        { Header: "position applied", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
+        { Header: "source", accessor: (row) => (
             platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
         ), id: "platform", align: "center", sort: true, Cell: ({row}) => {
             return (<BadgePopper
@@ -747,12 +747,12 @@ function Employee() {
                 deletable={true}
             />)
         }, Filter: PlatformFilterColumnFN},
-        { Header: "applied", accessor: "applied", align: "center", Cell: ({value}) => (
+        { Header: "applied date", accessor: "applied", align: "center", Cell: ({value}) => (
             <MDTypography variant="caption" color="text" fontWeight="medium">
                 {value}
             </MDTypography>
         ), Filter: DateRangeFilterColumnFN, filter: DateRangeFilterFN, sort: true},
-        { Header: 'tags', accessor: (row) => (
+        { Header: 'status', accessor: (row) => (
             tags[Object.keys(tags).find(key => tags[key].id == row.tags_id)]?.title || 'unassigned' 
         ), id: 'status', align: "center", sort: true, Cell: ({row}) => {
             return (<BadgePopper
