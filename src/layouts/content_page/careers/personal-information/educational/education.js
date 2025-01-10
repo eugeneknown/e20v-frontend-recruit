@@ -150,7 +150,6 @@ function EducationalAttainmentForm(){
                                                         setEndDate(values['end_date'])
                                                         delete values['end_date']
                                                     } else {
-<<<<<<< HEAD
                                                         if (endDate) setFieldValue('end_date', endDate)
                                                     }
                                                 }
@@ -160,10 +159,6 @@ function EducationalAttainmentForm(){
                                                 }
                                                 if ( ('undergrad' in values) && values['undergrad'] ) {
                                                     if ( 'present' in values ) values['present'] = false
-=======
-                                                        if (endDate) values['end_date'] = endDate
-                                                    }
->>>>>>> cc8df2bf00f9c79d8a5d423f3b3fdbcf6f1b58ee
                                                 }
 
                                                 // if ( 'present' in values || 'undergrad' in values ) {
