@@ -141,19 +141,24 @@ function EducationalAttainmentForm(){
                                         render={arrayHelper => (
                                         <MDBox>
                                             {setEducation(values)}
-                                            {/* {console.log('values', values, isValid)} */}
+                                            {console.log('values', values, isValid)}
                                             {Object.keys(data).map((item, index) => {
                                                 var disabled = false
                                                 if ( data[item].id == 'end_date' && ('present' in values ?? 'undergrad' in values) ) {
                                                     disabled = values.present || values.undergrad
-                                                    Object.keys(data).map((item, index) => {
-                                                        if (disabled) {
-                                                            setEndDate(values['end_date'])
-                                                            delete values['end_date']
-                                                        } else {
-                                                            if (endDate) values['end_date'] = endDate
-                                                        }
-                                                    })
+                                                    if (disabled) {
+                                                        setEndDate(values['end_date'])
+                                                        delete values['end_date']
+                                                    } else {
+                                                        if (endDate) setFieldValue('end_date', endDate)
+                                                    }
+                                                }
+
+                                                if ( ('present' in values) && values['present'] ) {
+                                                    if ( 'undergrad' in values ) values['undergrad'] = false
+                                                }
+                                                if ( ('undergrad' in values) && values['undergrad'] ) {
+                                                    if ( 'present' in values ) values['present'] = false
                                                 }
 
                                                 // universal format
