@@ -481,8 +481,8 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="dark"
                 icon="leaderboard"
-                title="No show Initial Interview"
-                count={tagsCount && dailyTagsFinder('Initial Interview').count}
+                title="No Show Initial Interview"
+                count={tagsCount && dailyTagsFinder('No Show Initial Interview').count}
                 percentage={{
                   color: "success",
                   amount: "+55%",
@@ -512,7 +512,7 @@ function Dashboard() {
                 color="success"
                 icon="work"
                 title="No Show Final Interview"
-                count={tagsCount && dailyTagsFinder('Final Interview').count}
+                count={tagsCount && dailyTagsFinder('No Show Final Interview').count}
                 percentage={{
                   color: "success",
                   amount: "+1%",

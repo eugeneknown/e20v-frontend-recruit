@@ -758,7 +758,7 @@ function Employee() {
             return (<BadgePopper
                 id={row.original.entity_careers_id}
                 badgeId={row.original.tags_id} 
-                variant="gradient" 
+                variant="customGradient" 
                 content={tags}
                 data={handleTagsData}
                 editable={true}
