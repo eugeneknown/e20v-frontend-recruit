@@ -134,6 +134,7 @@ function PersonalDetailsForm(){
                                         render={arrayHelper => (
                                         <MDBox>
                                             {setEntityDetails(values)}
+                                            {console.log('values', values)}
                                             {Object.keys(schema).map((item, index) => {
 
                                                 var touch = schema[item].type == 'date' ? typeof touched[schema[item].id] == 'undefined' ? true : touched[schema[item].id] : touched[schema[item].id]

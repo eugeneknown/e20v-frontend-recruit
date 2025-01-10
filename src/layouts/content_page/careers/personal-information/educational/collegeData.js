@@ -39,7 +39,6 @@ export default [
                 type: 'when',
                 params: [['present', 'end_date', 'undergrad'], {
                     is: ((present, end_date, undergrad) => {
-                        console.log('validstart', present, end_date, undergrad, ((typeof present == 'undefined' || (!(present))) ?? (typeof undergrad == 'undefined' || (!(undergrad)))) && typeof end_date != 'undefined');
                         return ((typeof present == 'undefined' || (!(present))) ?? (typeof undergrad == 'undefined' || (!(undergrad)))) && typeof end_date != 'undefined'
                     }),
                     then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
@@ -49,7 +48,7 @@ export default [
     },
     {
         id: 'end_date',
-        label: 'Year Graduated',
+        label: 'Year Graduated',    
         type: 'date',
         required: true,
         options: {
@@ -61,8 +60,10 @@ export default [
                 type: 'when',
                 params: [['present', 'undergrad'], {
                     is: ((present, undergrad) => {
-                        console.log('validend',present, undergrad, (typeof present == 'undefined' || (!(present))) || (typeof undergrad == 'undefined' || (!(undergrad))));
-                        return (typeof present == 'undefined' || (!(present))) || (typeof undergrad == 'undefined' || (!(undergrad)))
+                        console.log('validend prseent',present, (typeof present == 'undefined') || !(present));
+                        console.log('validend under',undergrad, (typeof undergrad == 'undefined') || !(undergrad));
+                        console.log('validend result',!(((typeof present == 'undefined') || !(present)) ^ ((typeof undergrad == 'undefined') || !(undergrad))));
+                        return !(((typeof present == 'undefined') || !(present)) ^ ((typeof undergrad == 'undefined') || !(undergrad)))
                     }),
                     then: (schema) => schema.min(yup.ref('start_date'), 'End date cannot be less than Start date'),
                     otherwise: (schema) => schema.notRequired()

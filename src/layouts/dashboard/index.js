@@ -60,12 +60,14 @@ function Dashboard() {
 
   const { auth } = useAuth()
   const [ weeklyReport, setWeeklyReport ] = useState()
-  const [ monthlyReport, setMonthlyReport ] = useState({})
+  const [ monthlyReport, setMonthlyReport ] = useState()
   const [ tagsMonthlyReport, setTagsMonthlyReport ] = useState({})
   const [ rows, setRows ] = useState()
   const [ tags, setTags ] = useState()
   const [ tagsCount, setTagsCount ] = useState()
   const [ total, setTotal ] = useState()
+  const [ platforms, setPlatforms ] = useState()
+  const [ platformDataSeries, SetPlatformDataSeries ] = useState()
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,16 +93,11 @@ function Dashboard() {
       }
     }
 
+    getPlatformsData()
     totalApplicants()
-    getTagsData({}).then((result) => {
-      console.log('debug tags result', result);
-      result = result.data['career_tags']
-      setTags(result)
-    })
+    getTagsData()
     dailyTagsReport()
     getUsers();
-    weeklyReportSequence()
-    monthlyReportSequence()
     tagsReportSequence()
 
     return () => {
@@ -113,8 +110,15 @@ function Dashboard() {
     return await axiosPrivate.post('hr/careers/entity/report', data)
   }
 
-  const getTagsData = async (data) => {
-    return await axiosPrivate.post('hr/careers/tags/all', data)
+  const getTagsData = () => {
+    dataServicePrivate('POST', 'hr/careers/tags/all', {}).then((result) => {
+      console.log('debug tags result', result);
+      result = result.data['career_tags']
+      setTags(result)
+    }).catch((err) => {
+      console.log('debug tags error result', err);
+      
+    })
   }
   
   const totalApplicants = () => {
@@ -136,6 +140,34 @@ function Dashboard() {
     })
   }
 
+  const getPlatformsData = () => {
+    dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
+      console.log('debug plaform result', result);
+      result = result.data['career_platforms']
+      setPlatforms(result)
+
+      var dataSeries = []
+      for (let i in result) {
+        dataSeries.push({
+          'dataKey': result[i]['id'],
+          'label': result[i]['title'],
+          'color': result[i]['color'],
+        })
+      }
+      SetPlatformDataSeries(dataSeries)
+
+    }).catch((err) => {
+      console.log('debug plaform error result', err);
+
+    })
+  }
+
+  useEffect(() => {
+    if (platformDataSeries) {
+      weeklyReportSequence()
+      monthlyReportSequence()
+    }
+  },[platformDataSeries])
   
   const weeklyReportSequence = () => {
     // var weekStart = moment('2024-10-14T16:00:00.000Z')
@@ -162,24 +194,6 @@ function Dashboard() {
     }).then((result) => {
       console.log('weekly report data:', result)
       result = result.data['entity_career']
-//todo make platform report like report tags method
-      var dataSeries = []
-      // platform
-      dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
-        console.log('debug plaform result', result);
-        result = result.data['career_platforms']
-        for (i in result) {
-          dataSeries.push({
-            'dataKey': result[i]['id'],
-            'label': result[i]['title'],
-            'color': result[i]['color'],
-          })
-        }
-
-      }).catch((err) => {
-        console.log('debug plaform error result', err);
-
-      })
 
       var dataSets = []
       var tempDataSet = {}
@@ -208,8 +222,8 @@ function Dashboard() {
         tempDataSet = {}
       }
 
-      console.log('debug report data array:', dataSets, dataSeries)
-      setWeeklyReport({ dataSets, dataSeries })
+      console.log('debug report data array:', dataSets)
+      setWeeklyReport(dataSets)
     }).catch((err) => {
       console.log('weekly report error data:', err)
     })
@@ -242,24 +256,6 @@ function Dashboard() {
       console.log('monthly recruit data:', result)
       result = result.data['entity_career']
 
-      var dataSeries = []
-      // platform
-      dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
-        console.log('debug plaform result', result);
-        result = result.data['career_platforms']
-        for (i in result) {
-          dataSeries.push({
-            'dataKey': result[i]['id'],
-            'label': result[i]['title'],
-            'color': result[i]['color'],
-          })
-        }
-
-      }).catch((err) => {
-        console.log('debug plaform error result', err);
-
-      })
-
       var dataSets = []
       var tempDataSet = {}
       var totalCount = 0
@@ -287,8 +283,8 @@ function Dashboard() {
         tempDataSet = {}
       }
 
-      console.log('debug monthly report data array:', dataSets, dataSeries)
-      setMonthlyReport({ dataSets, dataSeries })
+      console.log('debug monthly report data array:', dataSets)
+      setMonthlyReport(dataSets)
       
     }).catch((err) => {
       console.log('monthly recruit error data:', err)
@@ -560,9 +556,9 @@ function Dashboard() {
                 <Card sx={{ height: "100%" }}>
                   <MDBox padding="1rem">
                     {
-                      weeklyReport &&
+                      weeklyReport && platformDataSeries &&
                       <BarChart
-                        dataset={weeklyReport['dataSets']}
+                        dataset={weeklyReport}
                         xAxis={[{
                           scaleType: 'band',
                           dataKey: 'date',
@@ -598,13 +594,13 @@ function Dashboard() {
                           }
                         }}
                         series={
-                          Object.keys(weeklyReport['dataSeries']).map((item, key) => {
+                          Object.keys(platformDataSeries).map((item, key) => {
                             // console.log('debug series data', item, key, weeklyReport);
                             var series = {
-                              ...weeklyReport['dataSeries'][item],
+                              ...platformDataSeries[item],
                               valueFormatter: (value, context) => {
                                 // console.log('debug series value formatter:', value, context);
-                                var total = weeklyReport['dataSets'][context.dataIndex].total
+                                var total = weeklyReport[context.dataIndex].total
                                 var percentage = total != 0 ? Math.round((value/total)*100) : 0
                                 // return `Total ${value} -> ${percentage}%`
                                 return `${percentage}%`
@@ -646,63 +642,63 @@ function Dashboard() {
                 <Card sx={{ height: "100%" }}>
                   <MDBox padding="1rem">
                     {
-                      // monthlyReport &&
-                      // <BarChart
-                      //   dataset={monthlyReport['dataSets']}
-                      //   xAxis={[{
-                      //     scaleType: 'band',
-                      //     dataKey: 'date',
-                      //     tickPlacement: 'middle',
-                      //     valueFormatter: (value, context) => {
-                      //       if ( context.location == 'tick' ) {
-                      //         return `${formatDateTime(value, 'MMM')}`
-                      //       } else {
-                      //         return value
-                      //       }
-                      //     },
-                      //   }]}
-                      //   // topAxis={{
-                      //   //   disableLine: true,
-                      //   //   disableTicks: true,
-                      //   //   valueFormatter: (value, context) => {
-                      //   //     if (context.location == 'tick') {
-                      //   //       return `${formatDateTime(value, 'ddd')}`
-                      //   //     }
-                      //   //   }
-                      //   // }}
-                      //   slotProps={{
-                      //     legend: {
-                      //       position: { vertical: 'bottom' },
-                      //     },
-                      //   }}
-                      //   sx={{
-                      //     '& .MuiBarLabel-root': {
-                      //       fill: 'white',
-                      //     },
-                      //     '& .MuiChartsLegend-series text': {
-                      //       fontSize: '1rem!important'
-                      //     }
-                      //   }}
-                      //   series={
-                      //     Object.keys(monthlyReport['dataSeries']).map((item, key) => {
-                      //       // console.log('debug series data', item, key, monthlyReport);
-                      //       var series = {
-                      //         ...monthlyReport['dataSeries'][item],
-                      //         valueFormatter: (value, context) => {
-                      //           // console.log('debug series value formatter:', value, context);
-                      //           var total = monthlyReport['dataSets'][context.dataIndex].total
-                      //           var percentage = total != 0 ? Math.round((value/total)*100) : 0
-                      //           // return `Total ${value} -> ${percentage}%`
-                      //           return `${percentage}%`
-                      //         }
-                      //       }
-                      //       // console.log('series data', series);
-                      //       return series
-                      //     })
-                      //   }
-                      //   height={300}
-                      //   margin={{ bottom: 70 }}
-                      // />
+                      monthlyReport && platformDataSeries &&
+                      <BarChart
+                        dataset={monthlyReport}
+                        xAxis={[{
+                          scaleType: 'band',
+                          dataKey: 'date',
+                          tickPlacement: 'middle',
+                          valueFormatter: (value, context) => {
+                            if ( context.location == 'tick' ) {
+                              return `${formatDateTime(value, 'MMM')}`
+                            } else {
+                              return value
+                            }
+                          },
+                        }]}
+                        // topAxis={{
+                        //   disableLine: true,
+                        //   disableTicks: true,
+                        //   valueFormatter: (value, context) => {
+                        //     if (context.location == 'tick') {
+                        //       return `${formatDateTime(value, 'ddd')}`
+                        //     }
+                        //   }
+                        // }}
+                        slotProps={{
+                          legend: {
+                            position: { vertical: 'bottom' },
+                          },
+                        }}
+                        sx={{
+                          '& .MuiBarLabel-root': {
+                            fill: 'white',
+                          },
+                          '& .MuiChartsLegend-series text': {
+                            fontSize: '1rem!important'
+                          }
+                        }}
+                        series={
+                          Object.keys(platformDataSeries).map((item, key) => {
+                            // console.log('debug series data', item, key, monthlyReport);
+                            var series = {
+                              ...platformDataSeries[item],
+                              valueFormatter: (value, context) => {
+                                // console.log('debug series value formatter:', value, context);
+                                var total = monthlyReport[context.dataIndex].total
+                                var percentage = total != 0 ? Math.round((value/total)*100) : 0
+                                // return `Total ${value} -> ${percentage}%`
+                                return `${percentage}%`
+                              }
+                            }
+                            // console.log('series data', series);
+                            return series
+                          })
+                        }
+                        height={300}
+                        margin={{ bottom: 70 }}
+                      />
                     }
                     <MDBox pt={3} pb={1} px={1}>
                       <MDTypography variant="h6" textTransform="capitalize">
