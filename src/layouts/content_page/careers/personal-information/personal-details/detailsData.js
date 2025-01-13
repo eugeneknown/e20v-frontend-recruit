@@ -2,7 +2,7 @@ export default [
     {
         id: 'salary',
         label: 'Salary Expectation (in Peso)',
-        type: 'text',
+        type: 'number',
         required: true,
     },
     {
