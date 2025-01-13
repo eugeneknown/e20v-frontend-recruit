@@ -35,7 +35,7 @@ export default [
     {
         id: 'salary',
         label: 'Last Salary',
-        type: 'number',
+        type: 'text',
         required: true,
     },
     {
