@@ -158,43 +158,6 @@ function Educational(){
         return (
             <MDBox>
                 <MDBox my={1}>
-<<<<<<< HEAD
-                    <MDTypography variant='h5'>{attainment}</MDTypography>
-                    {!(option) && data && <Card variant="outlined" position='relative' sx={{ my: 2 }}>
-                        <MDBox display='flex' position='absolute' right={0} p={1}>
-                            <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id, education: attainment })}><Icon>edit</Icon></IconButton>
-                            <IconButton onClick={() => handleDelete(data.id)}><Icon>delete</Icon></IconButton>
-                        </MDBox>
-                        <CardContent>
-                            {/* <MDTypography variant='h5'>{data.education}</MDTypography> */}
-                            {data?.course && <MDTypography variant='body2'>Course: {data.course}</MDTypography>}
-                            <MDTypography variant='body2'>School: {data.school}</MDTypography>
-                            {data.start_date ? 
-                            <MDTypography variant='body2'>
-                                Year: {formatDateTime(data.start_date, 'YYYY')} {
-                                    data?.present 
-                                    ? `to Present` 
-                                    : data?.undergrad
-                                    ? `Undergraduate`
-                                    : `to ${formatDateTime(data.end_date, 'YYYY')}`
-                                }
-                            </MDTypography> : 
-                            <MDTypography variant='body2'>
-                                Year: {formatDateTime(data.end_date, 'YYYY')}
-                            </MDTypography>}
-                        </CardContent>
-                    </Card>}
-                    {!(option) && !(data) && <MDButton
-                        variant='outlined' 
-                        color='secondary' 
-                        fullWidth
-                        startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
-                        onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment })}
-                    >
-                        <MDTypography variant='body2' color='secondary'>{`${data ? 'Edit' : 'Add'} ${attainment} Background`}</MDTypography>
-                    </MDButton>}
-                    {!(option) && !(data) && required && <MDTypography color='error' variant='button'>{attainment} is required</MDTypography>}
-=======
                     <MDTypography variant="h5">{attainment}</MDTypography>
                     {!option && data && (
                         <Card variant="outlined" position="relative" sx={{ my: 2 }}>
@@ -209,16 +172,19 @@ function Educational(){
                             <CardContent>
                                 {data?.course && <MDTypography variant="body2">Course: {data.course}</MDTypography>}
                                 <MDTypography variant="body2">School: {data.school}</MDTypography>
-                                {data.start_date ? (
-                                    <MDTypography variant="body2">
-                                        Year: {formatDateTime(data.start_date, 'YYYY')} to{' '}
-                                        {data?.present ? `Present` : formatDateTime(data.end_date, 'YYYY')}
-                                    </MDTypography>
-                                ) : (
-                                    <MDTypography variant="body2">
-                                        Year: {formatDateTime(data.end_date, 'YYYY')}
-                                    </MDTypography>
-                                )}
+                                {data.start_date ? 
+                                <MDTypography variant='body2'>
+                                    Year: {formatDateTime(data.start_date, 'YYYY')} {
+                                        data?.present 
+                                        ? `to Present` 
+                                        : data?.undergrad
+                                        ? `Undergraduate`
+                                        : `to ${formatDateTime(data.end_date, 'YYYY')}`
+                                    }
+                                </MDTypography> : 
+                                <MDTypography variant='body2'>
+                                    Year: {formatDateTime(data.end_date, 'YYYY')}
+                                </MDTypography>}
                             </CardContent>
                         </Card>
                     )}
@@ -241,7 +207,6 @@ function Educational(){
                             {attainment} is required
                         </MDTypography>
                     )}
->>>>>>> hotfix/educational-background-backup
                 </MDBox>
                 {optional && (
                     <FormControlLabel
