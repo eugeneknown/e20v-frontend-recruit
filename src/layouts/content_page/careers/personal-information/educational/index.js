@@ -74,82 +74,157 @@ function Educational(){
         })
     }
 
-    const handleDelete = (id) => {
-        dataServicePrivate('POST', 'entity/education/delete', {id}).then((result) => {
-            console.log('debug education education delete result', result);
-            setElem()
-            setHigh()
-            setSenior()
-            setTech()
-            setCollege()
-            setMaster()
-            init()
-        }).catch((err) => {
-            console.log('debug education education delete error result', err);
+    const handleDelete = (id, level) => {
+        // Define the hierarchy of educational levels
+        const educationOrder = [
+            { level: "Elementary", stateKey: elem },
+            { level: "Secondary (High School)", stateKey: high },
+            { level: "Senior High School", stateKey: senior },
+            { level: "Vocational & Technical Education", stateKey: tech },
+            { level: "College", stateKey: college },
+            { level: "Graduate School (Master's or Doctorate)", stateKey: master }
+        ];
 
-        })
-    }
+        // Find the current level index
+        const deleteIndex = educationOrder.findIndex(item => item.level === level);
+
+        // Check if the level to delete has a dependency on higher levels
+        if (deleteIndex !== -1) {
+            // Loop through levels after the current one to check if there's data for them
+            for (let i = deleteIndex + 1; i < educationOrder.length; i++) {
+                if (educationOrder[i].stateKey) {
+                    // If a higher level has data, alert the user and stop deletion
+                    alert(`You cannot delete ${level} because a higher level exists: ${educationOrder[i].level}`);
+                    return;
+                }
+            }
+
+            // Proceed with deletion if no higher levels have data
+            dataServicePrivate('POST', 'entity/education/delete', { id }).then((result) => {
+                console.log('debug education delete result', result);
+
+                // Reset the specific state variable based on the education level
+                if (level === "Elementary") setElem(null);
+                if (level === "Secondary (High School)") setHigh(null);
+                if (level === "Senior High School") setSenior(null);
+                if (level === "Vocational & Technical Education") setTech(null);
+                if (level === "College") setCollege(null);
+                if (level === "Graduate School (Master's or Doctorate)") setMaster(null);
+
+                // Reinitialize to fetch the latest data
+                init();
+            }).catch((err) => {
+                console.log('debug education delete error result', err);
+            });
+        }
+    };
+    
 
     const handleSubmit = (e) => {
+        e.preventDefault(); // Prevent default form submission
+
+    // Check if elementary, high school, and college data exist
+    if (!elem || !high || (!senior && !tech && !college)) {
+        let missingFields = [];
+        if (!elem) missingFields.push("Elementary");
+        if (!high) missingFields.push("High School");
+        if (!college) missingFields.push("College");
+
+        alert(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`);
+        return; // Prevent navigation if validation fails
+    }
+    if (!elem) {
+        alert("Please fill up Elementary Education before proceeding.");
+        return; // Stop submission
+    }
+
+    // Check if high school data exists (requires elementary)
+    if (!high) {
+        alert("Please fill up Secondary (High School) Education before proceeding.");
+        return; // Stop submission
+    }
+
+    // Check if college data exists (requires elementary and secondary)
+    if ((!senior && !tech && !college)) {
+        alert("Please fill up any Educational Background for Senior High, Vocational, and College before proceeding.");
+        return; // Stop submission
+    }
         prevPage()
     }
 
-    const EducationAttainment = ({attainment, data, required=false, optional=false}) => {
-        const [option, setOption] = useState(false)
-
+    const EducationAttainment = ({ attainment, data, required = false, optional = false, disabled = false }) => {
+        const [option, setOption] = useState(false);
+    
         return (
             <MDBox>
                 <MDBox my={1}>
-                    <MDTypography variant='h5'>{attainment}</MDTypography>
-                    {!(option) && data && <Card variant="outlined" position='relative' sx={{ my: 2 }}>
-                        <MDBox display='flex' position='absolute' right={0} p={1}>
-                            <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id, education: attainment })}><Icon>edit</Icon></IconButton>
-                            <IconButton onClick={() => handleDelete(data.id)}><Icon>delete</Icon></IconButton>
-                        </MDBox>
-                        <CardContent>
-                            {/* <MDTypography variant='h5'>{data.education}</MDTypography> */}
-                            {data?.course && <MDTypography variant='body2'>Course: {data.course}</MDTypography>}
-                            <MDTypography variant='body2'>School: {data.school}</MDTypography>
-                            {data.start_date ? 
-                            <MDTypography variant='body2'>
-                                Year: {formatDateTime(data.start_date, 'YYYY')} {
-                                    data?.present 
-                                    ? `to Present` 
-                                    : data?.undergrad
-                                    ? `Undergraduate`
-                                    : `to ${formatDateTime(data.end_date, 'YYYY')}`
-                                }
-                            </MDTypography> : 
-                            <MDTypography variant='body2'>
-                                Year: {formatDateTime(data.end_date, 'YYYY')}
-                            </MDTypography>}
-                        </CardContent>
-                    </Card>}
-                    {!(option) && !(data) && <MDButton
-                        variant='outlined' 
-                        color='secondary' 
-                        fullWidth
-                        startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
-                        onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment })}
-                    >
-                        <MDTypography variant='body2' color='secondary'>{`${data ? 'Edit' : 'Add'} ${attainment} Background`}</MDTypography>
-                    </MDButton>}
-                    {!(option) && !(data) && required && <MDTypography color='error' variant='button'>{attainment} is required</MDTypography>}
+                    <MDTypography variant="h5">{attainment}</MDTypography>
+                    {!option && data && (
+                        <Card variant="outlined" position="relative" sx={{ my: 2 }}>
+                            <MDBox display="flex" position="absolute" right={0} p={1}>
+                                <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id })}>
+                                    <Icon>edit</Icon>
+                                </IconButton>
+                                <IconButton onClick={() => handleDelete(data.id,attainment)}>
+                                    <Icon>delete</Icon>
+                                </IconButton>
+                            </MDBox>
+                            <CardContent>
+                                {data?.course && <MDTypography variant="body2">Course: {data.course}</MDTypography>}
+                                <MDTypography variant="body2">School: {data.school}</MDTypography>
+                                {data.start_date ? 
+                                <MDTypography variant='body2'>
+                                    Year: {formatDateTime(data.start_date, 'YYYY')} {
+                                        data?.present 
+                                        ? `to Present` 
+                                        : data?.undergrad
+                                        ? `Undergraduate`
+                                        : `to ${formatDateTime(data.end_date, 'YYYY')}`
+                                    }
+                                </MDTypography> : 
+                                <MDTypography variant='body2'>
+                                    Year: {formatDateTime(data.end_date, 'YYYY')}
+                                </MDTypography>}
+                            </CardContent>
+                        </Card>
+                    )}
+                    {!option && !data && (
+                        <MDButton
+                            variant="outlined"
+                            color="secondary"
+                            fullWidth
+                            disabled={disabled} // Disable the button if prerequisites are not met
+                            startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
+                            onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment })}
+                        >
+                            <MDTypography variant="body2" color="secondary">
+                                {`${data ? 'Edit' : 'Add'} ${attainment} Background`}
+                            </MDTypography>
+                        </MDButton>
+                    )}
+                    {!option && !data && required && (
+                        <MDTypography color="error" variant="button">
+                            {attainment} is required
+                        </MDTypography>
+                    )}
                 </MDBox>
-                {optional && 
-                <FormControlLabel 
-                    label='Not Applicable'
-                    sx={{ my: 1 }}
-                    control={<Switch
-                        name='option'
-                        checked={option}
-                        onChange={(value) => setOption(value.target.checked)}
-                    />} 
-                />}
+                {optional && (
+                    <FormControlLabel
+                        label="Not Applicable"
+                        sx={{ my: 1 }}
+                        control={
+                            <Switch
+                                name="option"
+                                checked={option}
+                                onChange={(value) => setOption(value.target.checked)}
+                            />
+                        }
+                    />
+                )}
             </MDBox>
-        )
-        
+        );
     }
+    
 
     return (
         <PageLayout>
@@ -161,14 +236,14 @@ function Educational(){
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Educational Background</MDTypography>
                         <Divider />
                         <EducationAttainment attainment='Elementary' data={elem} required />
-                        <EducationAttainment attainment='Secondary (High School)' data={high} required />
-                        <EducationAttainment attainment='Senior High School' data={senior} required />
-                        <EducationAttainment attainment='Vocational & Technical Education' data={tech} optional />
-                        <EducationAttainment attainment='College' data={college} />
-                        <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} optional />
+                        <EducationAttainment attainment='Secondary (High School)' data={high} required disabled={!elem} />
+                        <EducationAttainment attainment='Senior High School' data={senior} optional disabled={!high} />
+                        <EducationAttainment attainment='Vocational & Technical Education' data={tech} optional  disabled={!high}/>
+                        <EducationAttainment attainment='College' data={college} required disabled={!high}/>
+                        <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} optional disabled={!college} />
                         <Divider />
                         <form onSubmit={handleSubmit}>
-                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)}>Save</MDButton>
                         </form>
                     </CardContent>
                 </Card>
