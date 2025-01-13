@@ -53,7 +53,6 @@ import { useSnackbar } from "notistack";
 function Cover() {
 
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirm_password, setConfirmPassword] = useState('');
     const [visiblePass, setVisiblePass] = useState(false)
@@ -72,7 +71,7 @@ function Cover() {
 
         // data validation
         if (!username.length) {
-            enqueueSnackbar(`Username field is blank`, {
+            enqueueSnackbar(`Email field is blank`, {
                 variant: 'error',
                 anchorOrigin: {
                     horizontal: 'right',
@@ -105,7 +104,6 @@ function Cover() {
 
         dataService('POST', 'entity/register',{
             username: username,
-            email: email,
             password: password,
             confirm_password: confirm_password,
         }).then((result) => {
@@ -194,8 +192,8 @@ function Cover() {
                     <MDBox component="form" role="form">
                         <MDBox mb={2}>
                         <TextField 
-                            onChange={(e) => setEmail(e.target.value)} 
-                            value={email} 
+                            onChange={(e) => setUsername(e.target.value)} 
+                            value={username} 
                             type="text" 
                             label="Email" 
                             variant="standard" 
