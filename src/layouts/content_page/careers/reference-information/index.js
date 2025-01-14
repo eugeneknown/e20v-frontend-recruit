@@ -69,23 +69,23 @@ function ReferenceInformation(){
             >
                 Authorization Letter
             </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 In the course of conducting an investigation into my background, I authorize the Company to contact government agencies, 
                 previous employers, educational institutions, public or private entities, and individuals, as well as the listed references.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 I authorize the Company to release all background investigation data to the Company's designated hiring officers for use in evaluating
                 my application for employment or for continued empoyment. I understand and acknowledge that the information gathered and provided to hiring officers by the 
                 Company may be detrimental to my application for employment or continued employment.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 I also authorize any individual, company, firm corporation, or public agency to disclose any and all information pertaining to me, whether verbal or written.
                 I hereby release from all liability any person, firm, or orgination that provides information or records in accordance with this authorization.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 By signing this document, I give the Company my permission to conduct an initial background check for employment application purposes, as well as any
                 subsequent background checks deemed necessary during the course of my employment with the Company.
             </MDTypography>
@@ -103,16 +103,16 @@ function ReferenceInformation(){
             >
                 Terms and Conditions
             </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
                 and that any dishonesty or falsification may jeopardize my employment application.
             </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 I hereby release all persons, companies, or corporations who provide such information from any liability or responsibility. I also 
                 agree to submit any future examination that Eighty20 Virtual may require of me, and that the foregoing examination questions and answers may be 
                 used in any way that company desires.
             </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', fontStyle: 'italic', textIndent: '30px' }}>
                 I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
                 and that any dishonesty or falsification may jeopardize my employment application.
             </MDTypography>

@@ -26,7 +26,7 @@ function configs(labels, datasets) {
     datasets.backgroundColors.forEach((color) =>
       gradients[color]
         ? backgroundColors.push(gradients[color].state)
-        : backgroundColors.push(dark.main)
+        : backgroundColors.push(color)
     );
   } else {
     backgroundColors.push(dark.main);
@@ -55,7 +55,7 @@ function configs(labels, datasets) {
       plugins: {
         legend: {
           display: true, //false
-          position: 'right',
+          position: 'bottom',
           rtl: true,
           labels: {
             usePointStyle: true,

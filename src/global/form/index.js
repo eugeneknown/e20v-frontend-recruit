@@ -18,6 +18,7 @@ export const generateFormInput = (props) => {
 
     switch (props.type) {
         case 'text':
+        case 'input':
         case 'number':
         case 'tel':
         case 'email':
@@ -196,7 +197,17 @@ export const generateFormInput = (props) => {
                     <MDBox display="grid">
                         {
                             props.options?.map((item, key) => (
-                                <Link key={key} color="blue" href={item} variant='button' underline='hover' target="_blank">{String(item).split('/')[2]}</Link>
+                                <Link key={key} color="blue" href={
+                                    String(item).match(/https?/g) 
+                                    ?   item
+                                    :   `https://${item}`
+                                } variant='button' underline='hover' target="_blank">{
+                                    String(item).match(/https?/g)
+                                    ?   String(item).split('/')[2]
+                                    :   String(item).split('/').length
+                                    ?   String(item).split('/')[0]
+                                    :   item
+                                }</Link>
                             ))
                         }
                     </MDBox>
