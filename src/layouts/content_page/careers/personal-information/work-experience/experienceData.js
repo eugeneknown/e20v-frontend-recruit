@@ -51,7 +51,7 @@ export default [
         required: true,
         options: { 
             views: ['month', 'year'],
-            disableFuture: true,
+            openTo: 'month',
         },
         validations: [
             {
@@ -72,7 +72,7 @@ export default [
         required: true,
         options: { 
             views: ['month', 'year'],
-            disableFuture: true,
+            openTo: 'month',
         },
         validations: [
             {

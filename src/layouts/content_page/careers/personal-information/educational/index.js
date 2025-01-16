@@ -170,8 +170,8 @@ function Educational(){
                                 </IconButton>
                             </MDBox>
                             <CardContent>
-                                {data?.course && <MDTypography variant="body2">Course: {data.course}</MDTypography>}
                                 <MDTypography variant="body2">School: {data.school}</MDTypography>
+                                {data?.course && <MDTypography variant="body2">Course: {data.course}</MDTypography>}
                                 {data.start_date ? 
                                 <MDTypography variant='body2'>
                                     Year: {formatDateTime(data.start_date, 'YYYY')} {

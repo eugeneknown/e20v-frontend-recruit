@@ -201,7 +201,7 @@ export const generateFormInput = (props) => {
                                     String(item).match(/https?/g) 
                                     ?   item
                                     :   `https://${item}`
-                                } variant='button' underline='hover' target="_blank">{
+                                } variant='caption' underline='hover' target="_blank">{
                                     String(item).match(/https?/g)
                                     ?   String(item).split('/')[2]
                                     :   String(item).split('/').length

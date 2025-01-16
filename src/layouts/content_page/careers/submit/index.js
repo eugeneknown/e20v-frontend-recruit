@@ -143,7 +143,7 @@ function CareerSubmitted(){
                                 <MDBox>
                                     <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
                                         We have received your application and will get back to you soon.
-                                        Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">Facebook</Link> for updates.
+                                        Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers" target='_blank'>Facebook</Link> for updates.
                                     </MDTypography>
                                     <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
                                         For any further inquiries, please contact <Link color='primary' href="#">careers@eighty20virtual.com</Link> 
