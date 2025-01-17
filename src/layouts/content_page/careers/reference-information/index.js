@@ -60,32 +60,34 @@ function ReferenceInformation(){
 
     const authorization = (
         <MDBox mt={3}>
-            <MDBox><MDTypography
-                component="a"
-                variant="button"
-                fontWeight="bold"
-                color="info"
-                sx={{ mb: 3 }}
-            >
-                Authorization Letter
-            </MDTypography></MDBox>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDBox display='flex' justifyContent='center'>
+                <MDTypography
+                    component="a"
+                    variant="button"
+                    fontWeight="bold"
+                    color="info"
+                    sx={{ mb: 3 }}
+                >
+                    Authorization Letter
+                </MDTypography>
+            </MDBox>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 In the course of conducting an investigation into my background, I authorize the Company to contact any government agencies, 
                 previous employers, educational institutions, public or private entities, and individuals, as well as the listed references.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 I authorize the Company to release all background investigation data to the Company's designated hiring officers for use in evaluating
                 my application for employment or for continued empoyment. I understand and acknowledge that the information gathered and provided to hiring officers by the 
                 Company may be detrimental to my application for employment or continued employment.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 I also authorize any individual, company, firm corporation, or public agency to disclose any and all information pertaining to me, whether verbal or written.
                 I hereby release from all liability any person, firm, or organition that provides information or records in accordance with this authorization.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 By signing this document, I give the Company my permission to conduct an initial background check for employment application purposes, as well as any
                 subsequent background checks deemed necessary during the course of my employment with the Company.
             </MDTypography>
@@ -94,25 +96,27 @@ function ReferenceInformation(){
 
     const term = (
         <MDBox mt={3}>
-            <MDTypography
-                component="a"
-                variant="button"
-                fontWeight="bold"
-                color="info"
-                sx={{ mb: 3 }}
-            >
-                Terms and Conditions
-            </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDBox display='flex' justifyContent='center'>
+                <MDTypography
+                    component="a"
+                    variant="button"
+                    fontWeight="bold"
+                    color="info"
+                    sx={{ mb: 3 }}
+                >
+                    Terms and Conditions
+                </MDTypography>
+            </MDBox>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 I hereby certify that, to the best of my knowledge, my responses to the questions on this application are correct, 
                 and that any dishonesty or falsification may jeopardize my employment application.
             </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 I hereby release all persons, companies, or corporations who provide such information from any liability or responsibility. I also 
                 agree to submit any future examination that Eighty20 Virtual may require of me, and that the foregoing examination questions and answers may be 
                 used in any way that the company desires.
             </MDTypography>
-            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px' }}>
+            <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 I am fully aware of the consequences of non-declaration, untruthfulness, and dishonesty that may result in the termination of my employment contract.
             </MDTypography>
         </MDBox>

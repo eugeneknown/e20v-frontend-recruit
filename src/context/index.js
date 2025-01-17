@@ -65,6 +65,9 @@ function reducer(state, action) {
     case "LOADING": {
       return { ...state, loading: action.value };
     }
+    case "DIALOG": {
+      return { ...state, dialog: action.value };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -85,6 +88,7 @@ function MaterialUIControllerProvider({ children }) {
     layout: "page",
     darkMode: false,
     loading: false,
+    dialog: { open: false },
   };
 
   const [controller, dispatch] = useReducer(reducer, initialState);
@@ -124,6 +128,7 @@ const setDirection = (dispatch, value) => dispatch({ type: "DIRECTION", value })
 const setLayout = (dispatch, value) => dispatch({ type: "LAYOUT", value });
 const setDarkMode = (dispatch, value) => dispatch({ type: "DARKMODE", value });
 const setLoading = (dispatch, value) => dispatch({ type: "LOADING", value });
+const setDialog = (dispatch, value) => dispatch({ type: "DIALOG", value });
 
 export {
   MaterialUIControllerProvider,
@@ -139,4 +144,5 @@ export {
   setLayout,
   setDarkMode,
   setLoading,
+  setDialog,
 };

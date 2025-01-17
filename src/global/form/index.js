@@ -203,10 +203,10 @@ export const generateFormInput = (props) => {
                                     :   `https://${item}`
                                 } variant='caption' underline='hover' target="_blank">{
                                     String(item).match(/https?/g)
-                                    ?   String(item).split('/')[2]
+                                    ?   `https://${String(item).split('/')[2]}`
                                     :   String(item).split('/').length
-                                    ?   String(item).split('/')[0]
-                                    :   item
+                                    ?   `https://${String(item).split('/')[0]}`
+                                    :   `https://${item}`
                                 }</Link>
                             ))
                         }

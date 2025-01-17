@@ -1,30 +1,36 @@
-import { DialogActions, DialogContent, DialogTitle } from "@mui/material"
-import MDBox from "components/MDBox"
+import { DialogActions, DialogContent, DialogTitle, Dialog } from "@mui/material"
 import MDButton from "components/MDButton"
-import { useState } from "react"
+import { useMaterialUIController, setDialog } from "context"
 
 
+const DynamicDialog = () => {
 
-const Dialog = ({ open: openComponent, title, action, children }) => {
-    const [open, setOpen] = useState(false)
+    const [controller, dispatch] = useMaterialUIController()
+    const { dialog } = controller
+    const {
+        open,
+        title,
+        content,
+        action,
+        props,
+    } = dialog
+
+    const handleClose = () => {
+        setDialog(dispatch, {...dialog, open: false})
+    }
 
     return (
-        <MDBox>
-            <MDButton onClick={()=>setOpen(true)}>{openComponent}</MDButton>
-            <Dialog
-                open={open}
-                onClose={()=>setOpen(false)}
-            >
-                {title && <DialogTitle>{title}</DialogTitle>}
-                <DialogContent>{children}</DialogContent>
-                <DialogActions>
-                    <MDButton onClick={()=>setOpen(false)} color='error'>Close</MDButton>
-                    {action}
-                </DialogActions>
-            </Dialog>
-        </MDBox>
+        <Dialog
+            open={open}
+            onClose={handleClose}
+            {...props}
+        >
+            {title && <DialogTitle>{title}</DialogTitle>}
+            {content && <DialogContent>{content}</DialogContent>}
+            <DialogActions>{action ?? <MDButton color='error' onClick={handleClose}>Close</MDButton>}</DialogActions>
+        </Dialog>
     )
 
 }
 
-export default Dialog
+export default DynamicDialog

@@ -142,8 +142,6 @@ function CareerQuestionsForm(){
         }
     },[answers])
 
-    const handleDarkMode = () => setDarkMode(dispatch, !darkMode)
-
     const handleSubmit = (data, opt) => {
         console.log('debug submit', data, opt);
 

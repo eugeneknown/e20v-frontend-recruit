@@ -47,7 +47,7 @@ import createCache from "@emotion/cache";
 import routes from "routes";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
+import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setDialog } from "context";
 
 // Images
 import brandWhite from "assets/images/logo-ct.png";
@@ -57,6 +57,7 @@ import PersistLogin from "components/PersistLogin";
 import MainPage from 'layouts/content_page/main';
 import Careers from "layouts/content_page/careers";
 import { Backdrop, CircularProgress } from "@mui/material";
+import DynamicDialog from "global/component/Dialog";
 
 
 export default function App() {
@@ -71,6 +72,7 @@ export default function App() {
     whiteSidenav,
     darkMode,
     loading,
+    dialog,
   } = controller;
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
@@ -200,6 +202,7 @@ export default function App() {
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
       <GradientProgress />
+      <DynamicDialog />
       <Routes>
         <Route element={<PersistLogin />}>
         <Route path="/" element={<MainPage />} />
