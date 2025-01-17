@@ -23,9 +23,14 @@ import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import SwipeableViews from "react-swipeable-views";
 import CareersStepper from "../careers-stepper";
+import { useMaterialUIController, setLoading } from "context";
 
 
 function CareerQuestionsForm(){
+
+    // controller
+    const [controller, dispatch] = useMaterialUIController()
+    const { loading } = controller
 
     // local
     const local = localStorage.getItem('answers')
@@ -137,6 +142,8 @@ function CareerQuestionsForm(){
         }
     },[answers])
 
+    const handleDarkMode = () => setDarkMode(dispatch, !darkMode)
+
     const handleSubmit = (data, opt) => {
         console.log('debug submit', data, opt);
 
@@ -159,6 +166,8 @@ function CareerQuestionsForm(){
                 console.log('debug form data', index, item);
             })
 
+            setLoading(dispatch, true)
+
             dataServicePrivate('POST', 'hr/careers/entity/submitv2', formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -170,6 +179,9 @@ function CareerQuestionsForm(){
             }).catch((err) => {
                 console.log('debug answers define error result', err);
     
+            }).finally((e) => {
+                console.log('debug answers define finally result', e);
+                setLoading(dispatch, false)
             })
         } else {
             opt.setTouched({})

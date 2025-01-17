@@ -118,7 +118,7 @@ function PersonalDetailsForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Personal Other Details</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>Other Details</MDTypography>
                         <Divider />
                         {entityDetails && <Formik
                             initialValues={entityDetails}

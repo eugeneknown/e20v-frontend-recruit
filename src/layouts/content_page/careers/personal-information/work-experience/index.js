@@ -171,6 +171,7 @@ function WorkExperienceForm(){
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='button' color='error'>OJT can be added</MDTypography>
                         <Divider />
                         {details && Object.keys(details).map((item, index) => (
                             <Card position='relative' sx={{ my: 2 }}>

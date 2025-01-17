@@ -26,6 +26,7 @@ import CareersStepper from "../careers-stepper";
 
 import e20logo from 'assets/images/e20/Eighty_20_shadow_2_transparent.png'
 import smiley1 from 'assets/images/icons/smiley icon1.png'
+import rgba from "assets/theme/functions/rgba";
 
 
 function CareerSubmitted(){
@@ -47,6 +48,7 @@ function CareerSubmitted(){
     const [answers, setAnswers] = useState(local ? JSON.parse(local) : {})
     const [questions, setQuestions] = useState()
     const [step, setStep] = useState(0)
+    var entity_id = auth['id']
 
     // must be revice
     const careerId = localStorage.getItem('career_id')
@@ -60,7 +62,6 @@ function CareerSubmitted(){
     }
 
     useEffect(() => {
-        var entity_id = auth['id']
 
         // fetch career
         dataServicePrivate('POST', 'hr/careers/all', {
@@ -73,7 +74,7 @@ function CareerSubmitted(){
         }).then((result) => {
             console.log('debug careers result', result);
             result = result.data['careers'][0].has
-            generateQuestionsSchema(result)
+            // generateQuestionsSchema(result)
 
         }).catch((err) => {
             console.log('debug careers error result', err);
@@ -110,7 +111,7 @@ function CareerSubmitted(){
                     transform: 'translate(-50%, -50%)',
                 }}
                 />
-                <Card sx={{ bgcolor: 'transparent' }}>
+                <Card sx={{ bgcolor: rgba(0, 0, 0, 0.0) }}>
                     <CardContent>
                         <MDBox>
                             <MDBox 
@@ -142,7 +143,7 @@ function CareerSubmitted(){
                                 <MDBox>
                                     <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
                                         We have received your application and will get back to you soon.
-                                        Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers">Facebook</Link> for updates.
+                                        Meanwhile you can follow us on <Link color='primary' href="https://www.facebook.com/eighty20virtualcareers" target='_blank'>Facebook</Link> for updates.
                                     </MDTypography>
                                     <MDTypography vairant='body1' gutterBottom sx={{ fontSize: '17px', fontWeight: 'lighter' }}>
                                         For any further inquiries, please contact <Link color='primary' href="#">careers@eighty20virtual.com</Link> 
@@ -150,14 +151,14 @@ function CareerSubmitted(){
                                     <MDBox mt={5} display='flex' justifyContent="space-between">
                                         <Link 
                                         color='info' 
-                                        // href={`/careers/response?entity=${entityCareer.entity_id}&careers=${entityCareer.careers_id}`} 
+                                        href={`/careers/response?entity=${entity_id}&careers=${careerId}`} 
                                         sx={{ my: 'auto' }} 
                                         target='_blank'
                                         variant="text"
                                         >
                                             <MDButton variant='text' sx={{ pl: 0 }} color='info'>View Response</MDButton>
                                         </Link>
-                                        <MDButton color='info'>Return to page</MDButton>
+                                        <MDButton color='info' href='/careers'>Return to page</MDButton>
                                     </MDBox>
                                 </MDBox>
                             </MDBox>

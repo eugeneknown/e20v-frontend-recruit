@@ -39,6 +39,10 @@ const otherDetails = [
         key: 'part_time',
         title: 'Any part time work at the moment (please specify)'
     },
+    {
+        key: 'government_requirements',
+        title: 'Pre-Employment Requirements'
+    },
 ]
 
 export default otherDetails

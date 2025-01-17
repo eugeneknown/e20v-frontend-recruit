@@ -227,6 +227,7 @@ function Questions() {
                 title: params['data'].title,
                 type: params['data'].type,
                 value: params['data'].value,
+                required: params['data'].required,
             })
         }
         if (params['key'] == 'edit') {
@@ -236,6 +237,7 @@ function Questions() {
                 title: params['data'].title,
                 type: params['data'].type,
                 value: params['data'].value,
+                required: params['data'].required,
             })
 
             setAddOption(params['data'].value.split(', '))
@@ -414,7 +416,9 @@ function Questions() {
                                 <MDBox m={2}>
                                     <MDInput disabled={action == 'view' || false} value={question?.title} onChange={(e) => handleQuestion('title', e.target.value)} label="Question" fullWidth sx={{ mb: '1rem' }} />
                                     <MDInput disabled={action == 'view' || false} value={question?.type} onClick={(e) => action != 'view' && setSwipeIndex(0)} fullWidth sx={{ mb: '1rem' }} />
-                                    <FormControlLabel 
+                                    {console.log('question', question, (question?.type != 'label' || question?.type != 'link'))}
+                                    {
+                                        (question?.type == 'label' || question?.type == 'link') ? null : <FormControlLabel 
                                         label='Required' 
                                         sx={{ mb: '1rem' }}
                                         disabled={action == 'view' || false}
@@ -423,6 +427,7 @@ function Questions() {
                                             onChange={(value) => handleQuestion('required', value.target.checked)}
                                         />} 
                                     />
+                                    }
                                     <Divider />
                                     <MDTypography sx={{ display: question.type == 'input' ? 'none' : 'block' }} fontWeight="bold" variant="caption">Options:</MDTypography>
                                     {

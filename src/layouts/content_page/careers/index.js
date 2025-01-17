@@ -1857,12 +1857,12 @@ function Careers(){
             Apply
         </MDButton>)
         var exist = false
-        // Object.keys(hasCareers).map((item, index) => {
-        //     console.log('id', hasCareers[item], careers[key]);
-        //     if (hasCareers[item].careers == careers[key].id) {
-        //         exist = true
-        //     }
-        // })
+        Object.keys(hasCareers).map((item, index) => {
+            console.log('id', hasCareers[item], careers[key]);
+            if (hasCareers[item].careers == careers[key].id) {
+                exist = true
+            }
+        })
 
         if (exist) {
             button = (<MDButton disabled variant="gradient" color="info" py="2rem" px="3rem" sx={{ fontSize: 30, fontWeight: 'bold' }}>
@@ -2153,8 +2153,8 @@ function Careers(){
                                             <MDBox display="flex" justifyContent="center" >
                                                 <MDBox component='img' src={e20logo} width="75%" height="75%" opacity=".1" />
                                                 <MDBox position='absolute' sx={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                                    <MDTypography align="center" fontWeight="medium" sx={{ fontSize: 30, lineHeight: .9, textShadow: '1px 1px 1px rgba(0, 0, 0, .2)' }} >You haven&lsquo;t select a career</MDTypography>
-                                                    <MDTypography align="center" sx={{ textShadow: '1px 1px 1px rgba(0, 0, 0, .2)' }}>Select an career on the left to see the details here</MDTypography>
+                                                    <MDTypography align="center" fontWeight="medium" sx={{ fontSize: 30, lineHeight: .9, textShadow: '1px 1px 1px rgba(0, 0, 0, .2)' }} >You haven&lsquo;t selected a career</MDTypography>
+                                                    <MDTypography align="center" sx={{ textShadow: '1px 1px 1px rgba(0, 0, 0, .2)' }}>Select a career on the left to see the details here</MDTypography>
                                                 </MDBox>
                                             </MDBox>
                                         </MDBox>

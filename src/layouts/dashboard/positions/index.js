@@ -274,7 +274,7 @@ function Positions() {
         setAction(data.key)
 
         if (data.key == 'create') {
-            setValue({})
+            setValue({status: 'paused'})
             setQuestions({ action: data.key });
         } else {
             var item = data.items

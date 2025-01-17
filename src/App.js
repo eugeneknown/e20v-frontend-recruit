@@ -56,6 +56,7 @@ import brandDark from "assets/images/logo-ct-dark.png";
 import PersistLogin from "components/PersistLogin";
 import MainPage from 'layouts/content_page/main';
 import Careers from "layouts/content_page/careers";
+import { Backdrop, CircularProgress } from "@mui/material";
 
 
 export default function App() {
@@ -69,6 +70,7 @@ export default function App() {
     transparentSidenav,
     whiteSidenav,
     darkMode,
+    loading,
   } = controller;
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
@@ -151,6 +153,23 @@ export default function App() {
     </MDBox>
   );
 
+  const GradientProgress = () => (
+    <Backdrop
+      sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+      open={loading}
+    >
+      <svg width={0} height={0}>
+        <defs>
+          <linearGradient id="my_gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#0f00ff" />
+            <stop offset="100%" stopColor="#00d4ff" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <CircularProgress sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }} />
+    </Backdrop>
+  )
+
   // fix the side nav on non authenticated users
   return direction === "rtl" ? (
     <CacheProvider value={rtlCache}>
@@ -180,6 +199,7 @@ export default function App() {
   ) : (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
+      <GradientProgress />
       <Routes>
         <Route element={<PersistLogin />}>
         <Route path="/" element={<MainPage />} />
