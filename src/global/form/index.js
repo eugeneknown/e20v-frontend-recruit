@@ -52,7 +52,7 @@ export const generateFormInput = (props) => {
             let valueProps = {}
             if (props.value) valueProps['value'] = moment(props.value)
             props['closeOnSelect'] = true
-            // console.log('date', props, valueProps);
+            console.log('date', props, valueProps);
             return (
                 <MobileDatePicker
                     onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}

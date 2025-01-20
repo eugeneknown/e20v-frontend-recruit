@@ -27,7 +27,7 @@ function Educational(){
     const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
 
     const {isAuth, auth} = useAuth();
-    const [education, setEducation] = useState(null)
+    const [education, setEducation] = useState()
     const [elem, setElem] = useState()
     const [high, setHigh] = useState()
     const [senior, setSenior] = useState()
@@ -54,7 +54,7 @@ function Educational(){
         }).then((result) => {
             console.log('debug education result', result);
             result = result.data['entity_education']
-            // setEducation(result)
+            setEducation(result)
             setAttainment(result)
 
         }).catch((err) => {
@@ -152,7 +152,7 @@ function Educational(){
         prevPage()
     }
 
-    const EducationAttainment = ({ attainment, data, required = false, optional = false, disabled = false }) => {
+    const EducationAttainment = ({ attainment, data, required = false, optional = false, disabled = false, end_date }) => {
         const [option, setOption] = useState(false);
     
         return (
@@ -195,7 +195,7 @@ function Educational(){
                             fullWidth
                             disabled={disabled} // Disable the button if prerequisites are not met
                             startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
-                            onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment })}
+                            onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment, end_date })}
                         >
                             <MDTypography variant="body2" color="secondary">
                                 {`${data ? 'Edit' : 'Add'} ${attainment} Background`}
@@ -225,6 +225,7 @@ function Educational(){
         );
     }
     
+    const EduFinder = (edu, key) => education[Object.keys(education).findIndex(item => education[item][edu.key] == edu.value)]?.[key] ?? undefined
 
     return (
         <PageLayout>
@@ -236,11 +237,11 @@ function Educational(){
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Educational Background</MDTypography>
                         <Divider />
                         <EducationAttainment attainment='Elementary' data={elem} required />
-                        <EducationAttainment attainment='Secondary (High School)' data={high} required disabled={!elem} />
-                        <EducationAttainment attainment='Senior High School' data={senior} optional disabled={!high} />
-                        <EducationAttainment attainment='Vocational & Technical Education' data={tech} optional  disabled={!high}/>
-                        <EducationAttainment attainment='College' data={college} required disabled={!high}/>
-                        <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} optional disabled={!college} />
+                        <EducationAttainment attainment='Secondary (High School)' data={high} required disabled={!elem} end_date={education && EduFinder({key: 'education', value: 'Elementary'}, 'end_date')} />
+                        <EducationAttainment attainment='Senior High School' data={senior} optional disabled={!high} end_date={education && EduFinder({key: 'education', value: 'Secondary (High School)'}, 'end_date')} />
+                        <EducationAttainment attainment='Vocational & Technical Education' data={tech} optional  disabled={!high} end_date={education && EduFinder({key: 'education', value: senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
+                        <EducationAttainment attainment='College' data={college} required disabled={!high} end_date={education && EduFinder({key: 'education', value: tech?'Vocational & Technical Education':senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
+                        <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} optional disabled={!college} end_date={education && EduFinder({key: 'education', value: college?'College':tech?'Vocational & Technical Education':senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
                         <Divider />
                         <form onSubmit={handleSubmit}>
                         <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)}>Save</MDButton>

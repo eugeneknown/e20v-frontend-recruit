@@ -50,7 +50,8 @@ function EducationalAttainmentForm(){
     }
 
     var ed = location.state.education
-    console.log('master', masterData);
+    var end_date = location.state.end_date
+    console.log('end_date', end_date);
 
     // init validation
     var yupObject = generateObjectSchema(data)
@@ -75,8 +76,8 @@ function EducationalAttainmentForm(){
             if (local) {
                 setEducation(JSON.parse(local))
             }
-            setData(init(location.state.education))
-            setEducation({ education: location.state.education })
+            setData(init(ed))
+            setEducation({ education: ed })
         }
         
         
@@ -161,14 +162,10 @@ function EducationalAttainmentForm(){
                                                     if ( 'present' in values ) values['present'] = false
                                                 }
 
-                                                // if ( 'present' in values || 'undergrad' in values ) {
-                                                //     if ( ('present' in values) && values['present'] ) {
-                                                //         if ( 'undergrad' in values ) values['undergrad'] = false
-                                                //     }
-                                                //     if ( ('undergrad' in values) && values['undergrad'] ) {
-                                                //         if ( 'present' in values ) values['present'] = false
-                                                //     }
-                                                // }
+                                                if ( end_date ) {
+                                                    var min = { minDate: moment(end_date) }
+                                                    if ( data[item].type == 'date' ) data[item]?.options ? data[item]['options'] = { ...data[item]['options'], ...min } : data[item]['options'] = min
+                                                }
 
                                                 // universal format
                                                 var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
@@ -191,7 +188,7 @@ function EducationalAttainmentForm(){
                                                     setFieldTouched,
                                                     error: touch && Boolean(error),
                                                     helperText: touch && error,
-                                                    options: data[item].options ? data[item].options : undefined
+                                                    options: data[item]?.options ? data[item].options : undefined
                                                 }))
                                             })}
                                         </MDBox>
