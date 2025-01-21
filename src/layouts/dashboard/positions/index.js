@@ -268,8 +268,8 @@ function Positions() {
 
     const deleteHandle = (id) => setDialog(dispatch, {
         open: true,
-        title: 'Confirm Deletion',
-        content: 'Are you sure?',
+        title: (<MDTypography variant='h1'>Confirm Deletion</MDTypography>),
+        content: (<MDTypography variant='caption'>Are you sure to Delete this Position?</MDTypography>),
         action: (
             <MDBox display='flex' justifyContent='space-between'>
                 <MDButton color='error' onClick={handleDialogClose}>Close</MDButton>
@@ -277,17 +277,6 @@ function Positions() {
             </MDBox>
         )
     })
-
-    const actions = [
-        { name: 'View', type: 'button', key: 'view', color: 'secondary' },
-        { name: 'Edit', type: 'button', key: 'edit', color: 'warning' },
-        { name: 'Delete', type: 'button', key: 'delete', color: 'error', action: deleteHandle },
-    ]
-
-    const url = {
-        fetch: 'hr/careers/fetch',
-        define: 'hr/careers/define',
-    };
 
     useEffect(() => {
         console.log('debug dialog action', dialog);
@@ -304,6 +293,17 @@ function Positions() {
                 break
         }
     },[dialog])
+
+    const actions = [
+        { name: 'View', type: 'button', key: 'view', color: 'secondary' },
+        { name: 'Edit', type: 'button', key: 'edit', color: 'warning' },
+        { name: 'Delete', type: 'button', key: 'delete', color: 'error', action: deleteHandle },
+    ]
+
+    const url = {
+        fetch: 'hr/careers/fetch',
+        define: 'hr/careers/define',
+    };
 
     const actionHandle = (data) => {
         console.log('debug position actionhandle data:', data)

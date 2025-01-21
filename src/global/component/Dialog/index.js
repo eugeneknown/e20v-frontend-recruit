@@ -27,7 +27,7 @@ const DynamicDialog = () => {
         >
             {title && <DialogTitle>{title}</DialogTitle>}
             {content && <DialogContent>{content}</DialogContent>}
-            <DialogActions>{action ?? <MDButton color='error' onClick={handleClose}>Close</MDButton>}</DialogActions>
+            <DialogActions sx={{ display: 'block' }}>{action ?? <MDButton color='error' onClick={handleClose}>Close</MDButton>}</DialogActions>
         </Dialog>
     )
 
