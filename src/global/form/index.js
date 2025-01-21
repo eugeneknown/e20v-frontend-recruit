@@ -52,7 +52,7 @@ export const generateFormInput = (props) => {
             let valueProps = {}
             if (props.value) valueProps['value'] = moment(props.value)
             props['closeOnSelect'] = true
-            // console.log('date', props, valueProps);
+            console.log('date', props, valueProps);
             return (
                 <MobileDatePicker
                     onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
@@ -203,10 +203,10 @@ export const generateFormInput = (props) => {
                                     :   `https://${item}`
                                 } variant='caption' underline='hover' target="_blank">{
                                     String(item).match(/https?/g)
-                                    ?   String(item).split('/')[2]
+                                    ?   `https://${String(item).split('/')[2]}`
                                     :   String(item).split('/').length
-                                    ?   String(item).split('/')[0]
-                                    :   item
+                                    ?   `https://${String(item).split('/')[0]}`
+                                    :   `https://${item}`
                                 }</Link>
                             ))
                         }

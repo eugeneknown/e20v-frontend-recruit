@@ -1876,7 +1876,7 @@ function Careers(){
                     <MDTypography color='info' fontWeight="bold" sx={{ fontSize: 50, lineHeight: .9 }} >{careers[key].title}</MDTypography>
                     <Divider />
                     <MDTypography>Job type: {careers[key].type}</MDTypography>
-                    <MDTypography>Full-time hours: {careers[key].benifits}</MDTypography>
+                    <MDTypography>Work hours: {careers[key].benifits}</MDTypography>
                     <MDTypography>Experience: {careers[key].experience}</MDTypography>
                     <MDTypography>Salary: {careers[key].salary}</MDTypography>
                     <MDBox mt="2rem">{button}</MDBox>

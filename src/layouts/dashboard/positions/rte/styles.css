@@ -75,18 +75,19 @@
   }
   
   .menu {
-    position: absolute;
+    /* position: absolute;
     top: 2px;
     left: 2px;
-    z-index: 1;
+    z-index: 1; */
   
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
   
     width: calc(100% - 4px);
-    height: 40px;
-    margin: 0;
+    /* height: 40px; */
+    margin: 8px 0;
     padding: 0 8px;
   
     border-top-left-radius: 4px;

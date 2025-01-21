@@ -54,7 +54,13 @@ import moment from "moment";
 
 import BadgePopper from "../dynamic/badge-popper";
 
+import { useMaterialUIController, setDialog } from "context";
+
+
 function Positions() {
+
+    const [controller, dispatch] = useMaterialUIController()
+    const { dialog } = controller
 
     const style = {
         position:'absolute',
@@ -223,7 +229,8 @@ function Positions() {
                                         Object.keys(actions).map((_key) => {
                                             return (
                                                 <Grid item key={actions[_key].key}>
-                                                    <MDButton onClick={() => actionHandle({items: result[key], key: actions[_key].key})} color={actions[_key].color}>{actions[_key].name}</MDButton>
+                                                    {/* <MDButton onClick={()=>actions[_key].action(result[key].id)} color={actions[_key].color}>{actions[_key].name}</MDButton> */}
+                                                    <MDButton onClick={() => {actions[_key]?.action ? actions[_key].action(result[key].id) : actionHandle({items: result[key], key: actions[_key].key})}} color={actions[_key].color}>{actions[_key].name}</MDButton>
                                                 </Grid> 
                                             )
                                         })
@@ -257,16 +264,46 @@ function Positions() {
         { Header: "actions", accessor: "actions", align: "center" },
     ]
 
+    const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
+
+    const deleteHandle = (id) => setDialog(dispatch, {
+        open: true,
+        title: 'Confirm Deletion',
+        content: 'Are you sure?',
+        action: (
+            <MDBox display='flex' justifyContent='space-between'>
+                <MDButton color='error' onClick={handleDialogClose}>Close</MDButton>
+                <MDButton color='info' onClick={()=>setDialog(dispatch, {...dialog, actionType: 'delete', id})}>Confirm</MDButton>
+            </MDBox>
+        )
+    })
+
     const actions = [
         { name: 'View', type: 'button', key: 'view', color: 'secondary' },
         { name: 'Edit', type: 'button', key: 'edit', color: 'warning' },
-        { name: 'Delete', type: 'button', key: 'delete', color: 'error' },
+        { name: 'Delete', type: 'button', key: 'delete', color: 'error', action: deleteHandle },
     ]
 
     const url = {
         fetch: 'hr/careers/fetch',
         define: 'hr/careers/define',
     };
+
+    useEffect(() => {
+        console.log('debug dialog action', dialog);
+        switch (dialog?.actionType) {
+            case 'delete':
+                console.log('delete');
+                dataServicePrivate('POST', 'hr/careers/delete', {id: dialog.id}).then((result) => {
+                    console.log("debug position delete", result);
+                    init()
+                }).catch((err) => {
+                    console.log("debug position error delete", err);
+
+                })
+                break
+        }
+    },[dialog])
 
     const actionHandle = (data) => {
         console.log('debug position actionhandle data:', data)

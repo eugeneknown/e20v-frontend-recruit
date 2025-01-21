@@ -452,7 +452,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 icon="person_add"
                 title="Shortlisted"
-                count={tagsCount && dailyTagsFinder('Shortlisted').count}
+                count={tagsCount && dailyTagsFinder('Shortlisted').count || 0}
                 percentage={{
                   color: "success",
                   amount: "+3%",
@@ -467,7 +467,7 @@ function Dashboard() {
                 color="dark"
                 icon="leaderboard"
                 title="Initial Interview"
-                count={tagsCount && dailyTagsFinder('Initial Interview').count}
+                count={tagsCount && dailyTagsFinder('Initial Interview').count || 0}
                 percentage={{
                   color: "success",
                   amount: "+55%",
@@ -482,7 +482,7 @@ function Dashboard() {
                 color="dark"
                 icon="leaderboard"
                 title="No Show Initial Interview"
-                count={tagsCount && dailyTagsFinder('No Show Initial Interview').count}
+                count={tagsCount && dailyTagsFinder('No Show Initial Interview').count || 0}
                 percentage={{
                   color: "success",
                   amount: "+55%",
@@ -497,7 +497,7 @@ function Dashboard() {
                 color="success"
                 icon="work"
                 title="Final Interview"
-                count={tagsCount && dailyTagsFinder('Final Interview').count}
+                count={tagsCount && dailyTagsFinder('Final Interview').count || 0}
                 percentage={{
                   color: "success",
                   amount: "+1%",
@@ -512,7 +512,7 @@ function Dashboard() {
                 color="success"
                 icon="work"
                 title="No Show Final Interview"
-                count={tagsCount && dailyTagsFinder('No Show Final Interview').count}
+                count={tagsCount && dailyTagsFinder('No Show Final Interview').count || 0}
                 percentage={{
                   color: "success",
                   amount: "+1%",
@@ -525,7 +525,7 @@ function Dashboard() {
             <ComplexStatisticsCard
               icon="person_add"
               title="Job Offer"
-              count={tagsCount && dailyTagsFinder('Job Offer').count}
+              count={tagsCount && dailyTagsFinder('Job Offer').count || 0}
               percentage={{
                 color: "success",
                 amount: "+3%",
@@ -539,7 +539,7 @@ function Dashboard() {
                 color="error"
                 icon="person_minus"
                 title="Hired"
-                count={tagsCount && dailyTagsFinder('Hired').count}
+                count={tagsCount && dailyTagsFinder('Hired').count || 0}
                 percentage={{
                   color: "success",
                   amount: "",
@@ -551,7 +551,7 @@ function Dashboard() {
         </Grid>
         <MDBox mt={4.5}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
+            <Grid item xs={12} lg={8}>
               <MDBox mb={3}>
                 <Card sx={{ height: "100%" }}>
                   <MDBox padding="1rem">
