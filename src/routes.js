@@ -53,6 +53,8 @@ import Icon from "@mui/material/Icon";
 //Content Page
 import Employee from "layouts/dashboard/employee";
 import Positions from "layouts/dashboard/positions";
+import Platforms from "layouts/dashboard/platforms";
+import Tags from "layouts/dashboard/tags";
 import Questions from "layouts/dashboard/questions";
 import MainPage from "layouts/content_page/main";
 import Careers from "layouts/content_page/careers";
@@ -93,6 +95,22 @@ const routes = [
     icon: <Icon fontSize="small">person</Icon>,
     route: "/recruit",
     component: <Employee />,
+  },
+  {
+    type: "collapse",
+    name: "Platform",
+    key: "platform",
+    icon: <Icon fontSize="small">language</Icon>,
+    route: "/platform",
+    component: <Platforms />,
+  },
+  {
+    type: "collapse",
+    name: "Tags",
+    key: "tags",
+    icon: <Icon fontSize="small">style</Icon>,
+    route: "/tags",
+    component: <Tags />,
   },
   {
     type: "collapse", 
