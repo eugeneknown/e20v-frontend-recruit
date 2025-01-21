@@ -26,10 +26,11 @@
     "@react-oauth/google": "^0.12.1",
     "@tiptap/extension-color": "^2.2.4",
     "@tiptap/extension-document": "^2.2.4",
+    "@tiptap/extension-font-family": "^2.11.2",
     "@tiptap/extension-history": "^2.2.4",
     "@tiptap/extension-link": "^2.2.4",
     "@tiptap/extension-placeholder": "^2.2.4",
-    "@tiptap/extension-text-style": "^2.2.4",
+    "@tiptap/extension-text-style": "^2.11.2",
     "@tiptap/extension-typography": "^2.2.4",
     "@tiptap/extension-underline": "^2.2.4",
     "@tiptap/pm": "^2.2.4",
@@ -70,6 +71,7 @@
     "react-table": "7.8.0",
     "stylis": "4.1.4",
     "stylis-plugin-rtl": "2.1.1",
+    "tiptap-extension-font-size": "^1.2.0",
     "yup": "^1.1.1"
   },
   "scripts": {

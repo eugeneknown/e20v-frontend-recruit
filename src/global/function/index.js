@@ -1,7 +1,7 @@
 import axios from "api/axios";
 import { axiosPrivate } from "api/axios";
 import propTypes from 'prop-types'
-import moment from "moment";
+import moment from "moment-timezone";
 
 
 export const dataService = async (method, url, data, params={}) => {
@@ -24,13 +24,15 @@ export const dataServicePrivate = async (method, url, data, params={}) => {
     }
 }
 
-export const formatDateTime = (date, output) => {
-    return moment( date ).format( output );
+export const formatDateTime = (date, output, timezone, is_tz) => {
+    return is_tz ? moment().tz( date, timezone ).format( output ) : moment( date ).format( output );
 }
 
 formatDateTime.defaultProps = {
     date: '',
     output: 'YYYY-MM-DD HH:mm:ss',
+    timezone: 'Asia/Manila',
+    is_tz: false
 }
 
 dataService.propTypes = {
