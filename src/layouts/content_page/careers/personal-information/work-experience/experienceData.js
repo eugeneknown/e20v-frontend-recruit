@@ -44,47 +44,77 @@ export default [
         type: 'switch',
         required: false,
     },
-    {
-        id: 'start_date',
-        label: 'Start Date',
-        type: 'date',
-        required: true,
-        options: { 
-            views: ['month', 'year'],
-            openTo: 'month',
-        },
-        validations: [
-            {
-                type: 'when',
-                params: [['present', 'end_date'], {
-                    is: ((present, end_date) => {
-                        return typeof present == 'undefined' || (!(present)) && typeof end_date != 'undefined'
-                    }),
-                    then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
-                }]
-            },
-        ]
+   {
+    id: 'start_date',
+    label: 'Start Date',
+    type: 'date',
+    required: true,
+    options: {
+        views: ['month', 'year'],
+        openTo: 'month',
     },
-    {
-        id: 'end_date',
-        label: 'End Date',
-        type: 'date',
-        required: true,
-        options: { 
-            views: ['month', 'year'],
-            openTo: 'month',
-        },
-        validations: [
-            {
-                type: 'when',
-                params: ['present', {
-                    is: (present => typeof present == 'undefined' || (!(present))),
-                    then: (schema) => schema.min(yup.ref('start_date'), 'End date cannot be less than Start date'),
-                    otherwise: (schema) => schema.notRequired()
-                }]
-            },
-        ]
+    component: (props) => {
+        const value = moment(props.value);
+        return (
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DesktopDatePicker
+                    {...props}
+                    value={value.isValid() ? value : null}
+                    renderInput={(params) => <TextField {...params} />}
+                />
+            </LocalizationProvider>
+        );
     },
+    validations: [
+        {
+            type: 'when',
+            params: [['present', 'end_date'], {
+                is: (present, end_date) => {
+                    return typeof present == 'undefined' || (!(present)) && typeof end_date != 'undefined'
+                },
+                then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
+            }]
+        },
+    ]
+},
+{
+    id: 'end_date',
+    label: 'End Date',
+    type: 'date',
+    required: true,
+    options: {
+        views: ['month', 'year'],
+        openTo: 'month',
+        maxDate: new Date(new Date().getFullYear() + 1, 11, 31), // still keeping the max date as before
+    },
+    component: (props) => {
+        const value = moment(props.value);
+        const startDate = moment(props.formValues.start_date); // Get start date from the form values
+        return (
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DesktopDatePicker
+                    {...props}
+                    value={value.isValid() ? value : null}
+                    minDate={startDate.isValid() ? startDate : null} // Set minimum date as start date
+                    renderInput={(params) => <TextField {...params} />}
+                />
+            </LocalizationProvider>
+        );
+    },
+    validations: [
+        {
+            type: 'when',
+            params: ['present', {
+                is: (present) => typeof present === 'undefined' || !present,
+                then: (schema) => 
+                    schema
+                        .min(yup.ref('start_date'), 'End date cannot be less than Start date')
+                        .max(new Date(new Date().getFullYear() + 1, 11, 31), 'End date cannot exceed December 31 of the current year'),
+                otherwise: (schema) => schema.notRequired(),
+            }]
+        },
+    ],
+},
     {
         id: 'description',
         label: 'Description',
