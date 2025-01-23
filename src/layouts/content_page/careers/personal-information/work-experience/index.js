@@ -1,4 +1,4 @@
-import {Card, CardContent, Chip, Container, Divider, Icon, IconButton, Link, TextField} from "@mui/material";
+import {Card, CardContent, Typography, Chip, Container, Divider, Icon, IconButton, Link, TextField} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -24,10 +24,13 @@ import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import workExperienceData from "./work-experienceData";
 import moment from "moment";
+import { useMaterialUIController, setLoading, setDialog } from "context";
+import { fontSize } from "@mui/system";
 
 
 function WorkExperienceForm(){
-
+    const [controller, dispatch] = useMaterialUIController();
+    const { dialog } = controller;
     // navigation
     const navigate = useNavigate();
     const location = useLocation(); 
@@ -163,6 +166,116 @@ function WorkExperienceForm(){
         })
     }
 
+    const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
+
+
+    const deleteHandle = (id) => {
+        setDialog(dispatch, {
+          open: true,
+          id: id,
+          title: (
+            <MDBox
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#2E5B6F",
+                padding: "12px 20px",
+                borderTopLeftRadius: "8px",
+                borderTopRightRadius: "8px",
+                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                position: "relative",
+              }}
+            >
+              <Typography
+                variant="h6"
+                color="white"
+                sx={{
+                  fontWeight: "600",
+                  fontSize: "1.25rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                Confirm Delete
+              </Typography>
+              <IconButton
+                onClick={handleDialogClose}
+                sx={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "20px",
+                  color: "#FFFFFF",
+                  "&:hover": {
+                    color: "red",
+                  },
+                }}
+              >
+                <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+              </IconButton>
+            </MDBox>
+          ),
+          content: (
+            <MDBox p={2}>
+              <Typography variant="body1" color="textSecondary">
+                Are you sure you want to delete this item? This action cannot be undone.
+              </Typography>
+            </MDBox>
+          ),
+          action: (
+            <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+              <MDButton
+                onClick={handleDialogClose}
+                color="secondary"
+                variant="outlined"
+                sx={{
+                  padding: "8px 16px",
+                  borderColor: "#F44336",
+                  color: "#F44336",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: "#FFC5C5",
+                    borderColor: "#F44336",
+                  },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                Cancel
+              </MDButton>
+              <MDButton
+                color="primary"
+                variant="contained"
+                sx={{
+                  padding: "8px 16px",
+                  backgroundColor: "#4CAF50",
+                  "&:hover": {
+                    backgroundColor: "#388E3C",
+                  },
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+                autoFocus
+                onClick={() => {
+                  handleDelete(id);
+                  handleDialogClose();
+                }}
+              >
+                <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                Confirm
+              </MDButton>
+            </MDBox>
+          ),
+        });
+      };
+
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -171,13 +284,23 @@ function WorkExperienceForm(){
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
-                        <MDTypography sx={{ mt: 3 }} variant='button' color='error'>OJT can be added</MDTypography>
+                        <MDTypography sx={{ mt: 3}} fontSize="1.2rem"  variant='button' color='error'>OJT can be added</MDTypography>
+                        {/* Display placeholder when no work experience exists */}
+                        {!details || Object.keys(details).length === 0 ? (
+                            <MDTypography
+                                color="error"
+                                variant="h5"
+                                sx={{ my: 2, textAlign: "center", fontSize: "1.4rem" }}
+                            >
+                                No Work Experience Found
+                            </MDTypography>
+                        ) : null}
                         <Divider />
                         {details && Object.keys(details).map((item, index) => (
                             <Card position='relative' sx={{ my: 2 }}>
                                 <MDBox display='flex' position='absolute' right={0} p={1}>
-                                    <IconButton onClick={() => toPage('/careers/personalinfo/experienceform', { id: details[item].id })}><Icon>edit</Icon></IconButton>
-                                    <IconButton onClick={() => handleDelete(details[item].id)}><Icon>delete</Icon></IconButton>
+                                    <IconButton onClick={() => toPage('/careers/personalinfo/experienceform', { id: details[item].id })}><Icon color="primary">edit</Icon></IconButton>
+                                    <IconButton onClick={() => deleteHandle(details[item].id)}><Icon color="error">delete</Icon></IconButton>
                                 </MDBox>
                                 <CardContent>
                                     <MDTypography variant='h5'>{details[item].position_held}</MDTypography>
@@ -238,7 +361,7 @@ function WorkExperienceForm(){
                                         </MDBox>
                                         )}
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit'startIcon={<Icon>save</Icon>} >Save</MDButton>
                                 </Form>
                             )}
                         </Formik>}
