@@ -62,6 +62,7 @@
     "react-date-range": "^1.4.0",
     "react-dom": "^18.2.0",
     "react-github-btn": "1.4.0",
+    "react-h5-audio-player": "^3.10.0-rc.1",
     "react-images-viewer": "^1.7.1",
     "react-pdf": "^9.1.1",
     "react-router-dom": "6.11.0",
