@@ -32,7 +32,7 @@ function DependentsForm(){
     const from = location.state?.from?.pathname || "/careers/personalinfo";
     const prevPage = () => navigate(from, { replace: true })
     const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
-
+    const { mode } = location.state || {};
     // get id from uselocation
     const id = location.state?.id || null
     console.log('location id', id);
@@ -99,7 +99,7 @@ function DependentsForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add dependent</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'> {mode === "add" ? "Add Dependents" : "Edit Dependents"}</MDTypography>
                         <Divider />
                         {dependents && <Formik
                             initialValues={dependents}
@@ -141,7 +141,7 @@ function DependentsForm(){
                                         </MDBox>
                                         )}
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' startIcon={<Icon>save</Icon>}>Save</MDButton>
                                 </Form>
                             )}
                         </Formik>}
