@@ -175,56 +175,56 @@ export const generateFormInput = (props) => {
             );
         case 'date': 
             let valueProps = {};
-            if (props.value) {
-                const mom = moment(props.value);
-                if (mom.isValid()) {
-                    valueProps['value'] = mom.toDate(); // Convert moment object to Date object
-                } else {
-                    valueProps['value'] = null; 
-                }
-            } else {
-                valueProps['value'] = null; 
-            }
+            // if (props.value) {
+            //     const mom = moment(props.value);
+            //     if (mom.isValid()) {
+            //         valueProps['value'] = mom.toDate(); // Convert moment object to Date object
+            //     } else {
+            //         valueProps['value'] = null; 
+            //     }
+            // } else {
+            //     valueProps['value'] = null; 
+            // }
+            if (props.value) valueProps['value'] = moment(props.value)
         
             props['closeOnSelect'] = true;
         
             // Set the views for the date picker
-            const views = props.id === 'end_date' ? ['year'] : ['year', 'month', 'day'];
+            // const views = props.id === 'end_date' ? ['year'] : ['year', 'month', 'day'];
         
             // Dynamically adjust options for the end date field
-            const updatedOptions = { ...props?.options };
-            if (props.id === 'end_date' && props.formValues && props.formValues.start_date) {
-                const startDate = moment(props.formValues.start_date);
-                if (startDate.isValid()) {
-                    updatedOptions.minDate = startDate.toDate(); // Set the minDate to start_date
-                }
-            }
-        
+            // const updatedOptions = { ...props?.options };
+            // if (props.id === 'end_date' && props.formValues && props.formValues.start_date) {
+            //     const startDate = moment(props.formValues.start_date);
+            //     if (startDate.isValid()) {
+            //         updatedOptions.minDate = startDate.toDate(); // Set the minDate to start_date
+            //     }
+            // }
+
             return (
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <MobileDatePicker
-                        onChange={(value) => {
-                            const formattedDate = moment(value).format('YYYY-MM-DD');
-                            props.setFieldValue(props.id, formattedDate, props.required);
-                        }}
-                        onOpen={() => props.setFieldTouched(props.id, true, props.required)}
-                        {...valueProps}
-                        label={props.label}
-                        name={props.name}
-                        sx={props.sx}
-                        disabled={props?.disabled ? props.disabled : false}
-                        slotProps={{
-                            textField: {
-                                fullWidth: props.fullWidth,
-                                required: props.required,
-                                error: props.error,
-                                helperText: props.helperText,
-                            },
-                        }}
-                        views={views}
-                        {...updatedOptions} 
-                    />
-                </LocalizationProvider>
+                <MobileDatePicker
+                    // onChange={(value) => {
+                    //     const formattedDate = moment(value).format('YYYY-MM-DD');
+                    //     props.setFieldValue(props.id, formattedDate, props.required);
+                    //     console.log('format date', value);
+                    // }}
+                    onChange={(value) => value && props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
+                    onOpen={() => props.setFieldTouched(props.id, true, props.required)}
+                    {...valueProps}
+                    label={props.label}
+                    name={props.name}
+                    sx={props.sx}
+                    disabled={props?.disabled ? props.disabled : false}
+                    slotProps={{
+                        textField: {
+                            fullWidth: props.fullWidth,
+                            required: props.required,
+                            error: props.error,
+                            helperText: props.helperText,
+                        },
+                    }}
+                    {...props?.options} 
+                />
             );
         
                 

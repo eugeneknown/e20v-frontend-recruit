@@ -257,8 +257,8 @@ function Positions() {
     }
 
     const columns = [
-        { Header: "title", accessor: "title", width: "45%", align: "left" },
-        { Header: "created", accessor: "created", align: "center" },
+        { Header: "position title", accessor: "title", width: "45%", align: "left" },
+        { Header: "date created", accessor: "created", align: "center" },
         { Header: "status", accessor: "status", align: "center" },
         // { Header: "questions", accessor: "questions", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },

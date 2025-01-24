@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import moment from 'moment';
 
 
 export default [
@@ -53,18 +54,18 @@ export default [
         views: ['month', 'year'],
         openTo: 'month',
     },
-    component: (props) => {
-        const value = moment(props.value);
-        return (
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-                <DesktopDatePicker
-                    {...props}
-                    value={value.isValid() ? value : null}
-                    renderInput={(params) => <TextField {...params} />}
-                />
-            </LocalizationProvider>
-        );
-    },
+    // component: (props) => {
+    //     const value = moment(props.value);
+    //     return (
+    //         <LocalizationProvider dateAdapter={AdapterMoment}>
+    //             <DesktopDatePicker
+    //                 {...props}
+    //                 value={value.isValid() ? value : null}
+    //                 renderInput={(params) => <TextField {...params} />}
+    //             />
+    //         </LocalizationProvider>
+    //     );
+    // },
     validations: [
         {
             type: 'when',
@@ -85,22 +86,22 @@ export default [
     options: {
         views: ['month', 'year'],
         openTo: 'month',
-        maxDate: new Date(new Date().getFullYear() + 1, 11, 31), // still keeping the max date as before
+        // maxDate: new Date(new Date().getFullYear() + 1, 11, 31), // still keeping the max date as before
     },
-    component: (props) => {
-        const value = moment(props.value);
-        const startDate = moment(props.formValues.start_date); // Get start date from the form values
-        return (
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-                <DesktopDatePicker
-                    {...props}
-                    value={value.isValid() ? value : null}
-                    minDate={startDate.isValid() ? startDate : null} // Set minimum date as start date
-                    renderInput={(params) => <TextField {...params} />}
-                />
-            </LocalizationProvider>
-        );
-    },
+    // component: (props) => {
+    //     const value = moment(props.value);
+    //     const startDate = moment(props.formValues.start_date); // Get start date from the form values
+    //     return (
+    //         <LocalizationProvider dateAdapter={AdapterMoment}>
+    //             <DesktopDatePicker
+    //                 {...props}
+    //                 value={value.isValid() ? value : null}
+    //                 minDate={startDate.isValid() ? startDate : null} // Set minimum date as start date
+    //                 renderInput={(params) => <TextField {...params} />}
+    //             />
+    //         </LocalizationProvider>
+    //     );
+    // },
     validations: [
         {
             type: 'when',
@@ -109,7 +110,8 @@ export default [
                 then: (schema) => 
                     schema
                         .min(yup.ref('start_date'), 'End date cannot be less than Start date')
-                        .max(new Date(new Date().getFullYear() + 1, 11, 31), 'End date cannot exceed December 31 of the current year'),
+                        .max(moment().endOf('year'), 'End date cannot exceed December 31 of the current year'),
+                        // .max(moment().endOf('year')), 'End date cannot exceed December 31 of the current year'),
                 otherwise: (schema) => schema.notRequired(),
             }]
         },
