@@ -6,7 +6,7 @@ const maxDate = moment().add(2, 'months'); // Add two months to current date
 export default [
     {
         id: 'company',
-        label: 'Company',
+        label: 'Company Name',
         type: 'text',
         required: true,
     },

@@ -91,7 +91,7 @@ const routes = [
   {
     type: "collapse",
     name: "Recruit",
-    key: "employee",
+    key: "recruit",
     icon: <Icon fontSize="small">person</Icon>,
     route: "/recruit",
     component: <Employee />,

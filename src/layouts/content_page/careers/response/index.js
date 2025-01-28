@@ -139,6 +139,17 @@ function Response(){
 
     var tabs = ['Information', 'Questions', 'Reference']
 
+    const renderInfo = (title, value) => (
+        <MDBox display="flex" py={1} pr={2}>
+            <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
+                {title}: &nbsp;
+            </MDTypography>
+            <MDTypography variant="button" fontWeight="regular" color="text">
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'MM-DD-YYYY') : value}
+            </MDTypography>
+        </MDBox>
+    )
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -161,14 +172,9 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h6'>Personal Information</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Personal Information</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {entity && Object.keys(entityData).map((item, index) => {
-                                            return (<MDBox>
-                                                <MDTypography variant='body2'>{entityData[item].label}: {entity[entityData[item].id]}</MDTypography>
-                                                {entityData.length-1 != item && <Divider />}
-                                            </MDBox>)
-                                        })}
+                                        {entity && Object.keys(entityData).map((item, index) => renderInfo(entityData[item].label, entity[entityData[item].id]))}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -181,17 +187,12 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h6'>Dependents</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Dependents</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {dependents && Object.keys(dependents).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(dependentsData).map((_item, _index) => (
-                                                        <MDBox>
-                                                            <MDTypography variant='body2'>{dependentsData[_item].label}: {dependents[item][dependentsData[_item].id]}</MDTypography>
-                                                            {dependentsData.length-1 != _item && <Divider />}
-                                                        </MDBox>
-                                                    ))}
+                                                    {Object.keys(dependentsData).map((_item, _index) => renderInfo(dependentsData[_item].label, dependents[item][dependentsData[_item].id]))}
                                                 </CardContent>
                                             </Card>
                                         ))}
@@ -207,21 +208,12 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h6'>Education</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Education</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {education && Object.keys(education).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(educationData).map((_item, _index) => {
-                                                        if (education[item][educationData[_item].id]) {
-                                                            return (
-                                                                <MDBox>
-                                                                    {(education[item][educationData[_index]?.id] && _index!=0) && <Divider />}
-                                                                    <MDTypography variant='body2'>{educationData[_item].label}: {education[item][educationData[_item].id]}</MDTypography>
-                                                                </MDBox>
-                                                            )
-                                                        }
-                                                    })}
+                                                    {Object.keys(educationData).map((_item, _index) => education[item][educationData[_item].id] && renderInfo(educationData[_item].label, education[item][educationData[_item].id]))}
                                                 </CardContent>
                                             </Card>
                                         ))}
@@ -237,27 +229,17 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h6'>Work Experience</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Work Experience</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        <MDTypography variant='body2'>Total Work Experience: {experience['total_experience']}</MDTypography>
-                                        <Divider /> 
-                                        <MDTypography variant='body2'>Other Experience: {experience['other_experience']}</MDTypography>
+                                        {renderInfo('Total Work Experience', experience['total_experience'])}
                                         {experience && Object.keys(experience.details).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(experienceData).map((_item, _index) => {
-                                                        if (experience['details'][item][experienceData[_item].id]) {
-                                                            return (
-                                                                <MDBox>
-                                                                    {(experience['details'][item][experienceData[_index]?.id] && _index!=0) && <Divider />}
-                                                                    <MDTypography variant='body2'>{experienceData[_item].label}: {experience['details'][item][experienceData[_item].id]}</MDTypography>
-                                                                </MDBox>
-                                                            )
-                                                        }
-                                                    })}
+                                                    {Object.keys(experienceData).map((_item, _index) => experience['details'][item][experienceData[_item].id] && renderInfo(experienceData[_item].label, experience['details'][item][experienceData[_item].id]))}
                                                 </CardContent>
                                             </Card>
                                         ))}
+                                        {renderInfo('Other Experience', experience['other_experience'])}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -269,14 +251,9 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h6'>Other Details</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Other Details</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {details && Object.keys(detailsData).map((item, index) => (
-                                            <MDBox>
-                                                <MDTypography variant='body2'>{detailsData[item].label}: {details[0][detailsData[item].id]}</MDTypography>
-                                                {detailsData.length-1 != item && <Divider />}
-                                            </MDBox>
-                                        ))}
+                                        {details && Object.keys(detailsData).map((item, index) => renderInfo(detailsData[item].label, details[0][detailsData[item].id]))}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -290,7 +267,7 @@ function Response(){
                                 return (
                                     <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
-                                            <MDTypography>{answers[item]['question_data']['title']}</MDTypography>
+                                            <MDTypography variant='h5'>{answers[item]['question_data']['title']}</MDTypography>
                                             <Divider />
                                             <MDTypography textTransform="capitalize" variant="caption">{answers[item]['value']}</MDTypography>
                                         </CardContent>
@@ -300,7 +277,7 @@ function Response(){
                                 return (
                                     <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
-                                            <MDTypography>{answers[item]['question_data']['title']}</MDTypography>
+                                            <MDTypography variant='h5'>{answers[item]['question_data']['title']}</MDTypography>
                                             <Divider />
                                             {
                                                 answers[item]['files'] != null ? 
@@ -354,21 +331,12 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h6'>Reference</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Reference</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {reference && Object.keys(reference).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(referenceData).map((_item, _index) => {
-                                                        if (reference[item][referenceData[_item].id]) {
-                                                            return (
-                                                                <MDBox>
-                                                                    {(reference[item][referenceData[_index]?.id] && _index!=0) && <Divider />}
-                                                                    <MDTypography variant='body2'>{referenceData[_item].label}: {reference[item][referenceData[_item].id]}</MDTypography>
-                                                                </MDBox>
-                                                            )
-                                                        }
-                                                    })}
+                                                    {Object.keys(referenceData).map((_item, _index) => reference[item][referenceData[_item].id] && renderInfo(referenceData[_item].label, reference[item][referenceData[_item].id]))}
                                                 </CardContent>
                                             </Card>
                                         ))}
