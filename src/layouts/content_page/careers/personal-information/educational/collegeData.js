@@ -41,7 +41,7 @@ export default [
                     is: ((present, end_date, undergrad) => {
                         return ((typeof present == 'undefined' || (!(present))) ?? (typeof undergrad == 'undefined' || (!(undergrad)))) && typeof end_date != 'undefined'
                     }),
-                    then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
+                    then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated'),
                 }]
             },
         ]
@@ -52,24 +52,35 @@ export default [
         type: 'date',
         required: true,
         options: {
-            views: ['year'],
-            disableFuture: true,
+          views: ['year'],
+          disableFuture: true,
         },
         validations: [
-            {
-                type: 'when',
-                params: [['present', 'undergrad'], {
-                    is: ((present, undergrad) => {
-                        console.log('validend prseent',present, (typeof present == 'undefined') || !(present));
-                        console.log('validend under',undergrad, (typeof undergrad == 'undefined') || !(undergrad));
-                        console.log('validend result',!(((typeof present == 'undefined') || !(present)) ^ ((typeof undergrad == 'undefined') || !(undergrad))));
-                        return !(((typeof present == 'undefined') || !(present)) ^ ((typeof undergrad == 'undefined') || !(undergrad)))
-                    }),
-                    then: (schema) => schema.min(yup.ref('start_date'), 'End date cannot be less than Start date'),
-                    otherwise: (schema) => schema.notRequired()
-                }]
-            },
-        ]
+          {
+            type: 'when',
+            params: [['present', 'undergrad'], {
+              is: (present, undergrad) => !present && !undergrad,
+              then: (schema) =>
+                schema
+                  .min(
+                    yup.ref('start_date'),
+                    'Year Graduated cannot be less than Year Attended'
+                  )
+                  .test(
+                    'min-4-years',
+                    'Year Graduated must be at least 4 years after Year Attended',
+                    function (value) {
+                      const { start_date } = this.parent; // Access sibling field
+                      if (!start_date || !value) return true; // Skip validation if either is missing
+                      const startYear = new Date(start_date).getFullYear();
+                      const endYear = new Date(value).getFullYear();
+                      return endYear >= startYear + 4;
+                    }
+                  ),
+              otherwise: (schema) => schema.notRequired(),
+            }],
+          },
+        ],
     },
     {
         id: 'present',

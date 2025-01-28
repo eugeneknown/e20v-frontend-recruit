@@ -284,6 +284,17 @@ function WorkExperienceForm(){
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
+                        <MDTypography sx={{ mt: 3}}  variant='button' color='error'>OJT/Internship can be considered </MDTypography>
+                        {/* Display placeholder when no work experience exists */}
+                        {!details || Object.keys(details).length === 0 ? (
+                            <MDTypography
+                                color="error"
+                                variant="h5"
+                                sx={{ my: 2, textAlign: "center", fontSize: "1.4rem" }}
+                            >
+                                No Work Experience found.
+                            </MDTypography>
+                        ) : null}
                         <MDTypography sx={{ mt: 3}} fontSize="1.2rem"  variant='button' color='error'>OJT can be added</MDTypography>
                         {/* Display placeholder when no work experience exists */}
                         {!details || Object.keys(details).length === 0 ? (
