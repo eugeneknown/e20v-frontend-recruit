@@ -46,6 +46,7 @@ import {
     TextField,
     Button,
 } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { MobileDatePicker } from '@mui/x-date-pickers';
 import MDBox from 'components/MDBox';
 import propTypes from 'prop-types';
@@ -59,35 +60,56 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 const CheckboxField = ({ props, sx, handleChange }) => {
     const [open, setOpen] = useState(false); // Dropdown open/close state
     const [selectedValues, setSelectedValues] = useState(
-        props.value && Array.isArray(props.value) ? props.value : [] // Ensure initial value is empty array if no valid value is provided
+        props.value && Array.isArray(props.value) ? props.value : []
     );
+    const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
+    const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
+
     const handleDropdownToggle = () => {
         setOpen((prevOpen) => !prevOpen); // Toggle dropdown open/close state
     };
+
     const handleSelectionChange = (event) => {
         const {
             target: { value },
         } = event;
-        // Ensure the selected values are handled as an array
         const newValues = typeof value === 'string' ? value.split(', ') : value;
         setSelectedValues(newValues); // Update selected values
         handleChange(event); // Call parent-provided handleChange
     };
+
     const handleSaveCheckedFields = () => {
-        console.log('Checked Fields:', selectedValues); // Log selected values
+        console.log('Checked Fields:', selectedValues);
         setOpen(false); // Close dropdown only when "OK" is clicked
     };
+
+    const handleFilter = (event) => {
+        const typedChar = event.key.toLowerCase();
+        const newSearchTerm = searchTerm + typedChar;
+        setSearchTerm(newSearchTerm);
+
+        // Filter options based on the current search term
+        const filtered = props.options.filter((option) =>
+            option.toLowerCase().includes(newSearchTerm)
+        );
+        setFilteredOptions(filtered);
+    };
+
+    const clearSearchOnClose = () => {
+        setSearchTerm(''); // Clear the search term when the dropdown closes
+        setFilteredOptions(props.options); // Reset options to the original list
+    };
+
     return (
         <FormControl sx={sx} fullWidth={props.fullWidth} error={props.error}>
-            <InputLabel shrink>{props.label}</InputLabel> {/* Always keep the label floating */}
+            <InputLabel shrink>{props.label}</InputLabel>
             <Select
                 {...props}
                 multiple
                 open={open}
-                value={selectedValues} // Use the array for selected values
+                value={selectedValues}
                 input={<OutlinedInput notched label={props.label} />}
                 renderValue={(selected) => {
-                    // Show placeholder when no values are selected
                     if (selected.length === 0) {
                         return (
                             <em style={{ color: '#9E9E9E' }}>
@@ -103,34 +125,45 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                         </div>
                     );
                 }}
-                onOpen={() => setOpen(true)} // Open dropdown
+                onOpen={() => setOpen(true)}
                 onClose={() => {
-                    // Prevent dropdown from closing when clicking outside
-                    if (open) setOpen(true);
+                    setOpen(false);
+                    clearSearchOnClose();
                 }}
                 onChange={handleSelectionChange}
+                onKeyDown={handleFilter} // Dynamically filter on typing
                 MenuProps={{
                     PaperProps: {
                         style: {
                             maxHeight: 48 * 4.5 + 8,
                             width: 250,
                         },
-                        onMouseDown: (event) => event.stopPropagation(), // Prevent click propagation for the dropdown menu
                     },
                 }}
             >
-                {props?.options?.map((item, index) => (
-                    <MenuItem key={index} value={item}>
-                        <Checkbox checked={selectedValues.includes(item)} />
-                        <ListItemText primary={item} />
+                {filteredOptions.length > 0 ? (
+                    filteredOptions.map((item, index) => (
+                        <MenuItem key={index} value={item}>
+                            <Checkbox checked={selectedValues.includes(item)} />
+                            <ListItemText primary={item} />
+                        </MenuItem>
+                    ))
+                ) : (
+                    <MenuItem disabled>
+                        <em>No options available</em>
                     </MenuItem>
-                ))}
+                )}
                 <Divider />
                 <MenuItem disableRipple>
                     <Button
                         variant="contained"
                         color="primary"
                         fullWidth
+                        startIcon={<CheckCircleIcon />}
+                        sx={{
+                            color: 'white',
+                            fontSize: '0.8rem',
+                        }}
                         onClick={handleSaveCheckedFields}
                     >
                         OK
@@ -172,19 +205,12 @@ export const generateFormInput = (props) => {
                     </Select>
                     {props?.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
                 </FormControl>
-            );
-        case 'date': 
-            let valueProps = {};
-            // if (props.value) {
-            //     const mom = moment(props.value);
-            //     if (mom.isValid()) {
-            //         valueProps['value'] = mom.toDate(); // Convert moment object to Date object
-            //     } else {
-            //         valueProps['value'] = null; 
-            //     }
-            // } else {
-            //     valueProps['value'] = null; 
-            // }
+            )
+
+    
+
+        case 'date':
+            let valueProps = {}
             if (props.value) valueProps['value'] = moment(props.value)
         
             props['closeOnSelect'] = true;
