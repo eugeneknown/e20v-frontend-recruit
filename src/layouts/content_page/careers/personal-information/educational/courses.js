@@ -6,6 +6,7 @@ export default [
     "Business Administration",
     "Civil Engineering",
     "Communication",
+    "Computer Engineering",
     "Computer Science",
     "Criminology",
     "Culinary Arts",

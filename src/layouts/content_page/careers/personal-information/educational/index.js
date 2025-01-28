@@ -1,4 +1,4 @@
-import {Card, CardContent, CardHeader, Checkbox, Chip, Container, Divider, FormControlLabel, Icon, IconButton, Link, Switch} from "@mui/material";
+import {Card, CardContent, Typography, CardHeader, Checkbox, Chip, Container, Divider, FormControlLabel, Icon, IconButton, Link, Switch} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -15,10 +15,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
 import { dataServicePrivate } from "global/function";
+import { useMaterialUIController, setDialog } from "context";
+
 
 
 function Educational(){
-
+    const [controller, dispatch] = useMaterialUIController()
+    const { dialog } = controller
     // navigation
     const navigate = useNavigate();
     const location = useLocation(); 
@@ -152,6 +155,137 @@ function Educational(){
         prevPage()
     }
 
+    const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
+
+
+    const deleteHandle = (id,level) => {
+        const educationOrder = [
+            { level: "Elementary", stateKey: elem },
+            { level: "Secondary (High School)", stateKey: high },
+            { level: "Senior High School", stateKey: senior },
+            { level: "Vocational & Technical Education", stateKey: tech },
+            { level: "College", stateKey: college },
+            { level: "Graduate School (Master's or Doctorate)", stateKey: master }
+        ];
+
+        // Find the current level index
+        const deleteIndex = educationOrder.findIndex(item => item.level === level);
+        // Check if the level to delete has a dependency on higher levels
+        if (deleteIndex !== -1) {
+            // Loop through levels after the current one to check if there's data for them
+            for (let i = deleteIndex + 1; i < educationOrder.length; i++) {
+                if (educationOrder[i].stateKey) {
+                    // If a higher level has data, alert the user and stop deletion
+                    alert(`You cannot delete ${level} because a higher level exists: ${educationOrder[i].level}`);
+                    return;
+                }
+            }
+        }
+        setDialog(dispatch, {
+          open: true,
+          id: id,
+          title: (
+            <MDBox
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#2E5B6F",
+                padding: "12px 20px",
+                borderTopLeftRadius: "8px",
+                borderTopRightRadius: "8px",
+                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                position: "relative",
+              }}
+            >
+              <Typography
+                variant="h6"
+                color="white"
+                sx={{
+                  fontWeight: "600",
+                  fontSize: "1.25rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                Confirm Delete
+              </Typography>
+              <IconButton
+                onClick={handleDialogClose}
+                sx={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "20px",
+                  color: "#FFFFFF",
+                  "&:hover": {
+                    color: "red",
+                  },
+                }}
+              >
+                <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+              </IconButton>
+            </MDBox>
+          ),
+          content: (
+            <MDBox p={2}>
+              <Typography variant="body1" color="textSecondary">
+                Are you sure you want to delete {level}? This action cannot be undone.
+              </Typography>
+            </MDBox>
+          ),
+          action: (
+            <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+              <MDButton
+                onClick={handleDialogClose}
+                color="secondary"
+                variant="outlined"
+                sx={{
+                  padding: "8px 16px",
+                  borderColor: "#F44336",
+                  color: "#F44336",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: "#FFC5C5",
+                    borderColor: "#F44336",
+                  },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                Cancel
+              </MDButton>
+              <MDButton
+                color="primary"
+                variant="contained"
+                sx={{
+                  padding: "8px 16px",
+                  backgroundColor: "#4CAF50",
+                  "&:hover": {
+                    backgroundColor: "#388E3C",
+                  },
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+                autoFocus
+                onClick={() => {
+                  handleDelete(id, level);
+                  handleDialogClose();
+                }}
+              >
+                <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                Confirm
+              </MDButton>
+            </MDBox>
+          ),
+        });
+      };
+
     const EducationAttainment = ({ attainment, data, required = false, optional = false, disabled = false, end_date }) => {
         const [option, setOption] = useState(false);
     
@@ -163,10 +297,10 @@ function Educational(){
                         <Card variant="outlined" position="relative" sx={{ my: 2 }}>
                             <MDBox display="flex" position="absolute" right={0} p={1}>
                                 <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id })}>
-                                    <Icon>edit</Icon>
+                                    <Icon color="primary">edit</Icon>
                                 </IconButton>
-                                <IconButton onClick={() => handleDelete(data.id,attainment)}>
-                                    <Icon>delete</Icon>
+                                <IconButton onClick={() => deleteHandle(data.id,attainment)}>
+                                    <Icon color="error">delete</Icon>
                                 </IconButton>
                             </MDBox>
                             <CardContent>
@@ -236,6 +370,11 @@ function Educational(){
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Educational Background</MDTypography>
                         <Divider />
+                        {!education || education.length === 0 ? (
+                            <MDTypography color="error" variant="h5" sx={{ my: 2, textAlign: "center" }}>
+                            No Educational Background found.
+                        </MDTypography>
+                        ) : null}
                         <EducationAttainment attainment='Elementary' data={elem} required />
                         <EducationAttainment attainment='Secondary (High School)' data={high} required disabled={!elem} end_date={education && EduFinder({key: 'education', value: 'Elementary'}, 'end_date')} />
                         <EducationAttainment attainment='Senior High School' data={senior} optional disabled={!high} end_date={education && EduFinder({key: 'education', value: 'Secondary (High School)'}, 'end_date')} />
@@ -244,7 +383,7 @@ function Educational(){
                         <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} optional disabled={!college} end_date={education && EduFinder({key: 'education', value: college?'College':tech?'Vocational & Technical Education':senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
                         <Divider />
                         <form onSubmit={handleSubmit}>
-                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)}>Save</MDButton>
+                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)} startIcon={<Icon>save</Icon>}> Save</MDButton>
                         </form>
                     </CardContent>
                 </Card>

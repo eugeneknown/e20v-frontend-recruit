@@ -268,10 +268,10 @@ function Positions() {
     }
 
     const columns = [
-        { Header: "title", accessor: "title", align: "left" },
-        { Header: "created", accessor: "created", align: "center" },
-        { Header: "posted", accessor: "posted", align: "center" },
-        { Header: "closed", accessor: "closed", align: "center" },
+        { Header: "position title", accessor: "title", align: "left" },
+        { Header: "date created", accessor: "created", align: "center" },
+        { Header: "date posted", accessor: "posted", align: "center" },
+        { Header: "date closed", accessor: "closed", align: "center" },
         { Header: "status", accessor: "status", align: "center" },
         // { Header: "questions", accessor: "questions", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },

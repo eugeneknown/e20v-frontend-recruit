@@ -100,7 +100,7 @@ function EducationalAttainmentForm(){
         if ( ed == 'Elementary' || ed == 'Secondary (High School)' ) return elemData
         if ( ed == 'Senior High School' ) return seniorData
         if ( ed == 'Vocational & Technical Education' ) return techData
-        if ( ed == 'College' || ed == "Graduate School (Master's or Doctorate)" ) return collegeData
+        if ( ed == 'College') return collegeData
         if ( ed == "Graduate School (Master's or Doctorate)" ) return masterData
     }
 
@@ -119,6 +119,14 @@ function EducationalAttainmentForm(){
         })
 
     }
+    const educationLevels = {
+        Elementary: 'Edit Elementary',
+        'Secondary (High School)': 'Edit High School',
+        'Senior High School': 'Edit Senior High School',
+        'Vocational & Technical Education': 'Edit Vocational & Technical Education',
+        College: 'Edit College',
+        "Graduate School (Master's or Doctorate)": 'Edit Graduate School',
+      };
 
     return (
         <PageLayout>
@@ -127,8 +135,7 @@ function EducationalAttainmentForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add {location.state.education}</MDTypography>
-                        <Divider />
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>{location.state.id ? (education ? `Edit ${education.education}` : `Edit`) : `Add ${location.state.education}`}</MDTypography>                        <Divider />
                         {education && <Formik
                             initialValues={education}
                             validationSchema={validationSchema}
@@ -194,7 +201,7 @@ function EducationalAttainmentForm(){
                                         </MDBox>
                                         )}
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit'startIcon={<Icon>save</Icon>}>Save</MDButton>
                                 </Form>
                             )}
                         </Formik>}

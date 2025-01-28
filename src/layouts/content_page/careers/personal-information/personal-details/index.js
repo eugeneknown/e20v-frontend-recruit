@@ -160,7 +160,7 @@ function PersonalDetailsForm(){
                                         </MDBox>
                                         )}
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' startIcon={<Icon>save</Icon>} >Save</MDButton>
                                 </Form>
                             )}
                         </Formik>}

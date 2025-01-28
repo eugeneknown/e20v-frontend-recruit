@@ -1,5 +1,7 @@
 import * as yup from 'yup';
+import moment from 'moment';
 
+const maxDate = moment().add(2, 'months'); // Add two months to current date
 
 export default [
     {
@@ -49,17 +51,19 @@ export default [
         label: 'Start Date',
         type: 'date',
         required: true,
-        options: { 
+        options: {
             views: ['month', 'year'],
             openTo: 'month',
+            disableFuture: true,
         },
+        
         validations: [
             {
                 type: 'when',
                 params: [['present', 'end_date'], {
-                    is: ((present, end_date) => {
+                    is: (present, end_date) => {
                         return typeof present == 'undefined' || (!(present)) && typeof end_date != 'undefined'
-                    }),
+                    },
                     then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
                 }]
             },
@@ -70,20 +74,43 @@ export default [
         label: 'End Date',
         type: 'date',
         required: true,
-        options: { 
+        options: {
             views: ['month', 'year'],
             openTo: 'month',
         },
+        // component: (props) => {
+        //     const value = moment(props.value);
+        //     const minDate = moment(); // Get current date
+
+        // return (
+        //     <LocalizationProvider dateAdapter={AdapterMoment}>
+        //         <DesktopDatePicker
+        //             {...props}
+        //             value={value.isValid() ? value : null}
+        //             minDate={minDate}
+        //             maxDate={maxDate}
+        //             renderInput={(params) => <TextField {...params} />}
+        //         />
+        //     </LocalizationProvider>
+        // );
+    // },
         validations: [
             {
                 type: 'when',
                 params: ['present', {
-                    is: (present => typeof present == 'undefined' || (!(present))),
-                    then: (schema) => schema.min(yup.ref('start_date'), 'End date cannot be less than Start date'),
-                    otherwise: (schema) => schema.notRequired()
-                }]
+                    is: (present) => typeof present === 'undefined' || !present,
+                    then: (schema) => 
+                        schema
+                            .min(yup.ref('start_date'), 'End date cannot be less than Start date')
+                            .max(maxDate.toDate(), 'End date cannot exceed two months from current date'),
+                    otherwise: (schema) => schema.notRequired(),
+                }
+                
+                ]
+
+    
             },
-        ]
+        ],
     },
     {
         id: 'description',
