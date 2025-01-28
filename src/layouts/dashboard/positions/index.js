@@ -105,13 +105,8 @@ function Positions() {
         },
         {
             'id': 3,
-            'title': 'hold',
-            'color': 'warning',
-        },
-        {
-            'id': 4,
             'title': 'paused',
-            'color': 'grey',
+            'color': 'warning',
         },
     ]
 
@@ -163,6 +158,12 @@ function Positions() {
     const handleBadgePopperData = (data, career) => {
         console.log('debug handle badge popper data:', data, career);
         career['status'] = data['title']
+        if ( data['title'] == 'active' ) {
+            career['posted_at'] = moment()
+        }
+        if ( data['title'] == 'close' ) {
+            career['closed_at'] = moment()
+        }
         dataServicePrivate('POST', 'hr/careers/define', career).then((result) => {
             console.log('debug submit career status result', result);
             init()
@@ -206,6 +207,16 @@ function Positions() {
                         created: (
                             <MDTypography variant="caption" color="text" fontWeight="medium">
                                 {formatDateTime(result[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
+                            </MDTypography>
+                        ),
+                        posted: (
+                            <MDTypography variant="caption" color="text" fontWeight="medium">
+                                {result[key].posted_at ? formatDateTime(result[key].posted_at, 'MMM DD, YYYY HH:mm:ss') : 'No Data'}
+                            </MDTypography>
+                        ),
+                        closed: (
+                            <MDTypography variant="caption" color="text" fontWeight="medium">
+                                {result[key].closed_at ? formatDateTime(result[key].closed_at, 'MMM DD, YYYY HH:mm:ss') : 'No Data'}
                             </MDTypography>
                         ),
                         status: (
@@ -257,8 +268,10 @@ function Positions() {
     }
 
     const columns = [
-        { Header: "title", accessor: "title", width: "45%", align: "left" },
+        { Header: "title", accessor: "title", align: "left" },
         { Header: "created", accessor: "created", align: "center" },
+        { Header: "posted", accessor: "posted", align: "center" },
+        { Header: "closed", accessor: "closed", align: "center" },
         { Header: "status", accessor: "status", align: "center" },
         // { Header: "questions", accessor: "questions", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },
@@ -383,7 +396,7 @@ function Positions() {
                                 coloredShadow="info"
                             >
                                 <MDTypography variant="h6" color="white">
-                                Recruit
+                                Position
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={3}>

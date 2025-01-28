@@ -53,7 +53,7 @@ import { dataServicePrivate } from "global/function";
 import { ChromePicker } from 'react-color'
 import ConfirmDialog from "../dynamic/confirm-dialog";
 import ImageView from "./image-viewer";
-import AudioPlayer from "material-ui-audio-player";
+import AudioPlayer from 'react-h5-audio-player';
 import GenerateExel from "./generate-exel";
 import { DateRangePicker } from "react-date-range";
 
@@ -166,7 +166,7 @@ function Employee() {
                                     return (
                                         <Card sx={{ my: 2 }} key={key}>
                                             <CardContent>
-                                                <MDTypography>{result[item]['question_data']['title']}</MDTypography>
+                                                <MDTypography variant='h5'>{result[item]['question_data']['title']}</MDTypography>
                                                 <Divider />
                                                 <MDTypography textTransform="capitalize" variant="caption">{result[item]['value']}</MDTypography>
                                             </CardContent>
@@ -176,7 +176,7 @@ function Employee() {
                                     return (
                                         <Card sx={{ my: 2 }} key={key}>
                                             <CardContent>
-                                                <MDTypography>{result[item]['question_data']['title']}</MDTypography>
+                                                <MDTypography variant='h5'>{result[item]['question_data']['title']}</MDTypography>
                                                 <Divider />
                                                 {
                                                     result[item]['files'] != null ? 
@@ -197,10 +197,8 @@ function Employee() {
                                                                 {
                                                                     String(result[item]['files']['file_type']).split('/')[0] == 'audio' &&
                                                                     <MDBox width='100%'>
-                                                                        <AudioPlayer 
-                                                                            elevation={1}
+                                                                        <AudioPlayer
                                                                             src={[result[item]['files_url']]} 
-                                                                            width="100%"
                                                                         />
                                                                         <Link href={result[item]['files_url']} target="_blank">
                                                                             <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
@@ -241,10 +239,6 @@ function Employee() {
         })
 
     }
-
-    // const audioPlayer = () => (
-
-    // )
 
     const renderEntityInfo = (key, value) => (
         <MDBox key={key} display="flex" py={1} pr={2}>
