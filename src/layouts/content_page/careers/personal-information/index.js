@@ -28,6 +28,7 @@ function PersonalInformation(){
     const from = location.state?.from?.pathname || "/";
     const prevPage = () => navigate(from, { replace: true })
     const toPage = (url, params={}) => navigate(url, { state: { from: location, ...params }, replace: true })
+    const [loading, setLoading] = useState(false);
 
     // save this career id in cache
 
@@ -296,7 +297,7 @@ function PersonalInformation(){
             return hasRequiredLevels && hasOptionalLevel;
         };
     
-        const allFieldsFilled = entity && details && experience && (hasDependents ? dependents : true);
+        const allFieldsFilled = entity && details && (hasDependents ? dependents : true);
         const isEducationValid = isEducationComplete();
     
         setDisable(!(allFieldsFilled && isEducationValid));
@@ -388,7 +389,8 @@ function PersonalInformation(){
                                 <WorkExpContent title='EDUCATIONAL BACKGROUND' data={educations} url='/careers/personalinfo/educational' />
                                 <WorkExpContent title='WORK EXPERIENCE' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='OTHER DETAILS' data={details} url='/careers/personalinfo/detailsform' />
-                                <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}>Continue</MDButton>
+                                <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled || loading} startIcon={<Icon>check</Icon>} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}> {loading ? 'Loading...' : 'Continue'} </MDButton>
+
                             </CardContent>
                         </Card>
                     </MDBox>
