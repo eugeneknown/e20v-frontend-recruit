@@ -15,6 +15,8 @@ export default [
         required: true,
         options: { 
             disableFuture: true,
+            views: ['year', 'month', 'day'],
+            openTo: 'year',
         },
     },
     {
