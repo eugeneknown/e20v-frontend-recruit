@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
+import { Fade, OutlinedInput, IconButton, Typography, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
     FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Fab, CardMedia, CardContent, Chip, Popover, 
     Switch} from "@mui/material";
 
@@ -54,14 +54,17 @@ import SwipeableViews from "react-swipeable-views";
 import ConfirmDialog from "./confirm-dialog";
 import { useSnackbar } from "notistack";
 import { SimpleEditor } from "../positions/rte";
+import { useMaterialUIController, setDialog } from "context";
+import { dataServicePrivate } from "global/function";
+import BadgePopper from "../dynamic/badge-popper";
 
 
 function Platform() {
-
+    const [controller, dispatch] = useMaterialUIController()
+    const { dialog } = controller
     const [data, setData] = useState({});
     const [content, setContent] = useState();
-    const [question, setQuestion] = useState({})
-    const [platform, setplatform] = useState({})
+    const [platform, setPlatform] = useState({})
     const [options, setOptions] = useState({})
     const [addOption, setAddOption] = useState([])
     const [inputOption, setInputOption] = useState('')
@@ -99,27 +102,143 @@ function Platform() {
     const [idDelete, setIdDelete] = useState(0)
     const [action, setAction] = useState('')
 
-    const handleCloseModal = () => {
-        setConfirmModal(false)
-    }
-
-    const handleDataModal = (e) => {
-        console.log('debug confirm dialog data:', e)
-        setConfirmModal(false)
-
-        const confirmDelete = async () => {
-            await axiosPrivate.post('hr/careers/platform/delete', {id: idDelete}).then((result) => {
-                console.log("debug question delete", result.data);
-                init()
-            }, (e) => {
-                console.log("debug question delete error", e);
-            })
+    const handleDialogClose = () => {
+        setDialog(dispatch, { ...dialog, open: false });
+      };
+    
+       const status = [
+        {
+            'id': 1,
+            'title': 'active',
+            'color': 'success',
+        },
+        {
+            'id': 2,
+            'title': 'close',
+            'color': 'error',
+        },
+        {
+            'id': 3,
+            'title': 'paused',
+            'color': 'warning',
+        },
+    ]
+      const deleteHandle = (id) => {
+        setDialog(dispatch, {
+            open: true,
+            title: (
+                <MDBox
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#2E3B55",
+                        padding: "12px 20px",
+                        borderTopLeftRadius: "8px",
+                        borderTopRightRadius: "8px",
+                        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                        position: "relative",
+                    }}
+                >
+                    <MDTypography
+                        variant="h6"
+                        color="white"
+                        sx={{
+                            fontWeight: "600",
+                            fontSize: "1.25rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                    >
+                        <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                        Confirm Delete
+                    </MDTypography>
+                    <IconButton
+                        onClick={handleDialogClose} 
+                        sx={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "20px",
+                            color: "#FFFFFF",
+                            "&:hover": {
+                                color: "red",
+                            },
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+                    </IconButton>
+                </MDBox>
+            ),
+            content: (
+                <MDBox p={2}>
+                    <Typography variant="body1" color="textSecondary">
+                        Are you sure you want to delete this item? This action cannot be undone.
+                    </Typography>
+                </MDBox>
+            ),
+            action: (
+                <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+                    <MDButton
+                        onClick={handleDialogClose}
+                        color="secondary"
+                        variant="outlined"
+                        sx={{
+                            padding: "8px 16px",
+                            borderColor: "#f44336",
+                            color: "#f44336",
+                            fontWeight: "bold",
+                            "&:hover": {
+                                backgroundColor: "#ffcccc",
+                                borderColor: "#f44336",
+                            },
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                        Cancel
+                    </MDButton>
+                    <MDButton
+                        color="primary"
+                        variant="contained"
+                        sx={{
+                            padding: "8px 16px",
+                            backgroundColor: "#4caf50",
+                            "&:hover": {
+                                backgroundColor: "#388e3c",
+                            },
+                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                        onClick={() => handleDataModal(id)}
+                    >
+                        <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                        Confirm
+                    </MDButton>
+                </MDBox>
+            ),
+        });
+    };
+    
+    const handleDataModal = async (id) => {
+        try {
+            if (!id) return; // Ensure an ID is provided
+    
+            await axiosPrivate.post('hr/careers/platform/delete', { id });
+            snackBar('Platform Successfully Deleted', 'success');
+            setDialog(dispatch, { ...dialog, open: false }); // Close the dialog
+            init(); // Refresh the table data
+        } catch (err) {
+            console.error("Error deleting platform:", err.response?.data || err.message);
+            snackBar('Error deleting platform', 'error');
         }
-
-        if ( e ) {
-            confirmDelete()
-        }
-    }
+    };
+    
+    
 
     // endregion confirm modal
 
@@ -132,12 +251,20 @@ function Platform() {
     
     },[]);
 
+    const statusColor = (status, list) => {
+        for ( var i=0; i<Object.keys(list).length; i++ ) {
+            if (status == list[i].title) return list[i].color
+        }
+
+        return 'light_grey'
+    }
+
     const init = async () => {
         try {
             await axiosPrivate.post('hr/careers/platform/all', {}).then((result) => {
                 console.log("debug platform", result.data);
                 var result = result.data['career_platforms']
-                // setData(result)
+                setData(result)
 
                 setRows([])
                 Object.keys(result).map((item, key) => {
@@ -152,44 +279,71 @@ function Platform() {
                                     variant="caption"
                                     fontWeight="medium"
                                     sx={{
-                                        border: `4px solid ${result[key].color}`,
+                                        border: `4px solid ${result[key].color || "black"}`,
                                         borderRadius: "4px",
                                         padding: "4px 8px",
-                                        color: result[key].color,
+                                        color: result[key].color || "black",
                                         textAlign: "center",
                                     }}
                                 >
-                                    {result[key].color}
+                                    {result[key].color || "Black"}
                                 </MDTypography>
-                            ),                            
+                            ),                                                       
                             created: (
                                 <MDTypography variant="caption" color="text" fontWeight="medium">
                                     {formatDateTime(result[key].created_at, 'MMM DD, YYYY HH:mm:ss')}
                                 </MDTypography>
                             ),
+                            posted: (
+                                <MDTypography variant="caption" color="text" fontWeight="medium">
+                                    {result[key].posted_at ? formatDateTime(result[key].posted_at, 'MMM DD, YYYY HH:mm:ss') : 'No Data'}
+                                </MDTypography>
+                            ),
+                            closed: (
+                                <MDTypography variant="caption" color="text" fontWeight="medium">
+                                    {result[key].closed_at ? formatDateTime(result[key].closed_at, 'MMM DD, YYYY HH:mm:ss') : 'No Data'}
+                                </MDTypography>
+                            ),
                             status: (
-                                <MDBadge
-                                badgeContent={result[key].status}
-                                color={['active', 'activate', 'activated'].includes(result[key].status.toLowerCase()) ? 'success' : 'dark'}
-                                variant="gradient"
-                                size="sm"
+                                // <MDBadge
+                                // badgeContent={result[key].status}
+                                // color={['active', 'activate', 'activated'].includes(result[key].status.toLowerCase()) ? 'success' : 'dark'}
+                                // variant="gradient"
+                                // size="sm"
+                                // data={(e) => handleBadgePopperData(e, result[key])}
+                                // />
+                                <MDBox ml={-1}>
+                                <BadgePopper
+                                    badgeContent={result[key].status} 
+                                    color={statusColor(result[key].status, status)} 
+                                    variant="gradient" 
+                                    content={status}
+                                    data={(e) => handleBadgePopperData(e, result[key])}
                                 />
+                                 </MDBox>
                             ),
                             actions: (
                                 <MDBox>
-                                    <Grid container spacing={.5}>
-                                        {
-                                            Object.keys(actions).map((_key) => {
-                                                return (
-                                                    <Grid item key={actions[_key].key}>
-                                                        <MDButton onClick={() => handleAction({key: actions[_key].key, data: result[key]})} color={actions[_key].color}>{actions[_key].name}</MDButton>
-                                                    </Grid> 
-                                                )
-                                            })
-                                        }
+                                    <Grid container spacing={0.5}>
+                                        {Object.keys(actions).map((_key) => (
+                                            <Grid item key={actions[_key].key}>
+                                                <MDButton
+                                                    onClick={() => {
+                                                        if (actions[_key].key === 'delete') {
+                                                            deleteHandle(result[key].id);
+                                                        } else {
+                                                            handleAction({ key: actions[_key].key, data: result[key] });
+                                                        }
+                                                    }}
+                                                    color={actions[_key].color}
+                                                >
+                                                    {actions[_key].name}
+                                                </MDButton>
+                                            </Grid>
+                                        ))}
                                     </Grid>
                                 </MDBox>
-                            ),
+                            ),   
                         }
                     ])
                 }) 
@@ -200,11 +354,37 @@ function Platform() {
 
         }
     }
+     const handleBadgePopperData = (data, career) => {
+            console.log('debug handle badge popper data:', data, career);
+            career['status'] = data['title']
+            if ( data['title'] == 'active' ) {
+                career['posted_at'] = moment()
+            }
+            if ( data['title'] == 'close' ) {
+                career['closed_at'] = moment()
+            }
+            dataServicePrivate('POST', 'hr/careers/platform/define', career).then((result) => {
+                console.log('debug submit career status result', result);
+                init()
+            }).catch((err) => {
+                console.log('debug submit career status error result', err);
+    
+            })
+        }
+        
+    //Default color when there is no selection in create platform
+    useEffect(() => {
+        if (!platform.color) {
+          setPlatform({ ...platform, color: '#2196F3' });
+        }
+      }, [platform]);
 
     const columns = [
-        { Header: "title", accessor: "title", width: "45%", align: "left" },
+        { Header: "platform title", accessor: "title", align: "left" },
+        { Header: "date created", accessor: "created", align: "center" },
+        { Header: "date posted", accessor: "posted", align: "center" },
+        { Header: "date closed", accessor: "closed", align: "center" },
         { Header: "color", accessor: "color", align: "center" },
-        { Header: "created", accessor: "created", align: "center" },
         { Header: "status", accessor: "status", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },
     ]
@@ -227,11 +407,11 @@ function Platform() {
 
     useEffect(() => {
         console.log('debug add option data', addOption)
-        setQuestion(prev => ({ ...prev, 'value': addOption.join(', ') }))
+        setPlatform(prev => ({ ...prev, 'value': addOption.join(', ') }))
     },[addOption]);
 
     const handleLabelData = (data) => {
-        setQuestion(prev => ({ ...prev, 'value': data }))
+        setPlatform(prev => ({ ...prev, 'value': data }))
 
     }
 
@@ -241,11 +421,11 @@ function Platform() {
         setAction(params['key'])
         if (params['key'] == 'create') {
             setSwipeIndex(0)
-            setQuestion({})
+            setPlatform({})
         }
         if (params['key'] == 'view') {
             setSwipeIndex(1);
-            setQuestion({
+            setPlatform({
                 id: params['data'].id,
                 title: params['data'].title,
                 type: params['data'].type,
@@ -262,75 +442,75 @@ function Platform() {
         }        
         if (params['key'] == 'edit') {
             setSwipeIndex(1);
-            setQuestion({
+            setPlatform({
                 id: params['data'].id,
                 title: params['data'].title,
                 type: params['data'].type,
                 value: params['data'].value,
-                color: params['data'].color
+                color: params['data'].color 
                     ? params['data'].color.charAt(0).toUpperCase() + params['data'].color.slice(1)
                     : 'N/A',
                 status: params['data'].status,
-                created_at: formatDateTime(params['data'].created_at, 'MMM DD, YYYY HH:mm:ss'),
             });
         }             
         if (params['key'] == 'delete') {
             setIdDelete(params['data'].id)
-            setConfirmModal(true)
+            handleDataModal(true);
         } else {
             handleOpen()
         }
        
     }
 
-    const handleDeleteAddOption = (item, data) => {
-        console.log('debug delete add option', item, data)
-        var option = data.split(', ')
-        var index = option.indexOf(item)
-        option.splice(index, 1)
-        setAddOption(option)
-    }
-
-    const handleQuestion = (key, e) => {
-        console.log('debug question key value', key, e)
-        setQuestion(prev => ({ ...prev, [key]: e }))
-    }
-
-    const handleAddOptionSubmit = (value=undefined) => {
-        if ( value != undefined ) {
-            setAddOption(prev => [...prev, value])
-        } else {
-            setAddOption(prev => [...prev, inputOption])
-        }
-        setInputOption('')
-    }
-
-    const handleQuestionSubmit = () => {
-        if (!question.title || !question.status) {
-            snackBar('Please provide all required fields', 'error');
+    const handlePlatformSubmit = async () => {
+        // Validate platform and title
+        if (!platform || !platform.title) {
+            snackBar("Please provide all required fields", "error");
             return;
         }
-      
-        submitDataService(question)
-            .then((result) => {
-                console.log('debug platform result:', result);
-                const careersPlatform = result.data['career_platforms'];
-                let submitAction = action === 'create' ? 'Created' :
-                                   action === 'edit' ? 'Edited' : 'Deleted';
-                snackBar(`platform Successfully ${submitAction}`, 'success');
-                init();
-                handleClose();
-            })
-            .catch((err) => {
-                console.error('debug error submit platform:', err.response?.data || err.message);
-                const errorMessage = err.response?.data?.error || 'platform Submit Failed';
-                snackBar(errorMessage, 'error');
-            });
+    
+        // Validate data availability
+        if (!data || !Array.isArray(data)) {
+            snackBar("Data is not available. Please try again later.", "error");
+            console.error("Data is not available or not an array:", data);
+            return;
+        }
+    
+        // Check for duplicate title
+        const existingPlatformIndex = data.findIndex((item) => item.title === platform.title);
+        console.log("Existing Platform Index:", existingPlatformIndex);
+    
+        if (action === "edit") {
+            // Allow editing the current platform without triggering duplicate check
+            const currentPlatformIndex = data.findIndex((item) => item.id === platform.id);
+    
+            if (existingPlatformIndex > -1 && existingPlatformIndex !== currentPlatformIndex) {
+                snackBar("A platform with this title already exists", "error");
+                return;
+            }
+        } else {
+            // For "create" action, ensure no duplicate titles
+            if (existingPlatformIndex > -1) {
+                snackBar("A platform with this title already exists", "error");
+                return;
+            }
+        }
+        try {
+            const response = await submitDataService(platform); // Pass the `platform` object here
+            const submitAction = action === "create" ? "Created" : "Edited";
+            snackBar(`Platform Successfully ${submitAction}`, "success");
+            init(); // Refresh platform list
+            handleClose(); // Close the dialog
+        } catch (err) {
+            console.error("Error submitting platform:", err.response?.data || err.message);
+    
+            // Use error message from the backend if available, otherwise fallback
+            const errorMessage = err.response?.data?.message || err.message || "Platform Submit Failed";
+            snackBar(errorMessage, "error");
+        }
     };
     
     
-    
-
     const submitDataService = async (data) => {
         try {
             const response = await axiosPrivate.post('hr/careers/platform/define', data);
@@ -340,10 +520,7 @@ function Platform() {
             throw err;
         }
     };
-    
-
-    
-
+        
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -351,7 +528,7 @@ function Platform() {
                 <Grid container spacing={6}>
                     <Grid item xs={12}>
                         <Card>
-                            <MDBox
+                            <MDBox  
                                 mx={2}
                                 mt={-3}
                                 py={3}
@@ -394,140 +571,113 @@ function Platform() {
                 <Icon fontSize="medium" >add</Icon>
             </Fab>
             <Footer />
-            { confirmModal && <ConfirmDialog closeModal={handleCloseModal} title='Confirm Delete' content='Are you sure to Delete this Tag?' data={handleDataModal} /> }
+            
             <MDBox>
             <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-  <DialogTitle textAlign="center" textTransform="capitalize">
-    {action === "view" ? "View Tag Details" : `${action} Tag`}
-  </DialogTitle>
-  <DialogContent>
-    {action === "view" ? (
-      <MDBox my={2}>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <MDTypography variant="subtitle2" color="textSecondary">
-              Title:
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {question?.title || "N/A"}
-            </MDTypography>
-          </Grid>
-          <Grid item xs={6}>
-            <MDTypography variant="subtitle2" color="textSecondary">
-              Color:
-            </MDTypography>
+            <DialogTitle textAlign="center" textTransform="capitalize">
+  {action === "view" ? "View Platform" : `${action === 'create' ? 'Create Platform' : 'Edit Platform'}`}
+</DialogTitle>
+<DialogContent>
+  {action === "view" ? (
+    <MDBox my={2}>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <MDTypography variant="subtitle2" color="textSecondary">
+            Title:
+          </MDTypography>
+          <MDTypography variant="body2" fontWeight="medium">
+            {platform?.title || "N/A"}
+          </MDTypography>
+        </Grid>
+        <Grid item xs={6}>
+          <MDTypography variant="subtitle2" color="textSecondary">
+            Color:
+          </MDTypography>
+          <MDBox display="flex" alignItems="center" sx={{ gap: "8px" }}>
             <MDBox
-              display="flex"
-              alignItems="center"
-              sx={{ gap: "8px" }}
-            >
-              <MDBox
-                sx={{
-                  width: "20px",
-                  height: "20px",
-                  backgroundColor: question?.color || "#FFFFFF",
-                  border: "1px solid #ddd",
-                  borderRadius: "50%",
+              sx={{
+                width: "20px",
+                height: "20px",
+                backgroundColor: platform?.color || "#FFFFFF",
+                border: "1px solid #ddd",
+                borderRadius: "50%",
+              }}
+            />
+            <MDTypography variant="body2" fontWeight="medium">
+              {platform?.color || "N/A"}
+            </MDTypography>
+          </MDBox>
+        </Grid>
+        <Grid item xs={6}>
+        <MDTypography variant="subtitle2" color="textSecondary">
+            Status:
+          </MDTypography>
+          <MDBadge
+            badgeContent={platform?.status || "N/A"}
+            color={statusColor(platform?.status, status)} // Dynamically set the color based on the clicked status
+            variant="gradient"
+            size="lg"
+          />
+        </Grid>
+      </Grid>
+    </MDBox>
+  ) : (
+    <MDBox>
+      <MDBox m={2}>
+        {/* Title Input */}
+        <MDInput
+          value={platform?.title || ''}
+          onChange={(e) => setPlatform({ ...platform, title: e.target.value })}
+          label="Title"
+          fullWidth
+          sx={{ mb: '1rem' }}
+        />
+
+        {/* Options Section */}
+        {platform?.type !== 'input' && platform?.type !== 'label' && platform?.value && (
+          <MDBox>
+            <MDTypography variant="caption" fontWeight="medium" sx={{ mb: '1rem' }}>
+              Options:
+            </MDTypography>
+            {platform?.value.split(', ').map((item, key) => (
+              <Chip
+                key={key}
+                label={item}
+                variant="outlined"
+                sx={{ m: '5px' }}
+                onDelete={() => {
+                  const updatedValues = platform?.value
+                    .split(', ')
+                    .filter((opt) => opt !== item)
+                    .join(', ');
+                  setPlatform({ ...platform, value: updatedValues });
                 }}
               />
-              <MDTypography variant="body2" fontWeight="medium">
-                {question?.color || "N/A"}
-              </MDTypography>
-            </MDBox>
-          </Grid>
-          <Grid item xs={6}>
-            <MDTypography variant="subtitle2" color="textSecondary">
-              Status:
-            </MDTypography>
-            <MDBadge
-              badgeContent={question?.status || "N/A"}
-              color={question?.status === "active" ? "success" : "dark"}
-              variant="gradient"
-              size="sm"
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <MDTypography variant="subtitle2" color="textSecondary">
-              Created At:
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {formatDateTime(question?.created_at, "MMM DD, YYYY HH:mm:ss") || "N/A"}
-            </MDTypography>
-          </Grid>
-          <Grid item xs={6}>
-            <MDTypography variant="subtitle2" color="textSecondary">
-              Updated At:
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {formatDateTime(question?.updated_at, "MMM DD, YYYY HH:mm:ss") || "N/A"}
-            </MDTypography>
-          </Grid>
-        </Grid>
-      </MDBox>
-    ) : (
-      <MDBox>
-        <MDBox m={2}>
+            ))}
+          </MDBox>
+        )}
+
+        {/* Color Picker */}
         <MDInput
-            value={question?.title || ''}
-            onChange={(e) => setQuestion({ ...question, title: e.target.value })}
-            label="Title"
+            type="color"
+            value={platform?.color || '#FFFFFF'}  // Ensure the value is properly set, default to white if not set
+            onChange={(e) => {
+                const selectedColor = e.target.value;
+                setPlatform({ ...platform, color: selectedColor });  // Ensure the platform color gets updated
+            }}
+            label="Color"
             fullWidth
             sx={{ mb: '1rem' }}
         />
-    {question?.type !== 'input' && question?.type !== 'label' && question?.value && (
-        <MDBox>
-            <MDTypography variant="caption" fontWeight="medium" sx={{ mb: '1rem' }}>
-                Options:
-            </MDTypography>
-            {question?.value.split(', ').map((item, key) => (
-                <Chip
-                    key={key}
-                    label={item}
-                    variant="outlined"
-                    sx={{ m: '5px' }}
-                    onDelete={() => {
-                        const updatedValues = question?.value
-                            .split(', ')
-                            .filter((opt) => opt !== item)
-                            .join(', ');
-                        setQuestion({ ...question, value: updatedValues });
-                    }}
-                />
-            ))}
-        </MDBox>
-    )}
-    <MDInput
-        type="color"
-        value={question?.color || '#000000'}
-        onChange={(e) => setQuestion({ ...question, color: e.target.value })}
-        label="Color"
-        fullWidth
-        sx={{ mb: '1rem' }}
-    />
-    <MDInput
-        value={question?.status || ''}
-        onChange={(e) => setQuestion({ ...question, status: e.target.value })}
-        label="Status"
-        fullWidth
-        sx={{ mb: '1rem' }}
-    />
-    <MDInput
-        disabled
-        value={question?.created_at || ''}
-        label="Created At"
-        fullWidth
-        sx={{ mb: '1rem' }}
-    />
-</MDBox>
-
-
       </MDBox>
-    )}
-  </DialogContent>
+    </MDBox>
+  )}
+</DialogContent>
+
   <DialogActions>
     <MDButton onClick={handleClose}>Close</MDButton>
     {action !== "view" && (
-      <MDButton onClick={handleQuestionSubmit} variant="gradient" color="info">
+      <MDButton onClick={handlePlatformSubmit} variant="gradient" color="info">
         Submit
       </MDButton>
     )}
