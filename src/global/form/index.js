@@ -154,21 +154,26 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                     </MenuItem>
                 )}
                 <Divider />
-                <MenuItem disableRipple>
+                <MenuItem disableRipple sx={{ justifyContent: "center", padding: 0 }}>
                     <Button
                         variant="contained"
                         color="primary"
                         fullWidth
                         startIcon={<CheckCircleIcon />}
                         sx={{
-                            color: 'white',
-                            fontSize: '0.8rem',
+                            color: "#fff", 
+                            backgroundColor: "primary.main", 
+                            "&:hover": {
+                                backgroundColor: "primary.dark", 
+                            },
+                            fontSize: "0.8rem",
                         }}
                         onClick={handleSaveCheckedFields}
                     >
                         OK
                     </Button>
                 </MenuItem>
+
             </Select>
             {props.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
         </FormControl>

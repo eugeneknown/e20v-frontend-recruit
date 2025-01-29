@@ -16,6 +16,7 @@ import Footer from "examples/Footer";
 import { formatDateTime } from "global/function";
 import { dataServicePrivate } from "global/function";
 import { useMaterialUIController, setDialog } from "context";
+import { useSnackbar } from "notistack";
 
 
 
@@ -66,6 +67,18 @@ function Educational(){
         })
     }
 
+    const { enqueueSnackbar } = useSnackbar()
+        const snackBar = (title, error) => {
+            enqueueSnackbar(title, {
+                variant: error,
+                preventDuplicate: true,
+                anchorOrigin: {
+                    horizontal: 'right',
+                    vertical: 'top',
+                }
+            })
+    }
+
     const setAttainment = (data) => {
         Object.keys(data).map((item, index) => {
             if ( data[item]['education'] == 'Elementary' ) setElem(data[item]) 
@@ -96,8 +109,8 @@ function Educational(){
             // Loop through levels after the current one to check if there's data for them
             for (let i = deleteIndex + 1; i < educationOrder.length; i++) {
                 if (educationOrder[i].stateKey) {
-                    // If a higher level has data, alert the user and stop deletion
-                    alert(`You cannot delete ${level} because a higher level exists: ${educationOrder[i].level}`);
+                    // If a higher level has data, snackbar the user and stop deletion
+                    snackBar(`You cannot delete ${level} because a higher level exists: ${educationOrder[i].level}`, 'error');
                     return;
                 }
             }
@@ -133,23 +146,24 @@ function Educational(){
         if (!high) missingFields.push("High School");
         if (!college) missingFields.push("College");
 
-        alert(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`);
+        snackBar(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`, 'error');
+
         return; // Prevent navigation if validation fails
     }
     if (!elem) {
-        alert("Please fill up Elementary Education before proceeding.");
+        snackBar(`Please fill up Elementary Education before proceeding.`, 'error');
         return; // Stop submission
     }
 
     // Check if high school data exists (requires elementary)
     if (!high) {
-        alert("Please fill up Secondary (High School) Education before proceeding.");
+        snackBar(`Please fill up Secondary (High School) Education before proceeding.`, 'error');
         return; // Stop submission
     }
 
     // Check if college data exists (requires elementary and secondary)
     if ((!senior && !tech && !college)) {
-        alert("Please fill up any Educational Background for Senior High, Vocational, and College before proceeding.");
+        snackBar(`Please fill up any Educational Background for Senior High, Vocational, and College before proceeding.`, 'error');
         return; // Stop submission
     }
         prevPage()
@@ -175,8 +189,8 @@ function Educational(){
             // Loop through levels after the current one to check if there's data for them
             for (let i = deleteIndex + 1; i < educationOrder.length; i++) {
                 if (educationOrder[i].stateKey) {
-                    // If a higher level has data, alert the user and stop deletion
-                    alert(`You cannot delete ${level} because a higher level exists: ${educationOrder[i].level}`);
+                    // If a higher level has data, snackbar the user and stop deletion
+                    snackBar(`You cannot delete ${level} because a higher level exists: ${educationOrder[i].level}.`, 'error');
                     return;
                 }
             }
