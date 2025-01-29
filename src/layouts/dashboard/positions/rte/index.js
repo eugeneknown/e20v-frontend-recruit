@@ -18,13 +18,17 @@ import OrderedList from '@tiptap/extension-ordered-list';
 import TextStyle from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 import FontSize from 'tiptap-extension-font-size'
+import Highlight from "@tiptap/extension-highlight";
 // Custom
 import * as Icons from "./icons";
 // import { LinkModal } from "./LinkModal";
 import './styles.css';
-import { Autocomplete, Icon, MenuItem, Select, TextField } from "@mui/material";
+import { Autocomplete, Icon, MenuItem, Popover, Select, TextField } from "@mui/material";
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
+import { SketchPicker } from "react-color";
+import MDBox from "components/MDBox";
 
 export function SimpleEditor({onChange, content, readOnly}) {
 
@@ -32,6 +36,8 @@ export function SimpleEditor({onChange, content, readOnly}) {
     const [fontSize, setFontSize] = useState('12px')
     const [modalIsOpen, setIsOpen] = useState(false);
     const [url, setUrl] = useState("");
+    const [highlight, setHighlight] = useState('#FFFF00')
+    const [highlightAnchorEl, setHighlightAnchorEl] = useState(null)
 
     const editor = useEditor({
         extensions: [
@@ -53,6 +59,7 @@ export function SimpleEditor({onChange, content, readOnly}) {
         TextStyle,
         FontFamily,
         FontSize,
+        Highlight.configure({ multicolor: true }),
         ],
         editable: !readOnly,
         content,
@@ -87,12 +94,41 @@ export function SimpleEditor({onChange, content, readOnly}) {
 
     const fontFamilies = [
         "Arial",
-        "Georgia",
-        "Tahoma",
-        "Courier New",
-        "Times New Roman",
         "Verdana",
+        "Tahoma",
+        "Trebuchet MS",
+        "Georgia",
+        "Times New Roman",
+        "Courier New",
+        "Lucida Console",
         "Comic Sans MS",
+        "Impact",
+        "Palatino Linotype",
+        "Garamond",
+        "Roboto",
+        "Open Sans",
+        "Lato",
+        "Montserrat",
+        "Oswald",
+        "Raleway",
+        "Nunito",
+        "Poppins",
+        "Merriweather",
+        "Quicksand",
+        "Bebas Neue",
+        "Source Sans Pro",
+        "PT Sans",
+        "Ubuntu",
+        "Fira Sans",
+        "Muli",
+        "Work Sans",
+        "Overpass",
+        "Barlow",
+        "Josefin Sans",
+        "Cabin",
+        "Karla",
+        "Manrope",
+        "Inter",
     ];
     const fontSizes = ["12px", "14px", "16px", "18px", "20px"];
 
@@ -157,6 +193,20 @@ export function SimpleEditor({onChange, content, readOnly}) {
         };
     }, [editor]);
 
+    const handleColorChange = useCallback(
+        (color) => {
+          setHighlight(color.hex);
+          if (editor) editor.chain().focus().setHighlight({ color: color.hex }).run()
+    },[editor]);
+
+    const handleOpenHighlight = useCallback((event) => {
+        setHighlightAnchorEl(event.currentTarget);
+    }, []);
+    
+    const handleCloseHighlight = useCallback(() => {
+        setHighlightAnchorEl(null);
+    }, []);
+
     const toggleBold = useCallback(() => {
         editor.chain().focus().toggleBold().run();
     }, [editor]);
@@ -184,6 +234,15 @@ export function SimpleEditor({onChange, content, readOnly}) {
     const toggleCode = useCallback(() => {
         editor.chain().focus().toggleCode().run();
     }, [editor]);
+
+    const toggleHighlight = useCallback((color) => {
+        const isHighlighted = editor.isActive("highlight", { color: highlight });
+        if (isHighlighted) {
+            editor.chain().focus().unsetHighlight().run();
+        } else {
+            editor.chain().focus().setHighlight({ color: highlight }).run();
+        }
+    }, [editor, highlight])
 
     if (!editor) {
         return null;
@@ -298,6 +357,42 @@ export function SimpleEditor({onChange, content, readOnly}) {
                 >
                 <Icons.Code />
                 </button>
+                <MDBox display='flex'>
+                <button
+                className={classNames("menu-button", {
+                    "is-active": editor.isActive("highlight")
+                })}
+                style={{
+                    color: "#242e39",
+                    cursor: "pointer",
+                    border: 0,
+                    borderRadius: 0,
+                }}
+        
+                onClick={toggleHighlight}
+                >
+                <FormatColorFillIcon />
+                </button>
+                <button
+                onClick={handleOpenHighlight}
+                className={classNames("menu-button", {
+                    "is-active": editor.isActive("highlight")
+                })}
+                style={{
+                    padding: "8px 12px",
+                    border: 0,
+                    borderRadius: 0,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    width: 45,
+                }}
+                >
+                <svg width="20" height="20">
+                    <circle cx="10" cy="10" r="8" fill={highlight} stroke="#000" strokeWidth="1" />
+                </svg>
+                </button>
+                </MDBox>
             </div>
 
             <BubbleMenu
@@ -316,6 +411,15 @@ export function SimpleEditor({onChange, content, readOnly}) {
                 Remove
                 </button>
             </BubbleMenu>
+
+            <Popover
+                open={Boolean(highlightAnchorEl)}
+                anchorEl={highlightAnchorEl}
+                onClose={handleCloseHighlight}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            >
+                <SketchPicker color={highlight} onChangeComplete={handleColorChange} />
+            </Popover>
 
             <EditorContent editor={editor} />
 
