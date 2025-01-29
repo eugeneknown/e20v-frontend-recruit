@@ -18,6 +18,7 @@
     --color-gray-5: #edf1f6;
     --color-gray-6: #f7f9fb;
     --color-white: #fff;
+    --color-yellow: #ffff00;
   }
 
   *,
@@ -28,7 +29,7 @@
   }
   
   a {
-    color: var(--color-pink);
+    color: var(--color-blue);
   }
   
   p {
