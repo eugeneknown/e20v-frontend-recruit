@@ -237,7 +237,7 @@ function Dashboard() {
     var currentMonth = moment().set('month', moment().month())
     var count = currentMonth.diff(monthStart, 'month')
     
-    // console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
+    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
     
     getRecruitData({
       filter: [

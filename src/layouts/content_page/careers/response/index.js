@@ -61,7 +61,7 @@ function Response(){
             console.log('debug entity result', result);
             result = result.data['entity'][0]
             setEntity(result)
-            setDependents(result['dependents'])
+            if (result['dependents'].length) setDependents(result['dependents'])
             setEducation(result['educations'])
             setReference(result['reference'])
             setDetails(result['details'])
@@ -172,7 +172,7 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Personal Information</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase'>Personal Information</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {entity && Object.keys(entityData).map((item, index) => renderInfo(entityData[item].label, entity[entityData[item].id]))}
                                     </AccordionDetails>
@@ -187,7 +187,7 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Dependents</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase'>Dependents</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {dependents && Object.keys(dependents).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>
@@ -208,12 +208,26 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Education</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase'>Education</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {education && Object.keys(education).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(educationData).map((_item, _index) => education[item][educationData[_item].id] && renderInfo(educationData[_item].label, education[item][educationData[_item].id]))}
+                                                    {Object.keys(educationData).map((_item, _index) => {
+                                                        if (education[item][educationData[_item].id]) {
+                                                            if ( educationData[_item].label == 'education' ) {
+                                                                return (
+                                                                    <MDBox display="flex" py={1} pr={2} justifyContent='center'>
+                                                                        <MDTypography variant="button" fontWeight="bold" textTransform="uppercase">
+                                                                            &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'MM-DD-YYYY') : value}
+                                                                        </MDTypography>
+                                                                    </MDBox>
+                                                                )
+                                                            } else {
+                                                                return renderInfo(educationData[_item].label, education[item][educationData[_item].id])
+                                                            }
+                                                        }
+                                                    })}
                                                 </CardContent>
                                             </Card>
                                         ))}
@@ -229,7 +243,7 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Work Experience</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase'>Work Experience</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {renderInfo('Total Work Experience', experience['total_experience'])}
                                         {experience && Object.keys(experience.details).map((item, index) => (
@@ -251,7 +265,7 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Other Details</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase'>Other Details</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {details && Object.keys(detailsData).map((item, index) => renderInfo(detailsData[item].label, details[0][detailsData[item].id]))}
                                     </AccordionDetails>
@@ -267,7 +281,7 @@ function Response(){
                                 return (
                                     <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
-                                            <MDTypography variant='h5'>{answers[item]['question_data']['title']}</MDTypography>
+                                            <MDTypography variant='subtitle2'>{answers[item]['question_data']['title']}</MDTypography>
                                             <Divider />
                                             <MDTypography textTransform="capitalize" variant="caption">{answers[item]['value']}</MDTypography>
                                         </CardContent>
@@ -277,7 +291,7 @@ function Response(){
                                 return (
                                     <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
-                                            <MDTypography variant='h5'>{answers[item]['question_data']['title']}</MDTypography>
+                                            <MDTypography variant='subtitle2'>{answers[item]['question_data']['title']}</MDTypography>
                                             <Divider />
                                             {
                                                 answers[item]['files'] != null ? 
@@ -331,7 +345,7 @@ function Response(){
                                     defaultExpanded
                                     slotProps={{ transition: { addEndListener: accordHeightChange } }}
                                 >
-                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Reference</MDTypography></AccordionSummary>
+                                    <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5'>Character Reference</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {reference && Object.keys(reference).map((item, index) => (
                                             <Card variant="outlined" sx={{ my: 2 }}>

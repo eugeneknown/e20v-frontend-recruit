@@ -83,8 +83,8 @@ function ReferenceInformation(){
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
-                I also authorize any individual, company, firm corporation, or public agency to disclose any and all information pertaining to me, whether verbal or written.
-                I hereby release from all liability any person, firm, or organition that provides information or records in accordance with this authorization.
+                I also authorize any individual, company, firm, corporation, or public agency to disclose any and all information pertaining to me, whether verbal or written.
+                I hereby release from all liability any person, firm, or organization that provides information or records in accordance with this authorization.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block' }}></MDTypography> 
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>

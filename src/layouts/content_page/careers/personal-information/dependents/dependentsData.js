@@ -10,13 +10,13 @@ export default [
     },
     {
         id: 'birthday',
-        label: 'Birthday',
+        label: 'Day of Birth',
         type: 'date',
         required: true,
         options: { 
             disableFuture: true,
-            views: ['year', 'month', 'day'],
-            openTo: 'year',
+            views: ['month', 'day', 'year'],
+            openTo: 'month',
         },
     },
     {

@@ -25,7 +25,7 @@ import Footer from "examples/Footer";
 import workExperienceData from "./work-experienceData";
 import moment from "moment";
 import { useMaterialUIController, setLoading, setDialog } from "context";
-import { fontSize } from "@mui/system";
+import { fontFamily, fontSize, fontWeight, textTransform } from "@mui/system";
 
 
 function WorkExperienceForm(){
@@ -145,7 +145,7 @@ function WorkExperienceForm(){
     },[experience])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/experience/define', {...data, total_experience: `${years} years ${months} months`}).then((result) => {
+        dataServicePrivate('POST', 'entity/experience/define', {...data, total_experience: `${years} ${years>1?'years':'year'} & ${months} ${months>1?'months':'month'}`}).then((result) => {
             console.log('debug experience define result', result);
             removeLocal()
             navigate('/careers/personalinfo', { replace: true })
@@ -290,7 +290,7 @@ function WorkExperienceForm(){
                             <MDTypography
                                 color="error"
                                 variant="h5"
-                                sx={{ my: 2, textAlign: "center", fontSize: "1.4rem" }}
+                                sx={{ my: 2, textAlign: "center", fontSize: "20px", textTransform: 'uppercase', fontWeight: 'bold', fontFamily: "Times New Roman" }}
                             >
                                 No Work Experience found.
                             </MDTypography>
@@ -315,7 +315,7 @@ function WorkExperienceForm(){
                             </Card>
                         ))}
                         <MDBox display='flex' justifyContent='end' my={2}>
-                            <MDTypography sx={{ mx: 2 }} variant='button'>Total Work Experience: {years} years {months} months</MDTypography>
+                            <MDTypography sx={{ mx: 2 }} variant='button'>Total Work Experience: {years} {years>1?'years':'year'} & {months} {months>1?'months':'month'}</MDTypography>
                         </MDBox>
                         {details && Object.keys(details).length < 3 && <MDButton
                             variant='outlined' 

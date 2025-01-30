@@ -20,10 +20,11 @@ import boxShadows from "assets/theme/base/boxShadows";
 
 // Material Dashboard 2 React Helper Function
 import rgba from "assets/theme/functions/rgba";
+import boxShadow from "assets/theme/functions/boxShadow";
 
-const { black, white } = colors;
+const { black, white, e20 } = colors;
 const { borderWidth, borderRadius } = borders;
-const { md } = boxShadows;
+const { colored } = boxShadows;
 
 const card = {
   styleOverrides: {
@@ -37,7 +38,12 @@ const card = {
       backgroundClip: "border-box",
       border: `${borderWidth[0]} solid ${rgba(black.main, 0.125)}`,
       borderRadius: borderRadius.xl,
-      boxShadow: md,
+      boxShadow: `${boxShadow([0, 4], [6, -1], e20.main, 0.2)}, ${boxShadow(
+        [0, 2],
+        [4, -1],
+        e20.main,
+        0.06
+      )}`,
       overflow: "visible",
     },
   },

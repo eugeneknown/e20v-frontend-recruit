@@ -26,6 +26,10 @@ const colors = {
     default: "#f0f2f5",
   },
 
+  e20: {
+    main: '#039fc2',
+  },
+
   text: {
     main: "#7b809a",
     focus: "#7b809a",
@@ -323,6 +327,7 @@ const colors = {
     error: "#f44336",
     light: "#adb5bd",
     dark: "#404040",
+    e20: '#039fc2',
   },
 
   inputBorderColor: "#d2d6da",

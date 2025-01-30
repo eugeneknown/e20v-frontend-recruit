@@ -141,7 +141,7 @@ function Employee() {
             var orderlist = ['full_name', 'first_name', 'middle_name', 'last_name', 'nickname', 'email', 'contact_number', 'alternative_number']
             var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users', 'details']
 
-            const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].entity_data
+            const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].entity
             // const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
 
             setContent((
@@ -295,10 +295,11 @@ function Employee() {
 
     const getInit = () => {
         getRecruit({
-            'order': {
+            relations: ['careers', 'platforms', 'tags', { entity: { relations: ['details'] } }],
+            order: {
                 'target': 'created_at',
                 'value': 'desc',
-            }
+            },
         })
     }
 
@@ -432,13 +433,13 @@ function Employee() {
         Object.keys(recruit).map((key) => {
             rows.push(
                 {
-                    full_name: recruit[key]['entity_data'].full_name,
-                    email: recruit[key]['entity_data'].email,
-                    career: recruit[key]['careers_data'].title,
-                    number: recruit[key]['entity_data'].contact_number,
-                    alternative: recruit[key]['entity_data'].alternative_number,
-                    details_id: recruit[key]['entity_data'].details[0]?.id,
-                    platforms_id: recruit[key]['entity_data']?.details[0]?.platforms_id,
+                    full_name: recruit[key]['entity'].full_name,
+                    email: recruit[key]['entity'].email,
+                    career: recruit[key]['careers'].title,
+                    number: recruit[key]['entity'].contact_number,
+                    alternative: recruit[key]['entity'].alternative_number,
+                    details_id: recruit[key]['entity'].details[0]?.id,
+                    platforms_id: recruit[key]['entity']?.details[0]?.platforms_id,
                     applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
                     entity_careers_id: recruit[key].id,
                     tags_id: recruit[key]['tags_data']?.id,

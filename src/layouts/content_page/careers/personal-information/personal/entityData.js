@@ -63,7 +63,7 @@ export default [
     },
     {
         id: 'birth_place',
-        label: 'Birth Place',
+        label: 'Place of Birth',
         type: 'text',
         required: true,
     },
@@ -80,8 +80,8 @@ export default [
         required: true,
         options: { 
             disableFuture: true,
-            views: ['year', 'month', 'day'],
-            openTo: 'year',
+            views: ['month', 'day', 'year'],
+            openTo: 'month',
         },
     },
     {
