@@ -68,7 +68,7 @@ export default [
         type: 'check',
         required: true,
         options: ['SSS ID', 'PHIC ID', 'HDMF ID', '2316 from previous employer', 'Birth Certificate (preferably PSA)', 'Picture with white background (for ID)',
-            'Certificate of Employment (recent previous employer', 'TOR'
+            'Certificate of Employment (recent previous employer)', 'TOR', 'None of the Above'
         ],
     },
   
