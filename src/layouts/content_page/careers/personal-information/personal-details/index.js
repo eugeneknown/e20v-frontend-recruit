@@ -51,7 +51,15 @@ function PersonalDetailsForm(){
         var entity_id = auth['id']
 
         // fetch platforms
-        dataServicePrivate('POST', 'hr/careers/platform/all', {}).then((result) => {
+        dataServicePrivate('POST', 'hr/careers/platform/all', {
+            exclude: [
+                {
+                    'operator': '=',
+                    'target': 'status',
+                    'value': 'close',
+                }
+            ],
+        }).then((result) => {
             console.log('debug careers platform result', result);
             result = result.data['career_platforms']
             var tempPlatforms = []
