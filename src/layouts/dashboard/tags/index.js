@@ -384,7 +384,6 @@ function Tags() {
         { Header: "date created", accessor: "created", align: "center" },
         { Header: "date posted", accessor: "posted", align: "center" },
         { Header: "date closed", accessor: "closed", align: "center" },
-        { Header: "color", accessor: "color", align: "center" },
         { Header: "status", accessor: "status", align: "center" },
         { Header: "actions", accessor: "actions", align: "center" },
     ]
