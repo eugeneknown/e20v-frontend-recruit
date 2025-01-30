@@ -11,7 +11,9 @@ import useAxiosPrivate from "hooks/useAxiosPrivate";
 import { useMaterialUIController } from "context";
 import { useEffect } from "react";
 import PropTypes from "prop-types";
-
+import { fontSize } from "@mui/system";
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function NavBar({color, position}) {
     const axiosPrivate  = useAxiosPrivate();
@@ -52,12 +54,13 @@ function NavBar({color, position}) {
                     variant="text"
                     href={"/"+page}
                     key={page}
-                    color = {color ? color : darkMode ? 'white' : 'black'}
+                    color = {color ? color : darkMode ? 'white' : 'primary'}
                     sx={{ 
                         my: 2, 
                         display: 'block', 
                         bgcolor: rgba(0,0,0,0.5),
-                        borderRadius: 0
+                        borderRadius: 0,
+                        fontSize: 16
                     }}
                     >
                     {page}
@@ -65,12 +68,26 @@ function NavBar({color, position}) {
                 ))}
                 </MDBox>
                 { isAuth ? 
-                <MDBox  display="flex" sx={{ flexGrow: 1, flexDirection: 'row-reverse',  }}>
-                    <MDButton color={color ? color : darkMode ? 'white' : 'black'} onClick={handleLogout}>Logout</MDButton>
+                <MDBox display="flex" sx={{ flexGrow: 1, flexDirection: 'row-reverse' }}>
+                <MDButton 
+                  color="info" 
+                  onClick={handleLogout}
+                  sx={{fontSize:14}}
+                  startIcon={<LogoutIcon fontSize="small" />}
+                >
+                  Logout
+                </MDButton>
                 </MDBox>
                 : 
                 <MDBox display="flex" sx={{ flexGrow: 1, flexDirection: 'row-reverse',  }}>
-                    <MDButton color={color ? color : darkMode ? 'white' : 'black'} variant="outlined" href="/authentication/sign-in">Login</MDButton>
+                    <MDButton 
+                      color="info" 
+                      variant="contained" 
+                      href="/authentication/sign-in" 
+                      startIcon={<LoginIcon fontSize="small" />}
+                    >
+                      Login
+                    </MDButton>
                 </MDBox> }
                 
 
@@ -82,6 +99,7 @@ function NavBar({color, position}) {
 
 NavBar.defaultProps = {
     position: 'absolute'
+    
 }
 
 NavBar.propTypes = {
