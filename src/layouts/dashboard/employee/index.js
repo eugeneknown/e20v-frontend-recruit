@@ -381,11 +381,11 @@ function Employee() {
         console.log('debug handle platform data:', data);
 
         if ( data.action == 'select' ) {
-            dataServicePrivate('POST', 'entity/details/define', { id: data.id, platforms_id: data.data_id }).then((result) => {
-                console.log("debug update entity platform", result.data);
+            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, platforms_id: data.data_id }).then((result) => {
+                console.log("debug update career platform", result.data);
                 getInit();
             }, (err) => {
-                console.log("debug update entity platform error", err);
+                console.log("debug update career platform error", err);
             });
         }
 
@@ -438,11 +438,10 @@ function Employee() {
                     career: recruit[key]['careers'].title,
                     number: recruit[key]['entity'].contact_number,
                     alternative: recruit[key]['entity'].alternative_number,
-                    details_id: recruit[key]['entity'].details[0]?.id,
-                    platforms_id: recruit[key]['entity']?.details[0]?.platforms_id,
+                    platforms_id: recruit[key]['platforms']?.id,
                     applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
                     entity_careers_id: recruit[key].id,
-                    tags_id: recruit[key]['tags_data']?.id,
+                    tags_id: recruit[key]['tags']?.id,
                     actions: (
                         <MDBox>
                             <Grid container spacing={.5}>
@@ -733,7 +732,7 @@ function Employee() {
             platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
         ), id: "platform", align: "center", sort: true, Cell: ({row}) => {
             return (<BadgePopper
-                id={row.original.details_id}
+                id={row.original.entity_careers_id}
                 badgeId={row.original.platforms_id} 
                 variant="customGradient" 
                 content={platforms}

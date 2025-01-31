@@ -65,7 +65,7 @@ function Dashboard() {
   const [ rows, setRows ] = useState()
   const [ tags, setTags ] = useState()
   const [ tagsCount, setTagsCount ] = useState()
-  const [ total, setTotal ] = useState()
+  const [ total, setTotal ] = useState(0)
   const [ platforms, setPlatforms ] = useState()
   const [ platformDataSeries, SetPlatformDataSeries ] = useState()
 
@@ -599,11 +599,13 @@ function Dashboard() {
                             var series = {
                               ...platformDataSeries[item],
                               valueFormatter: (value, context) => {
-                                // console.log('debug series value formatter:', value, context);
-                                var total = weeklyReport[context.dataIndex].total
-                                var percentage = total != 0 ? Math.round((value/total)*100) : 0
-                                // return `Total ${value} -> ${percentage}%`
-                                return `${percentage}%`
+                                // console.log('debug series value weekly formatter:', value, context);
+                                if (context.dataIndex > 0) {
+                                  var total = weeklyReport[context.dataIndex].total
+                                  var percentage = total != 0 ? Math.round((value/total)*100) : 0
+                                  // return `Total ${value} -> ${percentage}%`
+                                  return `${percentage}%`
+                                }
                               }
                             }
                             // console.log('series data', series);
@@ -685,11 +687,13 @@ function Dashboard() {
                             var series = {
                               ...platformDataSeries[item],
                               valueFormatter: (value, context) => {
-                                // console.log('debug series value formatter:', value, context);
-                                var total = monthlyReport[context.dataIndex].total
-                                var percentage = total != 0 ? Math.round((value/total)*100) : 0
-                                // return `Total ${value} -> ${percentage}%`
-                                return `${percentage}%`
+                                // console.log('debug series value monthly formatter:', value, context);
+                                if (context.dataIndex > 0) {
+                                  var total = monthlyReport[context.dataIndex].total
+                                  var percentage = total != 0 ? Math.round((value/total)*100) : 0
+                                  // return `Total ${value} -> ${percentage}%`
+                                  return `${percentage}%`
+                                }
                               }
                             }
                             // console.log('series data', series);
