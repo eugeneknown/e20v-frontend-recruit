@@ -154,7 +154,7 @@ function ExperienceForm(){
                                                     })
                                                 }
 
-                                                var stay_length = `0 years 0 months`
+                                                var stay_length = `0 year & 0 month`
                                                 if ( 'start_date' in values && ('end_date' in values || ('present' in values && (values.present))) ) {
                                                     var start = moment(values.start_date)
                                                     var end = ''
@@ -168,7 +168,7 @@ function ExperienceForm(){
                                                     var months = end.diff(start, 'months')
                                                     start.add(months, 'months')
     
-                                                    if ( start && end ) stay_length = `${years} years ${months} months`
+                                                    if ( start && end ) stay_length = `${years} ${years>1?'years':'year'} & ${months} ${months>1?'months':'month'}`
                                                     setStayLength(stay_length)
                                                 }
 

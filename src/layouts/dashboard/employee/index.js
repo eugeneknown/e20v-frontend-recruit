@@ -60,6 +60,7 @@ import { DateRangePicker } from "react-date-range";
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import { isSameDay, startOfDay } from "date-fns";
+import entityData from "./entityData";
 
 
 
@@ -120,7 +121,7 @@ function Employee() {
         console.log('debug employee formHandle:', entity_id +' '+ careers_id);
 
         // entity_career_id for filtering
-        dataService('POST', 'hr/careers/answers/all', {
+        dataServicePrivate('POST', 'hr/careers/answers/all', {
             filter: [
                 {
                     operator: '=',
@@ -141,32 +142,35 @@ function Employee() {
             var orderlist = ['full_name', 'first_name', 'middle_name', 'last_name', 'nickname', 'email', 'contact_number', 'alternative_number']
             var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users', 'details']
 
-            const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].entity
-            // const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
+            const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)]
 
+            dataServicePrivate('POST', 'entity/entities/all', {
+                filter: [{
+                    operator: '=',
+                    target: 'id',
+                    value: entity_id,
+                }],
+            }).then((_result) => {
+                console.log('debug entity result', _result);
+                _result = _result.data['entity'][0]
+
+                // const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
             setContent((
                 <Grid container>
                     <Grid item xs={6} style={{maxHeight: '100vh', overflow: 'auto'}}>
                         {
-                            orderlist.map(key => renderEntityInfo(key, entity[key]))
-                        }
-                        {
-                            Object.keys(entity).map((key, item) => {
-                                if (!blacklist.includes(key) && !orderlist.includes(key)) {
-                                    return renderEntityInfo(key, entity[key])
-                                }
-                            })
+                            entityData.map((key) => renderInfo(key.label, _result[key.id]))
                         }
                         <GenerateExel data={{entity_id, careers_id}} />
                     </Grid>
                     <Grid item xs={6} px={2} style={{maxHeight: '100vh', overflow: 'auto'}}>
                         {
                             Object.keys(result).map((item, key) => {
-                                if (result[item]['question_data']['type'] == 'input') {
+                                if (result[item]['question']['type'] == 'input') {
                                     return (
                                         <Card sx={{ my: 2 }} key={key}>
                                             <CardContent>
-                                                <MDTypography variant='h5'>{result[item]['question_data']['title']}</MDTypography>
+                                                <MDTypography variant='h5'>{result[item]['question']['title']}</MDTypography>
                                                 <Divider />
                                                 <MDTypography textTransform="capitalize" variant="caption">{result[item]['value']}</MDTypography>
                                             </CardContent>
@@ -176,7 +180,7 @@ function Employee() {
                                     return (
                                         <Card sx={{ my: 2 }} key={key}>
                                             <CardContent>
-                                                <MDTypography variant='h5'>{result[item]['question_data']['title']}</MDTypography>
+                                                <MDTypography variant='h5'>{result[item]['question']['title']}</MDTypography>
                                                 <Divider />
                                                 {
                                                     result[item]['files'] != null ? 
@@ -208,7 +212,7 @@ function Employee() {
                                                             </MDBox>
                                                         ) 
                                                     :
-                                                        result[item]['question_data']['value'].split(', ').map((_key) => {
+                                                        result[item]['question']['value'].split(', ').map((_key) => {
                                                             if (result[item]['value'].split(', ').includes(_key)) {
                                                                 return (<Chip key={_key} label={_key} sx={{ m: "5px" }} />)
                                                             } 
@@ -225,6 +229,10 @@ function Employee() {
             ))
 
             handleOpen();
+            }).catch((_err) => {
+                console.log('debug entity error result', _err);
+
+            })
         }, (err) => {
             console.log('debug employee formHandle error response', err)
             enqueueSnackbar(err.message, {
@@ -240,10 +248,10 @@ function Employee() {
 
     }
 
-    const renderEntityInfo = (key, value) => (
-        <MDBox key={key} display="flex" py={1} pr={2}>
+    const renderInfo = (title, value) => (
+        <MDBox display="flex" py={1} pr={2}>
             <MDTypography variant="button" fontWeight="bold" textTransform="capitalize">
-                {key.split('_').join(' ')}: &nbsp;
+                {title}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="text">
                 &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'MM-DD-YYYY') : value}
@@ -446,7 +454,7 @@ function Employee() {
                         <MDBox>
                             <Grid container spacing={.5}>
                                 <Grid item>
-                                    <MDButton onClick={() => formHandle(recruit[key].entity, recruit[key].careers)} color='secondary'>View</MDButton>
+                                    <MDButton onClick={() => formHandle(recruit[key]['entity'].id, recruit[key]['careers'].id)} color='secondary'>View</MDButton>
                                 </Grid> 
                                 {/* <Grid item>
                                     <MDButton color='primary'>Download</MDButton>

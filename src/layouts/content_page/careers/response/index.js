@@ -277,11 +277,11 @@ function Response(){
                     </MDBox>
                     <MDBox>
                         {answers && Object.keys(answers).map((item, key) => {
-                            if (answers[item]['question_data']['type'] == 'input') {
+                            if (answers[item]['question']['type'] == 'input') {
                                 return (
                                     <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
-                                            <MDTypography variant='subtitle2'>{answers[item]['question_data']['title']}</MDTypography>
+                                            <MDTypography variant='subtitle2'>{answers[item]['question']['title']}</MDTypography>
                                             <Divider />
                                             <MDTypography textTransform="capitalize" variant="caption">{answers[item]['value']}</MDTypography>
                                         </CardContent>
@@ -291,7 +291,7 @@ function Response(){
                                 return (
                                     <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
-                                            <MDTypography variant='subtitle2'>{answers[item]['question_data']['title']}</MDTypography>
+                                            <MDTypography variant='subtitle2'>{answers[item]['question']['title']}</MDTypography>
                                             <Divider />
                                             {
                                                 answers[item]['files'] != null ? 
@@ -323,7 +323,7 @@ function Response(){
                                                         </MDBox>
                                                     ) 
                                                 :
-                                                    answers[item]['question_data']['value'].split(', ').map((_key) => {
+                                                    answers[item]['question']['value'].split(', ').map((_key) => {
                                                         if (answers[item]['value'].split(', ').includes(_key)) {
                                                             return (<Chip key={_key} label={_key} sx={{ m: "5px" }} />)
                                                         } 

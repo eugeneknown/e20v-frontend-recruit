@@ -87,7 +87,8 @@ function GenerateExel({
                         target: 'careers_id',
                         value: data['careers_id'],
                     },
-                ]
+                ],
+                relations: ['entity', 'careers', 'platforms'],
             }).then((result) => {
                 console.log('debug generate careers result', result);
                 result = result.data['entity_career'][0]
@@ -151,9 +152,9 @@ function GenerateExel({
 
         var platforms
         if (careers) {
-            var entity = careers['entity_data']
-            var career = careers['careers_data']
-            platforms = careers['platforms_data']
+            var entity = careers['entity']
+            var career = careers['careers']
+            platforms = careers['platforms']
 
             entity['birthday'] = formatDateTime(entity['birthday'], 'MM-DD-YYYY')
             entity['name'] = `${entity['first_name']} ${entity['last_name']}`

@@ -426,7 +426,18 @@ function Dashboard() {
     console.log('debug chart top value', value, index);
   };
 
-  const weeklyLabels = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"]
+  const CustomLegend = ({ series }) => {
+    return (
+      <MDBox justifyContent='center' flexWrap='wrap' style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        {series.map((item, index) => (
+          <MDBox key={index} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <MDBox style={{ width: "12px", height: "12px", backgroundColor: item.color, borderRadius: "3px" }} />
+            <MDTypography variant='button'>{item.label}</MDTypography>
+          </MDBox>
+        ))}
+      </MDBox>
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -582,16 +593,14 @@ function Dashboard() {
                         }}
                         slotProps={{
                           legend: {
-                            position: { vertical: 'bottom' },
+                            // position: { vertical: 'bottom' },
+                            hidden: true,
                           },
                         }}
                         sx={{
                           '& .MuiBarLabel-root': {
                             fill: 'white',
                           },
-                          '& .MuiChartsLegend-series text': {
-                            fontSize: '1rem!important'
-                          }
                         }}
                         series={
                           Object.keys(platformDataSeries).map((item, key) => {
@@ -613,9 +622,10 @@ function Dashboard() {
                           })
                         }
                         height={300}
-                        margin={{ bottom: 70 }}
+                        // margin={{ bottom: 70 }}
                       />
                     }
+                    {platformDataSeries && <CustomLegend series={platformDataSeries} />}
                     <MDBox pt={3} pb={1} px={1}>
                       <MDTypography variant="h6" textTransform="capitalize">
                         Weekly Tracker
@@ -670,7 +680,8 @@ function Dashboard() {
                         // }}
                         slotProps={{
                           legend: {
-                            position: { vertical: 'bottom' },
+                            // position: { vertical: 'bottom' },
+                            hidden: true,
                           },
                         }}
                         sx={{
@@ -701,9 +712,10 @@ function Dashboard() {
                           })
                         }
                         height={300}
-                        margin={{ bottom: 70 }}
+                        // margin={{ bottom: 70 }}
                       />
                     }
+                    {platformDataSeries && <CustomLegend series={platformDataSeries} />}
                     <MDBox pt={3} pb={1} px={1}>
                       <MDTypography variant="h6" textTransform="capitalize">
                         Monthly Tracker
