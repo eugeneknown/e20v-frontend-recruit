@@ -7,7 +7,8 @@ import axios from "axios";
 
 
 function ImageView({
-    data
+    data,
+    url
 }) {
 
     const [open, setOpen] = useState(false)
@@ -29,7 +30,7 @@ function ImageView({
         >
             <MDBox position="relative" width="100.25%" shadow="xl" borderRadius="xl">
                 <CardMedia
-                src={data['files_url']}
+                src={url}
                 component="img"
                 sx={{
                     maxWidth: "100%",
@@ -43,11 +44,11 @@ function ImageView({
                 />
             </MDBox>
             <ImgsViewer
-            imgs={[{src: data['files_url']}]}
+            imgs={[{src: url}]}
             isOpen={open}
             onClose={() => setOpen(false)}
             />
-            <Link href={data['files_url']} target="_blank"><MDButton sx={{ width: '100%', borderRadius: 0, }}>Download</MDButton></Link>
+            <Link href={url} target="_blank"><MDButton sx={{ width: '100%', borderRadius: 0, }}>Download</MDButton></Link>
         </Card>
     )
 }

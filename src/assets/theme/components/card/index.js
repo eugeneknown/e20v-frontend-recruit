@@ -42,7 +42,7 @@ const card = {
         [0, 2],
         [4, -1],
         e20.main,
-        0.06
+        0.90
       )}`,
       overflow: "visible",
     },

@@ -134,15 +134,10 @@ function Employee() {
                     value: careers_id,
                 },
             ],
-            'relations': ['question']
+            'relations': ['question', 'files']
         }).then((result) => {
             console.log('debug employee formHandle response', result)
             result = result.data['career_answers']
-
-            var orderlist = ['full_name', 'first_name', 'middle_name', 'last_name', 'nickname', 'email', 'contact_number', 'alternative_number']
-            var blacklist = ['id', 'created_at', 'deleted_at', 'email_verified', 'email_verified_at', 'image', 'status', 'updated_at', 'users', 'details']
-
-            const entity = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)]
 
             dataServicePrivate('POST', 'entity/entities/all', {
                 filter: [{
@@ -154,7 +149,6 @@ function Employee() {
                 console.log('debug entity result', _result);
                 _result = _result.data['entity'][0]
 
-                // const platform = recruit[Object.keys(recruit).find(key => recruit[key].entity == entity_id)].platforms_data
             setContent((
                 <Grid container>
                     <Grid item xs={6} style={{maxHeight: '100vh', overflow: 'auto'}}>
@@ -258,6 +252,8 @@ function Employee() {
             </MDTypography>
         </MDBox>
     )
+
+    const fetchUrl = (id) => dataServicePrivate('POST', 'files/files/url', {id}).then((result) => {console.log('files', result);})
 
     const dataService = async (method, url, data) =>{
         switch (method) {
