@@ -22,6 +22,7 @@ import { generateYupSchema } from "global/validation";
 import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import moment from "moment";
+import SaveIcon from '@mui/icons-material/Save';
 
 
 function ReferenceForm(){
@@ -102,56 +103,60 @@ function ReferenceForm(){
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>Add reference</MDTypography>
+                        <MDTypography sx={{ mt: 3 }} variant='h3'>
+                            {ref && ref.id ? 'Edit Reference' : 'Add Reference'}
+                        </MDTypography>
                         <Divider />
-                        {ref && <Formik
-                            initialValues={ref}
-                            validationSchema={validationSchema}
-                            onSubmit={(data) => {
-                                handleSubmit(data)
-                            }}
-                        >
-                            {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
-                                <Form>
-                                    <FieldArray
-                                        render={arrayHelper => (
-                                        <MDBox>
-                                            {setRef(values)}
-                                            {Object.keys(data).map((item, index) => {
-                                                // universal format
-                                                var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
-                                                var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
-                                                return (generateFormInput({
-                                                    variant: 'outlined',
-                                                    fullWidth: true,
-                                                    type: data[item].type,
-                                                    id: data[item].id,
-                                                    name: data[item].id,
-                                                    label: data[item].label,
-                                                    value: values[data[item].id],
-                                                    required: data[item].required,
-                                                    onChange: handleChange,
-                                                    onBlur: handleBlur,
-                                                    setFieldValue,
-                                                    setFieldTouched,
-                                                    error: touch && Boolean(error),
-                                                    helperText: touch && error,
-                                                    options: data[item].options ? data[item].options : undefined
-                                                }))
-                                            })}
-                                        </MDBox>
-                                        )}
-                                    />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' >Save</MDButton>
-                                </Form>
-                            )}
-                        </Formik>}
+                        {ref && (
+                            <Formik
+                                initialValues={ref}
+                                validationSchema={validationSchema}
+                                onSubmit={(data) => {
+                                    handleSubmit(data)
+                                }}
+                            >
+                                {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
+                                    <Form>
+                                        <FieldArray
+                                            render={arrayHelper => (
+                                            <MDBox>
+                                                {setRef(values)}
+                                                {Object.keys(data).map((item, index) => {
+                                                    // universal format
+                                                    var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
+                                                    var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
+                                                    return (generateFormInput({
+                                                        variant: 'outlined',
+                                                        fullWidth: true,
+                                                        type: data[item].type,
+                                                        id: data[item].id,
+                                                        name: data[item].id,
+                                                        label: data[item].label,
+                                                        value: values[data[item].id],
+                                                        required: data[item].required,
+                                                        onChange: handleChange,
+                                                        onBlur: handleBlur,
+                                                        setFieldValue,
+                                                        setFieldTouched,
+                                                        error: touch && Boolean(error),
+                                                        helperText: touch && error,
+                                                        options: data[item].options ? data[item].options : undefined
+                                                    }))
+                                                })}
+                                            </MDBox>
+                                            )}
+                                        />
+                                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' startIcon={<SaveIcon />}>Save</MDButton>
+                                    </Form>
+                                )}
+                            </Formik>
+                        )}
                     </CardContent>
                 </Card>
             </MDBox>
             <Footer />
         </PageLayout>
-    );
+    );    
 }
 
 export default ReferenceForm;
