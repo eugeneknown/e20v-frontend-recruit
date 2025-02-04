@@ -135,40 +135,69 @@ function Educational(){
         }
     };
     
-
     const handleSubmit = (e) => {
-        e.preventDefault(); // Prevent default form submission
-
-    // Check if elementary, high school, and college data exist
-    if (!elem || !high || (!senior && !tech && !college)) {
-        let missingFields = [];
-        if (!elem) missingFields.push("Elementary");
-        if (!high) missingFields.push("High School");
-        if (!college) missingFields.push("College");
-
-        snackBar(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`, 'error');
-
-        return; // Prevent navigation if validation fails
-    }
-    if (!elem) {
-        snackBar(`Please fill up Elementary Education before proceeding.`, 'error');
-        return; // Stop submission
-    }
-
-    // Check if high school data exists (requires elementary)
-    if (!high) {
-        snackBar(`Please fill up Secondary (High School) Education before proceeding.`, 'error');
-        return; // Stop submission
-    }
-
-    // Check if college data exists (requires elementary and secondary)
-    if ((!senior && !tech && !college)) {
-        snackBar(`Please fill up any Educational Background for Senior High, Vocational, and College before proceeding.`, 'error');
-        return; // Stop submission
-    }
-        prevPage()
-    }
-
+        e.preventDefault();
+    
+        // Check if elementary, high school, and college data exist
+        if (!elem || !high || (!senior && !tech && !college)) {
+            let missingFields = [];
+            if (!elem) missingFields.push("Elementary");
+            if (!high) missingFields.push("High School");
+            if (!tech && !college) missingFields.push("Either Vocational or College");
+    
+            snackBar(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`, 'error');
+            return;
+        }
+    
+        // Check if high school, senior high school, vocational, and college levels respect minimum year differences
+        let error = false;
+        let errorMessage = "";
+    
+        if (high && moment(high.end_date).diff(moment(elem.end_date), 'years') < 4) {
+            errorMessage = `High School year graduated ${moment(high.end_date).format('YYYY')} should be at least 4 years after Elementary year graduated ${moment(elem.end_date).format('YYYY')}.`;
+            error = true;
+        } else if (high && college && moment(high.end_date).isAfter(moment(college.start_date))) {
+            errorMessage = `High School year graduated ${moment(high.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
+            error = true;
+        } else if (senior && (moment(senior.end_date).diff(moment(high.end_date), 'years') < 2 || moment(senior.end_date).isSame(moment(high.end_date), 'year'))) {
+            errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should be at least 2 years after High School year graduated ${moment(high.end_date).format('YYYY')}.`;
+            error = true;
+        } else if (high && tech && tech.is_applicable && moment(high.end_date).diff(moment(tech.start_date), 'years') < 1) {
+            errorMessage = `High School year graduated ${moment(high.end_date).format('YYYY')} should be at least 1 year before Vocational year started ${moment(tech.start_date).format('YYYY')}.`;
+            error = true;
+        } else if (senior && college && moment(senior.end_date).isAfter(moment(college.start_date))) {
+            errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
+            error = true;
+        } else if (tech && college && moment(tech.end_date).isAfter(moment(college.start_date))) {
+            errorMessage = `Vocational & Technical Education year graduated ${moment(tech.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
+            error = true;
+        } else if (college && (moment(college.start_date).diff(moment(senior?.end_date || tech?.end_date || high.end_date), 'years') < 4 || moment(college.start_date).isSame(moment(senior?.end_date || tech?.end_date || high.end_date), 'year'))) {
+            errorMessage = `College year started ${moment(college.start_date).format('YYYY')} should be at least 4 years after ${moment(senior?.end_date || tech?.end_date || high.end_date).format('YYYY')}.`;
+            error = true;
+        } else if (master && (moment(master.start_date).diff(moment(college.end_date), 'years') < 2 || moment(master.start_date).isSame(moment(college.end_date), 'year'))) {
+            errorMessage = `Master year started ${moment(master.start_date).format('YYYY')} should be at least 2 years after College year graduated ${moment(college.end_date).format('YYYY')}.`;
+            error = true;
+        }
+    
+        // Check if Senior High School and Vocational Education have the same date or if Senior is greater than Vocational
+        if (senior && tech && tech.is_applicable) {
+            if (moment(senior.end_date).isSame(moment(tech.end_date))) {
+                errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be the same as Vocational year graduated ${moment(tech.end_date).format('YYYY')}.`;
+                error = true;
+            } else if (moment(senior.end_date).isAfter(moment(tech.end_date))) {
+                errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be after Vocational year graduated ${moment(tech.end_date).format('YYYY')}.`;
+                error = true;
+            }
+        }
+    
+        if (error) {
+            snackBar(errorMessage, 'error');
+        } else {
+            prevPage();
+        }
+    };
+    
+    
     const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
 
 
@@ -310,7 +339,7 @@ function Educational(){
                     {!option && data && (
                         <Card variant="outlined" position="relative" sx={{ my: 2 }}>
                             <MDBox display="flex" position="absolute" right={0} p={1}>
-                                <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id })}>
+                                <IconButton onClick={() => toPage('/careers/personalinfo/educational/form', { id: data.id, end_date })}>
                                     <Icon color="primary">edit</Icon>
                                 </IconButton>
                                 <IconButton onClick={() => deleteHandle(data.id,attainment)}>
@@ -341,11 +370,23 @@ function Educational(){
                             variant="outlined"
                             color="secondary"
                             fullWidth
-                            disabled={disabled} // Disable the button if prerequisites are not met
+                            disabled={disabled} 
                             startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                             onClick={() => toPage('/careers/personalinfo/educational/form', { education: attainment, end_date })}
+                            sx={{ 
+                                mt: 2, 
+                                borderColor: "secondary.main", 
+                                "&:hover": {
+                                color: "red", 
+                                borderColor: "red", 
+                                "& .MuiSvgIcon-root": {
+                                    color: "red", 
+                                },
+                                },
+                                transition: "all 0.3s ease", 
+                            }} 
                         >
-                            <MDTypography variant="body2" color="secondary">
+                            <MDTypography variant="body2" color="inherit">
                                 {`${data ? 'Edit' : 'Add'} ${attainment} Background`}
                             </MDTypography>
                         </MDButton>
@@ -372,7 +413,7 @@ function Educational(){
             </MDBox>
         );
     }
-    
+
     const EduFinder = (edu, key) => education[Object.keys(education).findIndex(item => education[item][edu.key] == edu.value)]?.[key] ?? undefined
 
     return (
@@ -384,26 +425,64 @@ function Educational(){
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Educational Background</MDTypography>
                         <Divider />
-                        {!education || education.length === 0 ? (
-                            <MDTypography color="error" variant="h5" sx={{ my: 2, textAlign: "center" }}>
-                            No Educational Background found.
+                        {education !== undefined && education?.length === 0 && (
+                        <MDTypography color="error" variant="h5" sx={{ my: 2, textAlign: "center" }}>
+                            No Educational Background found
                         </MDTypography>
-                        ) : null}
+                        )}
                         <EducationAttainment attainment='Elementary' data={elem} required />
-                        <EducationAttainment attainment='Secondary (High School)' data={high} required disabled={!elem} end_date={education && EduFinder({key: 'education', value: 'Elementary'}, 'end_date')} />
-                        <EducationAttainment attainment='Senior High School' data={senior} optional disabled={!high} end_date={education && EduFinder({key: 'education', value: 'Secondary (High School)'}, 'end_date')} />
-                        <EducationAttainment attainment='Vocational & Technical Education' data={tech} optional  disabled={!high} end_date={education && EduFinder({key: 'education', value: senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
-                        <EducationAttainment attainment='College' data={college} required disabled={!high} end_date={education && EduFinder({key: 'education', value: tech?'Vocational & Technical Education':senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
-                        <EducationAttainment attainment="Graduate School (Master's or Doctorate)" data={master} optional disabled={!college} end_date={education && EduFinder({key: 'education', value: college?'College':tech?'Vocational & Technical Education':senior?'Senior High School':'Secondary (High School)'}, 'end_date')} />
-                        <Divider />
-                        <form onSubmit={handleSubmit}>
+                    <EducationAttainment 
+                        attainment='Secondary (High School)' 
+                        data={high} 
+                        required 
+                        disabled={!elem} 
+                        end_date={education && EduFinder({key: 'education', value: 'Elementary'}, 'end_date') 
+                            ? moment(EduFinder({key: 'education', value: 'Elementary'}, 'end_date')).add(4, 'years').format('YYYY') 
+                            : undefined} 
+                    />
+                    <EducationAttainment 
+                        attainment='Senior High School' 
+                        data={senior} 
+                        optional 
+                        disabled={!high} 
+                        end_date={education && EduFinder({key: 'education', value: 'Secondary (High School)'}, 'end_date') 
+                            ? moment(EduFinder({key: 'education', value: 'Secondary (High School)'}, 'end_date')).add(2, 'years').format('YYYY') 
+                            : undefined} 
+                    />
+                    <EducationAttainment 
+                        attainment='Vocational & Technical Education' 
+                        data={tech} 
+                        optional  
+                        disabled={!high} 
+                        end_date={education && EduFinder({key: 'education', value: senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date') 
+                            ? moment(EduFinder({key: 'education', value: senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date')).add(1, 'years').format('YYYY') 
+                            : undefined} 
+                    />
+                    <EducationAttainment 
+                        attainment='College' 
+                        data={college} 
+                        required 
+                        disabled={!high} 
+                        end_date={education && EduFinder({key: 'education', value: tech ? 'Vocational & Technical Education' : senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date') 
+                            ? moment(EduFinder({key: 'education', value: tech ? 'Vocational & Technical Education' : senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date')).add(1, 'years').format('YYYY') 
+                            : undefined} 
+                    />
+                    <EducationAttainment 
+                        attainment="Graduate School (Master's or Doctorate)" 
+                        data={master} 
+                        optional 
+                        disabled={!college} 
+                        end_date={education && EduFinder({key: 'education', value: college ? 'College' : tech ? 'Vocational & Technical Education' : senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date')} 
+                    />
+                    <Divider />
+                    <form onSubmit={handleSubmit}>
                         <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)} startIcon={<Icon>save</Icon>}> Save</MDButton>
-                        </form>
-                    </CardContent>
-                </Card>
-            </MDBox>
-            <Footer />
-        </PageLayout>
+                    </form>
+                </CardContent>
+            </Card>
+        </MDBox>
+        <Footer />
+    </PageLayout>
     );
 }
 

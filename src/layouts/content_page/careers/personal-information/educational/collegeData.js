@@ -41,7 +41,7 @@ export default [
                     is: ((present, end_date, undergrad) => {
                         return ((typeof present == 'undefined' || (!(present))) ?? (typeof undergrad == 'undefined' || (!(undergrad)))) && typeof end_date != 'undefined'
                     }),
-                    then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated'),
+                    then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated.'),
                 }]
             },
         ]
@@ -64,11 +64,11 @@ export default [
                 schema
                   .min(
                     yup.ref('start_date'),
-                    'Year Graduated cannot be less than Year Attended'
+                    'Year graduated cannot be less than year attended.'
                   )
                   .test(
                     'min-4-years',
-                    'Year Graduated must be at least 4 years after Year Attended',
+                    'Year graduated must be at least 4 years after year attended.',
                     function (value) {
                       const { start_date } = this.parent; // Access sibling field
                       if (!start_date || !value) return true; // Skip validation if either is missing
