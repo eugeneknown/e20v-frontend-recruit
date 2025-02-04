@@ -184,21 +184,21 @@ function Employee() {
                                                             justifyContent='center'>
                                                                 {
                                                                     String(result[item]['files']['file_type']).split('/')[1] == 'pdf' &&
-                                                                    <Link href={result[item]['files_url']} target="_blank">
+                                                                    <Link href={result[item]['files']['files_url']} target="_blank">
                                                                         Open File
                                                                     </Link>
                                                                 }
                                                                 {
                                                                     String(result[item]['files']['file_type']).split('/')[0] == 'image' &&
-                                                                    <ImageView data={result[item]} />
+                                                                    <ImageView data={result[item]['files']} />
                                                                 }
                                                                 {
                                                                     String(result[item]['files']['file_type']).split('/')[0] == 'audio' &&
                                                                     <MDBox width='100%'>
                                                                         <AudioPlayer
-                                                                            src={[result[item]['files_url']]} 
+                                                                            src={[result[item]['files']['files_url']]} 
                                                                         />
-                                                                        <Link href={result[item]['files_url']} target="_blank">
+                                                                        <Link href={result[item]['files']['files_url']} target="_blank">
                                                                             <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
                                                                         </Link>
                                                                     </MDBox>

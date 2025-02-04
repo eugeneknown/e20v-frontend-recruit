@@ -25,9 +25,12 @@ import Footer from "examples/Footer";
 import educationData from "./educationData";
 import experienceData from "../personal-information/work-experience/experienceData";
 import referenceData from "../reference-information/referenceData";
+import colors from "assets/theme/base/colors";
 
 
 function Response(){
+
+    const { e20 } = colors
 
     const {isAuth, auth} = useAuth();
     const { id } = auth
@@ -156,7 +159,19 @@ function Response(){
             <MDBox mt={5} maxWidth="sm" mx='auto' pt={6} pb={3}>
                 <AppBar position="static">
                     <Tabs value={step} onChange={(e, val) => {setStep(val); accordHeightChange();}}>
-                        {tabs.map(item => (<Tab label={item} />))}
+                        {tabs.map(item => (
+                            <Tab 
+                                label={item} 
+                                sx={{
+                                    color: 'black!important',
+                                    '&.Mui-selected': {
+                                        color: 'white!important',
+                                        fontWeight: 'bold',
+                                        backgroundColor: e20.main,
+                                    },
+                                }}
+                            />
+                        ))}
                     </Tabs>
                 </AppBar>
                 <SwipeableViews
@@ -165,7 +180,7 @@ function Response(){
                     ref={actionRef}
                 >
                     <MDBox>
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ m: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -180,7 +195,7 @@ function Response(){
                             </CardContent>
                         </Card>
                         {dependents &&
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ m: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -190,7 +205,7 @@ function Response(){
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Dependents</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {dependents && Object.keys(dependents).map((item, index) => (
-                                            <Card variant="outlined" sx={{ my: 2 }}>
+                                            <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
                                                     {Object.keys(dependentsData).map((_item, _index) => renderInfo(dependentsData[_item].label, dependents[item][dependentsData[_item].id]))}
                                                 </CardContent>
@@ -201,7 +216,7 @@ function Response(){
                             </CardContent>
                         </Card>}
                         {education &&
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ m: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -211,14 +226,15 @@ function Response(){
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Education</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {education && Object.keys(education).map((item, index) => (
-                                            <Card variant="outlined" sx={{ my: 2 }}>
+                                            <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
                                                     {Object.keys(educationData).map((_item, _index) => {
                                                         if (education[item][educationData[_item].id]) {
-                                                            if ( educationData[_item].label == 'education' ) {
+                                                            if ( educationData[_item].id == 'education' ) {
+                                                                var value = education[item][educationData[_item].id]
                                                                 return (
                                                                     <MDBox display="flex" py={1} pr={2} justifyContent='center'>
-                                                                        <MDTypography variant="button" fontWeight="bold" textTransform="uppercase">
+                                                                        <MDTypography variant="button" fontWeight="bold" textTransform="uppercase" color='black'>
                                                                             &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : value}
                                                                         </MDTypography>
                                                                     </MDBox>
@@ -236,7 +252,7 @@ function Response(){
                             </CardContent>
                         </Card>}
                         {experience &&
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ m: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -247,7 +263,7 @@ function Response(){
                                     <AccordionDetails>
                                         {renderInfo('Total Work Experience', experience['total_experience'])}
                                         {experience && Object.keys(experience.details).map((item, index) => (
-                                            <Card variant="outlined" sx={{ my: 2 }}>
+                                            <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
                                                     {Object.keys(experienceData).map((_item, _index) => experience['details'][item][experienceData[_item].id] && renderInfo(experienceData[_item].label, experience['details'][item][experienceData[_item].id]))}
                                                 </CardContent>
@@ -258,7 +274,7 @@ function Response(){
                                 </Accordion>
                             </CardContent>
                         </Card>}
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ m: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -279,7 +295,7 @@ function Response(){
                         {answers && Object.keys(answers).map((item, key) => {
                             if (answers[item]['question']['type'] == 'input') {
                                 return (
-                                    <Card variant="outlined" sx={{ my: 2 }} key={key}>
+                                    <Card variant="outlined" sx={{ mb: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                             <MDTypography variant='subtitle2' color='e20'>{answers[item]['question']['title']}</MDTypography>
                                             <Divider />
@@ -289,7 +305,7 @@ function Response(){
                                 )
                             } else {
                                 return (
-                                    <Card variant="outlined" sx={{ my: 2 }} key={key}>
+                                    <Card variant="outlined" sx={{ mb: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                             <MDTypography variant='subtitle2' color='e20'>{answers[item]['question']['title']}</MDTypography>
                                             <Divider />
@@ -301,21 +317,21 @@ function Response(){
                                                         justifyContent='center'>
                                                             {
                                                                 String(answers[item]['files']['file_type']).split('/')[1] == 'pdf' &&
-                                                                <Link href={answers[item]['files_url']} target="_blank">
+                                                                <Link href={answers[item]['files']['files_url']} target="_blank">
                                                                     Open File
                                                                 </Link>
                                                             }
                                                             {
                                                                 String(answers[item]['files']['file_type']).split('/')[0] == 'image' &&
-                                                                <ImageView data={answers[item]} />
+                                                                <ImageView data={answers[item]['files']} />
                                                             }
                                                             {
                                                                 String(answers[item]['files']['file_type']).split('/')[0] == 'audio' &&
                                                                 <MDBox width='100%'>
                                                                     <AudioPlayer 
-                                                                        src={[answers[item]['files_url']]} 
+                                                                        src={[answers[item]['files']['files_url']]} 
                                                                     />
-                                                                    <Link href={answers[item]['files_url']} target="_blank">
+                                                                    <Link href={answers[item]['files']['files_url']} target="_blank">
                                                                         <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Download</MDButton>
                                                                     </Link>
                                                                 </MDBox>
@@ -338,7 +354,7 @@ function Response(){
                     </MDBox>
                     <MDBox>
                         {reference &&
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined" sx={{ m: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -348,7 +364,7 @@ function Response(){
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' color='e20'>CHARACTER REFERENCE</MDTypography></AccordionSummary>
                                     <AccordionDetails>
                                         {reference && Object.keys(reference).map((item, index) => (
-                                            <Card variant="outlined" sx={{ my: 2 }}>
+                                            <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
                                                     {Object.keys(referenceData).map((_item, _index) => reference[item][referenceData[_item].id] && renderInfo(referenceData[_item].label, reference[item][referenceData[_item].id]))}
                                                 </CardContent>
