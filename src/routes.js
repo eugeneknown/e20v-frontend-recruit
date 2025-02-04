@@ -72,6 +72,7 @@ import Educational from "layouts/content_page/careers/personal-information/educa
 import EducationalAttainmentForm from "layouts/content_page/careers/personal-information/educational/education";
 import Dependents from "layouts/content_page/careers/personal-information/dependents";
 import DependentsForm from "layouts/content_page/careers/personal-information/dependents/dependents";
+import Report from "layouts/dashboard/report";
 
 const routes = [
   {
@@ -87,6 +88,14 @@ const routes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
     component: <Dashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Report",
+    key: "report",
+    icon: <Icon fontSize="small">assessment</Icon>,
+    route: "/report",
+    component: <Report />,
   },
   {
     type: "collapse",
