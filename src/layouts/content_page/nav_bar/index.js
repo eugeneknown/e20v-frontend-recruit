@@ -72,10 +72,9 @@ function NavBar({color, position}) {
                 <MDButton 
                   color="info" 
                   onClick={handleLogout}
-                  sx={{fontSize:14}}
                   startIcon={<LogoutIcon fontSize="small" />}
                 >
-                  Logout
+                  Log out
                 </MDButton>
                 </MDBox>
                 : 
@@ -86,7 +85,7 @@ function NavBar({color, position}) {
                       href="/authentication/sign-in" 
                       startIcon={<LoginIcon fontSize="small" />}
                     >
-                      Login
+                      Log in
                     </MDButton>
                 </MDBox> }
                 

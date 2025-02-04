@@ -1,31 +1,3 @@
-
-        // case 'date':
-        //     let valueProps = {}
-        //     if (props.value) valueProps['value'] = moment(props.value)
-        //     props['closeOnSelect'] = true
-        //     console.log('date', props, valueProps);
-        //     return (
-        //         <MobileDatePicker
-        //             onChange={(value) => props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
-        //             onOpen={() => props.setFieldTouched(props.id, true, props.required)}
-        //             {...valueProps}
-        //             label={props.label}
-        //             name={props.name}
-        //             sx={props.sx}
-        //             disabled={props?.disabled ? props.disabled : false}
-        //             slotProps={{
-        //                 textField: {
-        //                     fullWidth: props.fullWidth,
-        //                     required: props.required,
-        //                     error: props.error,
-        //                     helperText: props.helperText,
-        //                 }
-        //             }}
-        //             {...props?.options}
-        //         />
-        //     )
-
-      
 import React, { useState } from 'react';
 import {
     Checkbox,
@@ -136,7 +108,6 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                     PaperProps: {
                         style: {
                             maxHeight: 48 * 4.5 + 8,
-                            width: 250,
                         },
                     },
                 }}
@@ -154,18 +125,14 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                     </MenuItem>
                 )}
                 <Divider />
-                <MenuItem disableRipple sx={{ justifyContent: "center", padding: 0 }}>
+                <MenuItem disableRipple sx={{ justifyContent: "end" }}>
                     <Button
                         variant="contained"
                         color="primary"
-                        fullWidth
                         startIcon={<CheckCircleIcon />}
                         sx={{
                             color: "#fff", 
                             backgroundColor: "primary.main", 
-                            "&:hover": {
-                                backgroundColor: "primary.dark", 
-                            },
                             fontSize: "0.8rem",
                         }}
                         onClick={handleSaveCheckedFields}
@@ -219,26 +186,8 @@ export const generateFormInput = (props) => {
             if (props.value) valueProps['value'] = moment(props.value)
         
             props['closeOnSelect'] = true;
-        
-            // Set the views for the date picker
-            // const views = props.id === 'end_date' ? ['year'] : ['year', 'month', 'day'];
-        
-            // Dynamically adjust options for the end date field
-            // const updatedOptions = { ...props?.options };
-            // if (props.id === 'end_date' && props.formValues && props.formValues.start_date) {
-            //     const startDate = moment(props.formValues.start_date);
-            //     if (startDate.isValid()) {
-            //         updatedOptions.minDate = startDate.toDate(); // Set the minDate to start_date
-            //     }
-            // }
-
             return (
                 <MobileDatePicker
-                    // onChange={(value) => {
-                    //     const formattedDate = moment(value).format('YYYY-MM-DD');
-                    //     props.setFieldValue(props.id, formattedDate, props.required);
-                    //     console.log('format date', value);
-                    // }}
                     onChange={(value) => value && props.setFieldValue(props.id, formatDateTime(value, 'YYYY-MM-DD'), props.required)}
                     onOpen={() => props.setFieldTouched(props.id, true, props.required)}
                     {...valueProps}
