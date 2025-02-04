@@ -50,7 +50,7 @@ import ProgressLineChart from "examples/Charts/LineCharts/ProgressLineChart";
 import MDButton from "components/MDButton";
 import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
-import { Card, colors, Paper } from "@mui/material";
+import { Card, colors, IconButton, Paper, Tooltip } from "@mui/material";
 import { dataServicePrivate } from "global/function";
 import useAuth from "hooks/useAuth";
 
@@ -68,6 +68,17 @@ function Dashboard() {
   const [ total, setTotal ] = useState(0)
   const [ platforms, setPlatforms ] = useState()
   const [ platformDataSeries, SetPlatformDataSeries ] = useState()
+
+  const [ weekStart, setWeekStart ] = useState(moment().startOf('week'))
+  const [ weekEnd, setWeekEnd ] = useState(moment().endOf('week'))
+  const [ disabledWeek, setDisabledWeek ] = useState(false)
+  const [ monthStart, setMonthStart ] = useState(moment().startOf('year'))
+  const [ monthEnd, setMonthEnd ] = useState(moment().endOf('year'))
+  const [ disabledMonth, setDisabledMonth ] = useState(false)
+
+  const [ tagStart, setTagStart ] = useState(moment().startOf('year'))
+  const [ tagEnd, setTagEnd ] = useState(moment().endOf('year'))
+  const [ disabledTag, setDisabledTag ] = useState(false)
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -168,15 +179,50 @@ function Dashboard() {
       monthlyReportSequence()
     }
   },[platformDataSeries])
+
+  useEffect(() => {
+    if (platformDataSeries) weeklyReportSequence()
+    setDisabledWeek(moment().startOf('week').add(1, 'week') <= moment(weekStart).startOf('week').add(1, 'week'))
+  },[weekStart, weekEnd])
+
+  useEffect(() => {
+    if (platformDataSeries) monthlyReportSequence()
+    setDisabledMonth(moment().startOf('year').add(1, 'year') <= moment(monthStart).startOf('year').add(1, 'year'))
+  },[monthStart, monthEnd])
+
+  const handleNextWeek = () => {
+    console.log('next week', formatDateTime(weekStart), formatDateTime(weekEnd));
+    setWeekStart(moment(weekStart).startOf('week').add(1, 'week'))
+    setWeekEnd(moment(weekStart).endOf('week').add(1, 'week'))
+  }
+  const handlePrevWeek = () => {
+    console.log('prev week', weekStart, weekEnd);
+    setWeekStart(moment(weekStart).startOf('week').subtract(1, 'week'))
+    setWeekEnd(moment(weekStart).endOf('week').subtract(1, 'week'))
+  }
+  const handleThisWeek = () => {
+    setWeekStart(moment().startOf('week'))
+    setWeekEnd(moment().endOf('week'))
+  }
+
+  const handleNextMonth = () => {
+    console.log('next month', formatDateTime(monthStart), formatDateTime(monthEnd));
+    setMonthStart(moment(monthStart).startOf('year').add(1, 'year'))
+    setMonthEnd(moment(monthStart).endOf('year').add(1, 'year'))
+  }
+  const handlePrevMonth = () => {
+    console.log('prev month', monthStart, monthEnd);
+    setMonthStart(moment(monthStart).startOf('year').subtract(1, 'year'))
+    setMonthEnd(moment(monthStart).endOf('year').subtract(1, 'year'))
+  }
+  const handleThisMonth = () => {
+    setMonthStart(moment().startOf('year'))
+    setMonthEnd(moment().endOf('year'))
+  }
   
   const weeklyReportSequence = () => {
-    // var weekStart = moment('2024-10-14T16:00:00.000Z')
-    // var weekEnd = moment('2024-10-18T15:59:59.999Z')
-    var weekStart = moment().startOf('week')
-    var weekEnd = moment().endOf('week')
-
     var count = weekEnd.diff(weekStart, 'days')
-    // console.log('debug moment week:', weekStart, weekEnd, count);
+    console.log('debug moment week:', weekStart, weekEnd, count);
 
     getRecruitData({
       filter: [
@@ -198,6 +244,7 @@ function Dashboard() {
       var dataSets = []
       var tempDataSet = {}
       var totalCount = 0
+
       for ( var i=0; i<=count; i++ ) {
         weekStart.add(i, 'd')
         // console.log('debug report:', formatDateTime(weekStart))
@@ -233,18 +280,16 @@ function Dashboard() {
   }
   
   const monthlyReportSequence = () => {
-    var monthStart = moment().startOf('year').subtract(1, 'year')
-    var currentMonth = moment().set('month', moment().month())
-    var count = currentMonth.diff(monthStart, 'month')
+    var count = monthEnd.diff(monthStart, 'month')
     
-    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
+    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(monthEnd),  count)
     
     getRecruitData({
       filter: [
         {
           target: 'created_at',
           operator: 'range',
-          value: [monthStart, currentMonth],
+          value: [monthStart, monthEnd],
         }
       ],
       platforms: {
@@ -319,20 +364,37 @@ function Dashboard() {
   const dailyTagsFinder = (title) => {
     return tagsCount[Object.keys(tagsCount).find(key => tagsCount[key].title == title)] ?? 0
   }
+
+  useEffect(() => {
+    tagsReportSequence()
+    setDisabledTag(moment().startOf('year').add(1, 'year') <= moment(tagStart).startOf('year').add(1, 'year'))
+  }, [tagStart, tagEnd])
+
+  const handleNextTag = () => {
+    console.log('next tag', formatDateTime(tagStart), formatDateTime(tagEnd));
+    setTagStart(moment(tagStart).startOf('year').add(1, 'year'))
+    setTagEnd(moment(tagStart).endOf('year').add(1, 'year'))
+  }
+  const handlePrevTag = () => {
+    console.log('prev tag', tagStart, tagEnd);
+    setTagStart(moment(tagStart).startOf('year').subtract(1, 'year'))
+    setTagEnd(moment(tagStart).endOf('year').subtract(1, 'year'))
+  }
+  const handleThisTag = () => {
+    setTagStart(moment().startOf('year'))
+    setTagEnd(moment().endOf('year'))
+  }
   
   const tagsReportSequence = () => {
-    var monthStart = moment().startOf('year').subtract(1, 'year')
-    var currentMonth = moment().set('month', moment().month())
-    var count = currentMonth.diff(monthStart, 'month')
-    
-    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(currentMonth),  count)
+    var count = tagEnd.diff(tagStart, 'month')
+    console.log('debug monthly tag report:', formatDateTime(tagStart), formatDateTime(tagEnd),  count)
     
     getRecruitData({
       filter: [
         {
           target: 'updated_at',
           operator: 'range',
-          value: [monthStart, currentMonth],
+          value: [tagStart, tagEnd],
         }
       ],
       tags: {},
@@ -405,26 +467,6 @@ function Dashboard() {
       </MDBox>
     </MDBox>
   );
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
-  const chartSetting = {
-    height: '100%',
-  };
-
-  const valueFormatter = (value, index) => {
-    console.log('debug chart top value', value, index);
-  };
 
   const CustomLegend = ({ series }) => {
     return (
@@ -565,7 +607,13 @@ function Dashboard() {
             <Grid item xs={12} lg={8}>
               <MDBox mb={3}>
                 <Card sx={{ height: "100%" }}>
-                  <MDBox padding="1rem">
+                  <MDBox display='flex' justifyContent='end' alignItems='center' p={1}>
+                    <MDTypography variant='button' sx={{ mx: 1 }}>Year: {formatDateTime(weekStart, 'YYYY')}</MDTypography>
+                    <Tooltip title='Previous Week'><IconButton onClick={handlePrevWeek} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
+                    <Tooltip title='Next Week'><IconButton onClick={handleNextWeek} color="grey.100" disabled={disabledWeek}><Icon>navigate_next</Icon></IconButton></Tooltip>
+                    <MDButton onClick={handleThisWeek}>Today</MDButton>
+                  </MDBox>
+                  <MDBox p="1rem">
                     {
                       weeklyReport && platformDataSeries &&
                       <BarChart
@@ -627,11 +675,9 @@ function Dashboard() {
                     }
                     {platformDataSeries && <CustomLegend series={platformDataSeries} />}
                     <MDBox pt={3} pb={1} px={1}>
-                      <MDTypography variant="h6" textTransform="capitalize">
-                        Weekly Tracker
-                      </MDTypography>
+                      <MDTypography variant="h6" textTransform="capitalize">Weekly Platform Tracker</MDTypography>
                       <MDTypography component="div" variant="button" color="text" fontWeight="light">
-                        Application count per week categorized by platforms.
+                        Weekly count categorized by platform.
                       </MDTypography>
                     </MDBox>
                   </MDBox>
@@ -640,19 +686,40 @@ function Dashboard() {
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <MDBox mb={3}>
-                <PieChart
-                  color="dark"
-                  title="Monthly Tags Tracker"
-                  description="Applicant count per month in year"
-                  date="just updated"
-                  chart={tagsMonthlyReport}
-                />
+                <Card>
+                  <MDBox p='1rem'>
+                    <MDBox pt={1} px={1}>
+                      <MDTypography variant="h6">Monthly Tags Tracker</MDTypography>
+                      <MDBox mb={2}>
+                        <MDTypography component="div" variant="button" color="text">
+                          Applicant count per month in year
+                        </MDTypography>
+                      </MDBox>
+                    </MDBox>
+                    {console.log('data', tagsMonthlyReport)}
+                    <PieChart
+                      chart={tagsMonthlyReport}
+                    />
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='end' alignItems='center' p={1}>
+                    <MDTypography variant='button' sx={{ mx: 1 }}>Year: {formatDateTime(tagStart, 'YYYY')}</MDTypography>
+                    <Tooltip title='Previous Year'><IconButton onClick={handlePrevTag} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
+                    <Tooltip title='Next Year'><IconButton onClick={handleNextTag} color="grey.100" disabled={disabledTag}><Icon>navigate_next</Icon></IconButton></Tooltip>
+                    <MDButton onClick={handleThisTag}>Today</MDButton>
+                  </MDBox>
+                </Card>
               </MDBox>
             </Grid>
             <Grid item xs={12}>
               <MDBox mb={3}>
                 <Card sx={{ height: "100%" }}>
-                  <MDBox padding="1rem">
+                  <MDBox display='flex' justifyContent='end' alignItems='center' p={1}>
+                    <MDTypography variant='button' sx={{ mx: 1 }}>Year: {formatDateTime(monthStart, 'YYYY')}</MDTypography>
+                    <Tooltip title='Previous Year'><IconButton onClick={handlePrevMonth} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
+                    <Tooltip title='Next Year'><IconButton onClick={handleNextMonth} color="grey.100" disabled={disabledMonth}><Icon>navigate_next</Icon></IconButton></Tooltip>
+                    <MDButton onClick={handleThisMonth}>Today</MDButton>
+                  </MDBox>
+                  <MDBox p="1rem">
                     {
                       monthlyReport && platformDataSeries &&
                       <BarChart
@@ -717,11 +784,9 @@ function Dashboard() {
                     }
                     {platformDataSeries && <CustomLegend series={platformDataSeries} />}
                     <MDBox pt={3} pb={1} px={1}>
-                      <MDTypography variant="h6" textTransform="capitalize">
-                        Monthly Tracker
-                      </MDTypography>
+                      <MDTypography variant="h6" textTransform="capitalize">Yearly Platform Report</MDTypography>
                       <MDTypography component="div" variant="button" color="text" fontWeight="light">
-                        Application count per month categorized by platforms.
+                        Monthly count categorized by platform for the entire year.
                       </MDTypography>
                     </MDBox>
                   </MDBox>

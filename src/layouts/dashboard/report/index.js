@@ -669,15 +669,6 @@ function Report() {
                             }
                           },
                         }]}
-                        // topAxis={{
-                        //   disableLine: true,
-                        //   disableTicks: true,
-                        //   valueFormatter: (value, context) => {
-                        //     if (context.location == 'tick') {
-                        //       return `${formatDateTime(value, 'ddd')}`
-                        //     }
-                        //   }
-                        // }}
                         slotProps={{
                           legend: {
                             // position: { vertical: 'bottom' },
@@ -726,27 +717,20 @@ function Report() {
                     </MDBox>
                   </MDBox>
                 </Card>
-                {/* <ReportsLineChart
-                  color="dark"
-                  title="Monthly Tracker"
-                  description="Applicant count per month in year"
-                  date="updated 4 min ago"
-                  chart={monthlyReport}
-                /> */}
               </MDBox>
             </Grid>
           </Grid>
         </MDBox>
-        {/* <MDBox>
+        <MDBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={8}>
-              { rows && <Projects columns={columns} rows={rows} /> }
+              { <Projects /> }
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <OrdersOverview />
             </Grid>
           </Grid>
-        </MDBox> */}
+        </MDBox>
       </MDBox>
       <Footer />
     </DashboardLayout>
