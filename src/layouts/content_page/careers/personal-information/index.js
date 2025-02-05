@@ -197,21 +197,29 @@ function PersonalInformation(){
 
                         check.forEach((_item, _index) => {
                             if ( result[index][_item] ) {
-                                if ( _item != 'start_date' ) {
-                                    _temp.push({
-                                        title: _item == 'end_date' ? 
-                                            result[index]['start_date'] ? 
+                                _temp.push({
+                                    title: 
+                                    _item == 'start_date' || _item == 'end_date'
+                                    ?   result[index]['start_date'] 
+                                        ?   _item == 'start_date' && ( result[index]['start_date'] && result[index]['start_date'] ) &&
                                             <MDTypography variant='body2'>
-                                                {formatDateTime(result[index]['start_date'], 'YYYY')} to {result[index]['end_date'] ?  formatDateTime(result[index]['end_date'], 'YYYY') : `Present`}
+                                                {formatDateTime(result[index].start_date, 'YYYY')} {
+                                                    result[index]['present'] 
+                                                    ? `to Present` 
+                                                    : result[index]['undergrad']
+                                                    ? `Undergraduate`
+                                                    : `to ${formatDateTime(result[index].end_date, 'YYYY')}`
+                                                }
                                             </MDTypography>
-                                            : <MDTypography variant='body2'>
-                                                {formatDateTime(result[index]['end_date'], 'YYYY')}
-                                            </MDTypography> 
-                                        : result[index][_item],
-                                        color: color[_index] ? color[_index] : 'inherit',
-                                        variant: variant[_index] ? variant[_index] : 'body2',
-                                    })
-                                }
+                                        : <MDTypography variant='body2'>
+                                            {formatDateTime(result[index]['end_date'], 'YYYY')}
+                                        </MDTypography> 
+                                    : result[index][_item],
+                                    color: color[_index] ? color[_index] : 'inherit',
+                                    variant: variant[_index] ? variant[_index] : 'body2',
+                                })
+                                // if ( _item != 'start_date' ) {
+                                // }
                             }
                         })
                         temp.push(_temp)
