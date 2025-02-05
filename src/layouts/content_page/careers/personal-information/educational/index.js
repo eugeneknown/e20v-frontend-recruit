@@ -153,49 +153,65 @@ function Educational(){
         let error = false;
         let errorMessage = "";
     
+        // Check if High School ends at least 4 years after Elementary
         if (high && moment(high.end_date).diff(moment(elem.end_date), 'years') < 4) {
             errorMessage = `High School year graduated ${moment(high.end_date).format('YYYY')} should be at least 4 years after Elementary year graduated ${moment(elem.end_date).format('YYYY')}.`;
             error = true;
-        } else if (high && college && moment(high.end_date).isAfter(moment(college.start_date))) {
+        }
+        // Check if High School ends before College starts
+        else if (high && college && moment(high.end_date).isAfter(moment(college.start_date))) {
             errorMessage = `High School year graduated ${moment(high.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
             error = true;
-        } else if (senior && (moment(senior.end_date).diff(moment(high.end_date), 'years') < 2 || moment(senior.end_date).isSame(moment(high.end_date), 'year'))) {
+        }
+        // Check if Senior High School ends at least 2 years after High School
+        else if (senior && (moment(senior.end_date).diff(moment(high.end_date), 'years') < 2 || moment(senior.end_date).isSame(moment(high.end_date), 'year'))) {
             errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should be at least 2 years after High School year graduated ${moment(high.end_date).format('YYYY')}.`;
             error = true;
-        } else if (high && tech && tech.is_applicable && moment(high.end_date).diff(moment(tech.start_date), 'years') < 1) {
+        }
+        // Check if High School ends before Vocational & Technical Education starts
+        else if (high && tech && tech.is_applicable && moment(high.end_date).diff(moment(tech.start_date), 'years') < 1) {
             errorMessage = `High School year graduated ${moment(high.end_date).format('YYYY')} should be at least 1 year before Vocational year started ${moment(tech.start_date).format('YYYY')}.`;
             error = true;
-        } else if (senior && college && moment(senior.end_date).isAfter(moment(college.start_date))) {
+        }
+        // Check if Senior High School ends before College starts
+        else if (senior && college && moment(senior.end_date).isAfter(moment(college.start_date))) {
             errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
             error = true;
-        } else if (tech && college && moment(tech.end_date).isAfter(moment(college.start_date))) {
+        }
+        // Check if Vocational & Technical Education ends before College starts
+        else if (tech && college && moment(tech.end_date).isAfter(moment(college.start_date))) {
             errorMessage = `Vocational & Technical Education year graduated ${moment(tech.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
             error = true;
-        } else if (college && (moment(college.start_date).diff(moment(senior?.end_date || tech?.end_date || high.end_date), 'years') < 4 || moment(college.start_date).isSame(moment(senior?.end_date || tech?.end_date || high.end_date), 'year'))) {
-            errorMessage = `College year started ${moment(college.start_date).format('YYYY')} should be at least 4 years after ${moment(senior?.end_date || tech?.end_date || high.end_date).format('YYYY')}.`;
-            error = true;
-        } else if (master && (moment(master.start_date).diff(moment(college.end_date), 'years') < 2 || moment(master.start_date).isSame(moment(college.end_date), 'year'))) {
+        }
+        // Check if Master’s starts at least 2 years after College ends
+        else if (master && (moment(master.start_date).diff(moment(college.end_date), 'years') < 2 || moment(master.start_date).isSame(moment(college.end_date), 'year'))) {
             errorMessage = `Master year started ${moment(master.start_date).format('YYYY')} should be at least 2 years after College year graduated ${moment(college.end_date).format('YYYY')}.`;
             error = true;
         }
     
-        // Check if Senior High School and Vocational Education have the same date or if Senior is greater than Vocational
-        if (senior && tech && tech.is_applicable) {
-            if (moment(senior.end_date).isSame(moment(tech.end_date))) {
-                errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be the same as Vocational year graduated ${moment(tech.end_date).format('YYYY')}.`;
-                error = true;
-            } else if (moment(senior.end_date).isAfter(moment(tech.end_date))) {
-                errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be after Vocational year graduated ${moment(tech.end_date).format('YYYY')}.`;
-                error = true;
-            }
+        // Ensure Vocational & Technical Education does not end after Senior High School starts
+        if (tech && senior && moment(tech.end_date).isAfter(moment(senior.start_date))) {
+            errorMessage = `Vocational & Technical Education year graduated ${moment(tech.end_date).format('YYYY')} should not be after Senior High School year started ${moment(senior.start_date).format('YYYY')}.`;
+            error = true;
         }
     
+        // Additional checks for Senior High School to be after Vocational & Technical Education or College
+        if (senior && tech && moment(senior.end_date).isAfter(moment(tech.start_date))) {
+            errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be after Vocational year started ${moment(tech.start_date).format('YYYY')}.`;
+            error = true;
+        } else if (senior && college && moment(senior.end_date).isAfter(moment(college.start_date))) {
+            errorMessage = `Senior High School year graduated ${moment(senior.end_date).format('YYYY')} should not be after College year started ${moment(college.start_date).format('YYYY')}.`;
+            error = true;
+        }
+    
+        // If there's an error, display the error message
         if (error) {
             snackBar(errorMessage, 'error');
         } else {
-            prevPage();
+            prevPage(); // Proceed to the next page or action
         }
     };
+    
     
     
     const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
@@ -471,7 +487,11 @@ function Educational(){
                         attainment="Graduate School (Master's or Doctorate)" 
                         data={master} 
                         optional 
-                        disabled={!college} 
+                        disabled={
+                            !college || !college.end_date || moment(college.end_date, 'YYYY').isAfter(moment()) ||
+                            college.end_date.includes('Undergraduate') || college.end_date === 'Present' ||
+                            college?.undergrad || college?.present 
+                          }
                         end_date={education && EduFinder({key: 'education', value: college ? 'College' : tech ? 'Vocational & Technical Education' : senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date')} 
                     />
                     <Divider />

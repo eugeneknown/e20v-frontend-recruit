@@ -2,7 +2,6 @@ import * as yup from 'yup';
 import educationalAttainment from './educational-attainment';
 import courses from './courses';
 
-
 export default [
     {
         id: 'education',
