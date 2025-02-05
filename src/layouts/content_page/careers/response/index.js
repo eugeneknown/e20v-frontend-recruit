@@ -295,7 +295,7 @@ function Response(){
                         {answers && Object.keys(answers).map((item, key) => {
                             if (answers[item]['question']['type'] == 'input') {
                                 return (
-                                    <Card variant="outlined" sx={{ mb: 2 }} key={key}>
+                                    <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                             <MDTypography variant='subtitle2' color='e20'>{answers[item]['question']['title']}</MDTypography>
                                             <Divider />
@@ -305,7 +305,7 @@ function Response(){
                                 )
                             } else {
                                 return (
-                                    <Card variant="outlined" sx={{ mb: 2 }} key={key}>
+                                    <Card variant="outlined" sx={{ my: 2 }} key={key}>
                                         <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                             <MDTypography variant='subtitle2' color='e20'>{answers[item]['question']['title']}</MDTypography>
                                             <Divider />
