@@ -157,7 +157,7 @@ function EducationalAttainmentForm(){
                                                     disabled = values.present || values.undergrad
                                                     if (disabled) {
                                                         setEndDate(values['end_date'])
-                                                        delete values['end_date']
+                                                        values['end_date'] = null
                                                     } else {
                                                         if (endDate) setFieldValue('end_date', endDate)
                                                     }
@@ -169,6 +169,7 @@ function EducationalAttainmentForm(){
                                                 if ( ('undergrad' in values) && values['undergrad'] ) {
                                                     if ( 'present' in values ) values['present'] = false
                                                 }
+
 
                                                 if ( end_date ) {
                                                     var min = { minDate: moment(end_date) }

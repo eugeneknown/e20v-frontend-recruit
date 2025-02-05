@@ -187,8 +187,8 @@ function PersonalInformation(){
             if ( Object.keys(result).length ) {
                 var color = []
                 var variant = ['h6']
-
                 var temp = []
+            
                 seq.forEach((item) => {
                     var _temp = []
                     var index = Object.keys(result).findIndex((e) => result[e].education == item)
@@ -223,12 +223,12 @@ function PersonalInformation(){
                             }
                         })
                         temp.push(_temp)
-
                     }
-
                 })
+            
                 setEducations(temp)
             }
+            
 
         }).catch((err) => {
             console.log('debug entity education error result', err);
@@ -328,15 +328,26 @@ function PersonalInformation(){
                     )) 
                     : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
                 }
-                <MDButton   
+               <MDButton   
                 onClick={() => toPage(url)} 
-                sx={{ mt: 2 }} 
+                sx={{ 
+                    mt: 2, 
+                    borderColor: 'secondary.main', // Default border color
+                    color: 'secondary.main', // Default text color
+                    transition: 'all 0.3s ease', // Smooth transition for hover effect
+                    '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
+                    '&:hover': {
+                    borderColor: 'red', // Border turns red
+                    color: 'red', // Text turns red
+                    '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
+                    }
+                }} 
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Create'} ${title}`}
+                {`${data ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -365,15 +376,26 @@ function PersonalInformation(){
                     })
                     : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
                 }
-                <MDButton   
+              <MDButton   
                 onClick={() => toPage(url)} 
-                sx={{ mt: 2 }} 
+                sx={{ 
+                    mt: 2, 
+                    borderColor: 'secondary.main', // Default border color
+                    color: 'secondary.main', // Default text color
+                    transition: 'all 0.3s ease', // Smooth transition effect
+                    '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
+                    '&:hover': {
+                    borderColor: 'red', // Border turns red
+                    color: 'red', // Text turns red
+                    '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
+                    }
+                }} 
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Create'} ${title}`}
+                {`${data ? 'Edit' : 'Create'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>

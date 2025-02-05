@@ -56,6 +56,7 @@ function WorkExperienceForm(){
     var yupObject = generateObjectSchema(workExperienceData)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         handleInit()
@@ -285,16 +286,25 @@ function WorkExperienceForm(){
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
                         <MDTypography sx={{ mt: 3 }} variant='h3'>Work Experience</MDTypography>
                         <MDTypography sx={{ mt: 3}}  variant='button' color='error'>OJT/Internship can be considered </MDTypography>
-                        {/* Display placeholder when no work experience exists */}
-                        {!details || Object.keys(details).length === 0 ? (
-                            <MDTypography
-                                color="error"
-                                variant="h5"
-                                sx={{ my: 2, textAlign: "center", fontSize: "20px", textTransform: 'uppercase', fontWeight: 'bold', fontFamily: "Times New Roman" }}
-                            >
-                                No Work Experience found.
-                            </MDTypography>
-                        ) : null}
+                        {/* Show loading state when updating */}
+                        {loading && (
+                          <MDTypography
+                            color="error"
+                            variant="h5"
+                            sx={{ my: 2, textAlign: "center" }}
+                          >
+                            Loading...
+                          </MDTypography>
+                        )}
+                        {!loading && details && Object.keys(details).length === 0 && (
+                          <MDTypography
+                            color="error"
+                            variant="h5"
+                            sx={{ my: 2, textAlign: "center" }}
+                          >
+                            No work experience found
+                          </MDTypography>
+                        )}
                         <Divider />
                         {details && Object.keys(details).map((item, index) => (
                             <Card position='relative' sx={{ my: 2 }}>
@@ -317,15 +327,35 @@ function WorkExperienceForm(){
                         <MDBox display='flex' justifyContent='end' my={2}>
                             <MDTypography sx={{ mx: 2 }} variant='button'>Total Work Experience: {years} {years>1?'years':'year'} & {months} {months>1?'months':'month'}</MDTypography>
                         </MDBox>
-                        {details && Object.keys(details).length < 3 && <MDButton
-                            variant='outlined' 
-                            color='secondary' 
+                        {details && Object.keys(details).length < 3 && (
+                          <MDButton
+                            variant='outlined'
+                            color='secondary'
                             fullWidth
-                            startIcon={<Icon>add</Icon>}
+                            startIcon={<Icon sx={{ color: 'inherit' }}>add</Icon>} // Ensuring icon inherits color
                             onClick={() => toPage('/careers/personalinfo/experienceform')}
-                        >
-                            <MDTypography variant='body2' color='secondary'>Add Work Experience</MDTypography>
-                        </MDButton>}
+                            sx={{
+                              borderColor: 'secondary.main', // Default border color
+                              color: 'secondary.main', // Default text color
+                              transition: 'all 0.3s ease', // Smooth transition for all properties
+                              '&:hover': {
+                                borderColor: 'red', // Change border color on hover
+                                color: 'red', // Ensure text and icon turn red on hover
+                                '& .MuiTypography-root': {
+                                  color: 'inherit', // Ensure Typography inherits color from button
+                                },
+                                '& .MuiSvgIcon-root': {
+                                  color: 'inherit', // Ensure Icon inherits color from button
+                                },
+                              },
+                            }}
+                          >
+                            <MDTypography variant='body2' color='inherit'>
+                              Add Work Experience
+                            </MDTypography>
+                          </MDButton>
+                        )}
+
                         <Divider />
                         {experience && <Formik
                             initialValues={experience}

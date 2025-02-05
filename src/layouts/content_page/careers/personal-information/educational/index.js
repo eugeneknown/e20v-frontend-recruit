@@ -367,14 +367,15 @@ function Educational(){
                                 {data?.course && <MDTypography variant="body2">Course: {data.course}</MDTypography>}
                                 {data.start_date ? 
                                 <MDTypography variant='body2'>
-                                    Year: {formatDateTime(data.start_date, 'YYYY')} {
-                                        data?.present 
-                                        ? `to Present` 
-                                        : data?.undergrad
-                                        ? `Undergraduate`
-                                        : `to ${formatDateTime(data.end_date, 'YYYY')}`
-                                    }
-                                </MDTypography> : 
+                                   Year: {data.start_date ? formatDateTime(data.start_date, 'YYYY') : 'N/A'} 
+                                    {data.present 
+                                        ? ` to Present`
+                                        : data.undergrad 
+                                        ? ` - Undergraduate`
+                                        : data.end_date 
+                                        ? ` to ${formatDateTime(data.end_date, 'YYYY')}`
+                                        : ''}
+                                </MDTypography>: 
                                 <MDTypography variant='body2'>
                                     Year: {formatDateTime(data.end_date, 'YYYY')}
                                 </MDTypography>}
@@ -443,7 +444,7 @@ function Educational(){
                         <Divider />
                         {education !== undefined && education?.length === 0 && (
                         <MDTypography color="error" variant="h5" sx={{ my: 2, textAlign: "center" }}>
-                            No Educational Background found
+                            No educational background found
                         </MDTypography>
                         )}
                         <EducationAttainment attainment='Elementary' data={elem} required />
