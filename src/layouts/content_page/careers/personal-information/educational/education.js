@@ -26,6 +26,7 @@ import seniorData from "./seniorData";
 import collegeData from "./collegeData";
 import techData from "./techData";
 import masterData from "./masterData";
+import highData from "./highData";
 
 
 function EducationalAttainmentForm(){
@@ -51,7 +52,6 @@ function EducationalAttainmentForm(){
 
     var ed = location.state.education
     var end_date = location.state.end_date
-    console.log('end_date', end_date);
 
     // init validation
     var yupObject = generateObjectSchema(data)
@@ -97,7 +97,8 @@ function EducationalAttainmentForm(){
     },[education])
 
     const init = (ed) => {
-        if ( ed == 'Elementary' || ed == 'Secondary (High School)' ) return elemData
+        if ( ed == 'Elementary') return elemData
+        if ( ed == 'Secondary (High School)' ) return highData
         if ( ed == 'Senior High School' ) return seniorData
         if ( ed == 'Vocational & Technical Education' ) return techData
         if ( ed == 'College') return collegeData
@@ -172,8 +173,9 @@ function EducationalAttainmentForm(){
                                                 if ( end_date ) {
                                                     var min = { minDate: moment(end_date) }
                                                     if ( data[item].type == 'date' ) data[item]?.options ? data[item]['options'] = { ...data[item]['options'], ...min } : data[item]['options'] = min
+                                                
                                                 }
-
+                                                console.log("date format:",data,end_date)
                                                 // universal format
                                                 var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
                                                 var error = data[item].type == 'date' ? !(disabled) && errors[data[item].id] : errors[data[item].id]
