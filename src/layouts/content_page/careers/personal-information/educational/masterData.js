@@ -41,7 +41,7 @@ export default [
                     is: ((present, end_date) => {
                         return typeof present == 'undefined' || (!(present)) && typeof end_date != 'undefined'
                     }),
-                    then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than End date'),
+                    then: (schema) => schema.max(yup.ref('end_date'), 'Start date cannot be more than end date.'),
                 }]
             },
         ]
@@ -65,7 +65,7 @@ export default [
                   .min(yup.ref('start_date'), 'End date cannot be less than Start date')
                   .test(
                     'min-2-years',
-                    'End date must be at least 2 years after Start date for master’s programs',
+                    'Year graduated must be at least 2 years after year started for master’s programs.',
                     function (value) {
                       const { start_date } = this.parent;
                       if (!start_date || !value) return true; // Skip validation if fields are missing
