@@ -253,12 +253,24 @@ function CareerQuestionsForm(){
                                     </SwipeableViews>
                                     <MDBox style={{ display: 'flex' }} justifyContent={step > 0 ? 'space-between' : 'end'}>
                                         {step > 0 && (
-                                        <MDButton onClick={() => setStep(step-1)} sx={{ my: 1 }} color='secondary'>
+                                        <MDButton onClick={() => setStep(step-1)} sx={{ my: 1,  
+                                            backgroundColor: '#666666 !important', 
+                                            color: 'white !important', 
+                                            '&:hover': {
+                                              backgroundColor: '#555555 !important', 
+                                              boxShadow: 'none',
+                                              color: 'white !important'
+                                            },
+                                            '&.Mui-disabled': {
+                                              backgroundColor: '#666666 !important',
+                                              color: 'white !important',
+                                              opacity: 0.5,
+                                            } }} startIcon={<Icon sx={{ color: 'white' }}>navigate_before</Icon>}>
                                             Back
                                         </MDButton>
                                         )}
                                         <MDBox>
-                                            <MDButton sx={{ my: 1 }} color='info' type="submit">
+                                            <MDButton sx={{ my: 1 }} color='info' type="submit" endIcon={<Icon>navigate_next</Icon>}>
                                                 {step == Object.keys(questions).length-1 ? 'Continue' : 'Next'}
                                             </MDButton>
                                         </MDBox>

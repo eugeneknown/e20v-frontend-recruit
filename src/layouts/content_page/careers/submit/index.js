@@ -11,7 +11,6 @@ import { dataServicePrivate, formatDateTime } from "global/function";
 import NavBar from "layouts/content_page/nav_bar";
 
 import MDButton from "components/MDButton";
-
 import { useLocation, useNavigate } from "react-router-dom";
 import MDInput from "components/MDInput";
 
@@ -158,7 +157,7 @@ function CareerSubmitted(){
                                         >
                                             <MDButton variant='text' sx={{ pl: 0 }} color='info'>View Response</MDButton>
                                         </Link>
-                                        <MDButton color='info' href='/careers'>Return to page</MDButton>
+                                        <MDButton color='info' href='/careers' startIcon={<Icon>refresh</Icon>}>Return to page</MDButton>
                                     </MDBox>
                                 </MDBox>
                             </MDBox>
