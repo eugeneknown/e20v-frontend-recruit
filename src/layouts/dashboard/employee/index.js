@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
+import { Fade, FormControl, Typography, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
     FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Popover, Dialog, DialogContent, DialogActions, DialogTitle, IconButton, CardContent, CardHeader, Chip, 
     Link} from "@mui/material";
 
@@ -56,6 +56,7 @@ import ImageView from "./image-viewer";
 import AudioPlayer from 'react-h5-audio-player';
 import GenerateExel from "./generate-exel";
 import { DateRangePicker } from "react-date-range";
+import { useMaterialUIController, setDialog } from "context";
 
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
@@ -65,7 +66,8 @@ import entityData from "./entityData";
 
 
 function Employee() {
-
+    const [controller, dispatch] = useMaterialUIController()
+    const { dialog } = controller
     const [recruit, setRecruit] = useState({});
     const [tags, setTags] = useState()
     const [platforms, setPlatforms] = useState()
@@ -116,7 +118,16 @@ function Employee() {
     const handleCloseModal = () => {
         setFilterModal(false)
     }
-
+    const snackBar = (title, error) => {
+        enqueueSnackbar(title, {
+            variant: error,
+            preventDuplicate: true,
+            anchorOrigin: {
+                horizontal: 'right',
+                vertical: 'top',
+            }
+        })
+    }
     const formHandle = (entity_id, careers_id, readOnly=true) => {
         console.log('debug employee formHandle:', entity_id +' '+ careers_id);
 
@@ -416,12 +427,14 @@ function Employee() {
         if (data) {
             dataServicePrivate('POST', contentURL, {id: idDelete}).then((result) => {
                 console.log("debug delete", result.data);
+                snackBar('Recruit successfully deleted','success')
                 getPlatforms()
                 getTags()
                 getInit()
                 setConfirmModal(false)
             }, (err) => {
                 console.log("debug delete error", err);
+                snackBar('Recruit unsuccessfully deleted','error')
             });
         }
     }
@@ -904,7 +917,113 @@ function Employee() {
                 </DialogContent>
             </Dialog>
 
-            { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> }
+            {/* { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> } */}
+            {confirmModal && (
+            <Dialog
+                open={confirmModal}
+                onClose={() => setConfirmModal(false)} // Close modal on background click or close button
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle textAlign="center" sx={{ m: 0, p: 2 }}>
+                    <MDBox
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#2E3B55",
+                            padding: "12px 20px",
+                            borderTopLeftRadius: "8px",
+                            borderTopRightRadius: "8px",
+                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                            position: "relative",
+                        }}
+                    >
+                        <MDTypography
+                            variant="h6"
+                            color="white"
+                            sx={{
+                                fontWeight: "600",
+                                fontSize: "1.25rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                        >
+                            <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                            Confirm Delete
+                        </MDTypography>
+                        <IconButton
+                            onClick={() => setConfirmModal(false)} // Close modal on close button click
+                            sx={{
+                                position: "absolute",
+                                top: "10px",
+                                right: "20px",
+                                color: "#FFFFFF",
+                                "&:hover": {
+                                    color: "red",
+                                },
+                            }}
+                        >
+                            <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+                        </IconButton>
+                    </MDBox>
+                </DialogTitle>
+
+                <DialogContent>
+                    <MDBox p={2}>
+                        <Typography variant="body1" color="textSecondary">
+                            {confirmContent} This action cannot be undone.
+                        </Typography>
+                    </MDBox>
+                </DialogContent>
+
+                <DialogActions>
+                    <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+                        <MDButton
+                            onClick={() => setConfirmModal(false)}
+                            color="secondary"
+                            variant="outlined"
+                            sx={{
+                                padding: "8px 16px",
+                                borderColor: "#f44336",
+                                color: "#f44336",
+                                fontWeight: "bold",
+                                "&:hover": {
+                                    backgroundColor: "#ffcccc",
+                                    borderColor: "#f44336",
+                                },
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                        >
+                            <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                            Cancel
+                        </MDButton>
+                        <MDButton
+                            color="primary"
+                            variant="contained"
+                            sx={{
+                                padding: "8px 16px",
+                                backgroundColor: "#4caf50",
+                                "&:hover": {
+                                    backgroundColor: "#388e3c",
+                                },
+                                fontWeight: "bold",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                            onClick={() => handleDeleteData(idDelete)} // Call handleDeleteData to perform the deletion
+                        >
+                            <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                            Confirm
+                        </MDButton>
+                    </MDBox>
+                </DialogActions>
+            </Dialog>
+          )}
         </DashboardLayout>
     );
 }
