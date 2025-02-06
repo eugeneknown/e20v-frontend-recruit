@@ -26,6 +26,7 @@ import educationData from "./educationData";
 import experienceData from "../personal-information/work-experience/experienceData";
 import referenceData from "../reference-information/referenceData";
 import colors from "assets/theme/base/colors";
+import { SvgIcon } from '@mui/material'; 
 
 
 function Response(){
@@ -378,8 +379,51 @@ function Response(){
                     </MDBox>
                 </SwipeableViews>
                 <MDBox my={2} display='flex' justifyContent={step==0 ? 'end' : step==2 ? 'start' : 'space-between'}>
-                    {step!=0 && <MDButton onClick={()=>setStep(step-1)}>prev</MDButton>}
-                    {step!=2 && <MDButton onClick={nextStep}>Next</MDButton>}
+                {step !== 0 && (
+                 <MDButton
+                 onClick={() => setStep(step - 1)}
+                 variant="contained"
+                 startIcon={<Icon sx={{ color: 'white' }}>navigate_before</Icon>}
+                 sx={{
+                   backgroundColor: '#666666 !important', 
+                   color: 'white !important', 
+                   '&:hover': {
+                     backgroundColor: '#555555 !important', 
+                     boxShadow: 'none',
+                     color: 'white !important'
+                   },
+                   '&.Mui-disabled': {
+                     backgroundColor: '#666666 !important',
+                     color: 'white !important',
+                     opacity: 0.5,
+                   }
+                 }}
+               >
+                 Prev
+               </MDButton>
+               
+                )}
+
+                    {step !== 2 && (
+                    <MDButton
+                        onClick={nextStep}
+                        variant="contained"
+                        color="primary"
+                        endIcon={<Icon>navigate_next</Icon>}
+                        sx={{
+                        color: 'white', 
+                        transition: 'all 0.3s ease',
+                        '& .MuiSvgIcon-root': { color: 'inherit' },
+                        '&:hover': {
+                            backgroundColor: '#2196f3', // Lighter blue on hover
+                            boxShadow: '0px 4px 10px rgba(33, 150, 243, 0.5)', // Soft glow effect
+                        } 
+                        }}
+                    >
+                        Next
+                    </MDButton>
+                    )}
+
                 </MDBox>
             </MDBox>
             <Footer />
