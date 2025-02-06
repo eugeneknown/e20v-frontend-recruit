@@ -47,6 +47,7 @@ import { dataServicePrivate } from "global/function";
 import useAuth from "hooks/useAuth";
 import colors from "assets/theme/base/colors";
 import reportsBarChartData from "../data/reportsBarChartData";
+import { formatDateTime } from "global/function";
 
 
 function Report() {
@@ -55,6 +56,8 @@ function Report() {
 
   const { auth } = useAuth()
   const [report, setReport] = useState()
+  const [ monthStart, setMonthStart ] = useState(moment().startOf('year'))
+  const [ monthEnd, setMonthEnd ] = useState(moment().endOf('year'))
 
   const [step, setStep] = useState(0)
 
@@ -78,11 +81,70 @@ function Report() {
       }
     }
 
+    monthlyReportSequence()
+
     return () => {
       isMounted = false;
       controller.abort();
     }
   }, [])
+
+  const monthlyReportSequence = () => {
+    var count = monthEnd.diff(monthStart, 'month')
+    
+    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(monthEnd),  count)
+    
+    dataServicePrivate('POST', 'hr/careers/entity/report',{
+      filter: [
+        {
+          target: 'created_at',
+          operator: 'range',
+          value: [monthStart, monthEnd],
+        }
+      ],
+      platforms: {
+        target: 'created_at',
+        operator: 'week',
+        value: 'id',
+      },
+    }).then((result) => {
+      console.log('monthly recruit data:', result)
+      result = result.data['entity_career']
+
+      var dataSets = []
+      var tempDataSet = {}
+      var totalCount = 0
+      // for ( var i=0; i<=count; i++ ) {
+      //   monthStart.add(i, 'month')
+      //   // console.log('debug report:', formatDateTime(monthStart))
+
+      //   tempDataSet['date'] = formatDateTime(monthStart, 'MMMM YYYY')
+      //   Object.keys(result).map((item, key) => {
+      //     // console.log('debug report format:', formatDateTime(moment(result[item]['date'])))
+      //     if (monthStart.isSame(result[item]['date'], 'month')) {
+      //       // console.log('debug report success:', data[item])
+      //       tempDataSet[result[item]['platform_id']] = result[item]['count']
+      //       totalCount += result[item]['count']
+
+      //       // delete result[item]
+      //     }
+      //   })
+
+      //   tempDataSet['total'] = totalCount
+      //   totalCount = 0
+
+      //   monthStart.subtract(i, 'month')
+      //   dataSets.push(tempDataSet)
+      //   tempDataSet = {}
+      // }
+
+      // console.log('debug monthly report data array:', dataSets)
+      // setMonthlyReport(dataSets)
+      
+    }).catch((err) => {
+      console.log('monthly recruit error data:', err)
+    })
+  }
 
   var tabs = ['Report', 'Comparison']
 
