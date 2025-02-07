@@ -419,19 +419,42 @@ function PersonalInformation(){
             // Educational Background
             let missingEdu = [];
             const educationData = educations || [];
+    
             const elementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
             const highSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
+            const seniorHigh = educationData.some(edu => edu.some(field => field.title === "Senior High School"));
+            const vocational = educationData.some(edu => edu.some(field => field.title === "Vocational"));
+            const college = educationData.some(edu => edu.some(field => field.title === "College"));
     
-            missingEdu.push({
-                key: "missing-elementary",
-                label: "Elementary",
-                missing: !elementary
-            });
-            missingEdu.push({
-                key: "missing-highschool",
-                label: "High School",
-                missing: !highSchool
-            });
+            // Always display all education levels if they exist
+            if (elementary) {
+                missingEdu.push({ key: "missing-elementary", label: "Elementary", missing: false });
+            } else {
+                missingEdu.push({ key: "missing-elementary", label: "Elementary", missing: true });
+            }
+    
+            if (highSchool) {
+                missingEdu.push({ key: "missing-highschool", label: "High School", missing: false });
+            } else {
+                missingEdu.push({ key: "missing-highschool", label: "High School", missing: true });
+            }
+    
+            if (seniorHigh) {
+                missingEdu.push({ key: "missing-seniorhigh", label: "Senior High School", missing: false });
+            }
+    
+            if (vocational) {
+                missingEdu.push({ key: "missing-vocational", label: "Vocational", missing: false });
+            }
+    
+            if (college) {
+                missingEdu.push({ key: "missing-college", label: "College", missing: false });
+            }
+    
+            // If neither Senior High nor College is filled, show the merged label
+            if (!seniorHigh && !college) {
+                missingEdu.push({ key: "missing-college", label: "College (Senior High School if not applicable)", missing: true });
+            }
     
             missing = [...missing, ...missingEdu]; // Merge education with other missing info
     
@@ -457,11 +480,14 @@ function PersonalInformation(){
                     missing: !dependents || dependents.length === 0
                 });
             }
+    
             setMissingInfo(missing);
         };
     
         checkMissingInfo();
     }, [entity, experience, details, dependents, educations]);
+    
+    
     
     return (
         <PageLayout>
@@ -495,7 +521,7 @@ function PersonalInformation(){
                     >  
                         <CareersStepper activeStep={0} orientation='vertical' />  
     
-                    <Card variant="outlined" sx={{ p: 1, mt: -10, width: "100%",maxWidth: "75vw", mx: "auto" }}>
+                    <Card variant="outlined" sx={{ p: 1, mt: -10, width: "79%",maxWidth: "75vw", mx: "auto" }}>
                             <CardHeader 
                                 title={<MDTypography variant='h5'>Complete Your Information</MDTypography>} 
                                 subheader="Please provide the necessary details to proceed."
