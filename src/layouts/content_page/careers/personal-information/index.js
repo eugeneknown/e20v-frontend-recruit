@@ -1,5 +1,7 @@
 import {Card, CardContent, CardHeader, Chip, Container, Divider, Icon, Link} from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
 import MDBox from "components/MDBox";
@@ -41,7 +43,8 @@ function PersonalInformation(){
     const [hasDependents, setHasDependents] = useState(false)
     const [dependents, setDependents] = useState()
     const [disabled, setDisable] = useState(true)
-
+    const [elem, setElem] = useState()
+    const [high, setHigh] = useState()
     // remove personal local data
     localStorage.removeItem('entity')
     localStorage.removeItem('entity_details')
@@ -400,7 +403,66 @@ function PersonalInformation(){
             </CardContent>
         </Card>
     )
+    const [missingInfo, setMissingInfo] = useState([]);
 
+    useEffect(() => {
+        const checkMissingInfo = () => {
+            let missing = [];
+    
+            // Personal Information
+            missing.push({
+                key: "personal-info",
+                label: "Personal Information",
+                missing: !entity || entity.length === 0
+            });
+    
+            // Educational Background
+            let missingEdu = [];
+            const educationData = educations || [];
+            const elementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
+            const highSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
+    
+            missingEdu.push({
+                key: "missing-elementary",
+                label: "Elementary",
+                missing: !elementary
+            });
+            missingEdu.push({
+                key: "missing-highschool",
+                label: "High School",
+                missing: !highSchool
+            });
+    
+            missing = [...missing, ...missingEdu]; // Merge education with other missing info
+    
+            // Work Experience
+            missing.push({
+                key: "missing-work-experience",
+                label: "Work Experience",
+                missing: !experience || experience.length === 0
+            });
+    
+            // Other Details
+            missing.push({
+                key: "missing-other-details",
+                label: "Other Details",
+                missing: !details || details.length === 0
+            });
+    
+            // Dependents (Optional)
+            if (hasDependents) {
+                missing.push({
+                    key: "missing-dependents",
+                    label: "Dependents",
+                    missing: !dependents || dependents.length === 0
+                });
+            }
+            setMissingInfo(missing);
+        };
+    
+        checkMissingInfo();
+    }, [entity, experience, details, dependents, educations]);
+    
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -410,7 +472,7 @@ function PersonalInformation(){
                         <Card variant="outlined">
                             <CardHeader 
                                 title={<MDTypography variant='h3'>INFORMATION</MDTypography>} 
-                                subheader='Add a personal information'
+                                subheader='Add personal information'
                                 avatar={<Icon fontSize="large">person_outline</Icon>} 
                             />
                             <CardContent>
@@ -420,18 +482,45 @@ function PersonalInformation(){
                                 <WorkExpContent title='WORK EXPERIENCE' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='OTHER DETAILS' data={details} url='/careers/personalinfo/detailsform' />
                                 <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled || loading} startIcon={<Icon>check</Icon>} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}> {loading ? 'Loading...' : 'Continue'} </MDButton>
-
                             </CardContent>
                         </Card>
                     </MDBox>
                 </Grid>
-                <Grid display={{ xs: 'none', lg: 'block' }} size={{ lg: 5 }}>
-                    <CareersStepper activeStep={0} orientation='vertical' position='fixed' />
+                <Grid display={{ xs: 'none', lg: 'block' }} item lg={5}>
+                    <MDBox 
+                        display="flex" 
+                        flexDirection="column" 
+                        position="fixed" 
+                        sx={{ top: "5%", width: "30%", gap: 1 }}
+                    >  
+                        <CareersStepper activeStep={0} orientation='vertical' />  
+    
+                    <Card variant="outlined" sx={{ p: 1, mt: -10, width: "100%",maxWidth: "75vw", mx: "auto" }}>
+                            <CardHeader 
+                                title={<MDTypography variant='h5'>Complete Your Information</MDTypography>} 
+                                subheader="Please provide the necessary details to proceed."
+                                avatar={<Icon fontSize="large" color="info">info</Icon>}
+                            />
+                            <CardContent>
+                                {missingInfo.map((item, index) => (
+                                    <MDBox key={index} display="flex" alignItems="center">
+                                        {item.missing ? (
+                                            <CancelIcon color="error" sx={{ mr: 1 }} />  
+                                        ) : (
+                                            <CheckCircleIcon color="success" sx={{ mr: 1 }} /> 
+                                        )}
+                                        <MDTypography variant="body1" color={item.missing ? "error" : "success"}>
+                                            {item.label}
+                                        </MDTypography>
+                                    </MDBox>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </MDBox>
                 </Grid>
             </Grid>
-            <Footer />
         </PageLayout>
-    );
+    );    
 }
 
 export default PersonalInformation;
