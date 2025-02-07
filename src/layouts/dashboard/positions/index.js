@@ -15,7 +15,7 @@ Coded by www.creative-tim.com
 
 // @mui material components
 import Card from "@mui/material/Card";
-import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, Grid, Fab } from "@mui/material";
+import { Fade, IconButton, Typography, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, Grid, Fab } from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -121,9 +121,11 @@ function Positions() {
         const confirmDelete = async () => {
             await axiosPrivate.post('hr/careers/delete', {id: idDelete}).then((result) => {
                 console.log("debug position delete", result.data);
+                snackBar('Position successfully deleted','success')
                 init()
             }, (e) => {
                 console.log("debug position delete error", e);
+                snackBar('Position unsuccessfully deleted','error')
             })
         }
 
@@ -277,19 +279,108 @@ function Positions() {
         { Header: "actions", accessor: "actions", align: "center" },
     ]
 
-    const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
 
-    const deleteHandle = (id) => setDialog(dispatch, {
-        open: true,
-        title: (<MDTypography variant='h1'>Confirm Deletion</MDTypography>),
-        content: (<MDTypography variant='caption'>Are you sure to Delete this Position?</MDTypography>),
-        action: (
-            <MDBox display='flex' justifyContent='space-between'>
-                <MDButton color='error' onClick={handleDialogClose}>Close</MDButton>
-                <MDButton color='info' onClick={()=>setDialog(dispatch, {...dialog, actionType: 'delete', id})}>Confirm</MDButton>
-            </MDBox>
-        )
-    })
+    const deleteHandle = (id) => {
+        setDialog(dispatch, {
+            open: true,
+            title: (
+                <MDBox
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#2E3B55",
+                        padding: "12px 20px",
+                        borderTopLeftRadius: "8px",
+                        borderTopRightRadius: "8px",
+                        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                        position: "relative",
+                    }}
+                >
+                    <MDTypography
+                        variant="h6"
+                        color="white"
+                        sx={{
+                            fontWeight: "600",
+                            fontSize: "1.25rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                    >
+                        <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                        Confirm Delete
+                    </MDTypography>
+                    <IconButton
+                        onClick={() => setDialog(dispatch, { open: false })} 
+                        sx={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "20px",
+                            color: "#FFFFFF",
+                            "&:hover": {
+                                color: "red",
+                            },
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+                    </IconButton>
+                </MDBox>
+            ),
+            content: (
+                <MDBox p={2}>
+                    <Typography variant="body1" color="textSecondary">
+                        Are you sure you want to delete this item? This action cannot be undone.
+                    </Typography>
+                </MDBox>
+            ),
+            action: (
+                <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+                    <MDButton
+                        onClick={() => setDialog(dispatch, { open: false })}
+                        color="secondary"
+                        variant="outlined"
+                        sx={{
+                            padding: "8px 16px",
+                            borderColor: "#f44336",
+                            color: "#f44336",
+                            fontWeight: "bold",
+                            "&:hover": {
+                                backgroundColor: "#ffcccc",
+                                borderColor: "#f44336",
+                            },
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                        Cancel
+                    </MDButton>
+                    <MDButton
+                        color="primary"
+                        variant="contained"
+                        sx={{
+                            padding: "8px 16px",
+                            backgroundColor: "#4caf50",
+                            "&:hover": {
+                                backgroundColor: "#388e3c",
+                            },
+                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                        onClick={() => setDialog(dispatch, { ...dialog, actionType: "delete", id })}
+                    >
+                        <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                        Confirm
+                    </MDButton>
+                </MDBox>
+            ),
+        });
+    };
+    
 
     useEffect(() => {
         console.log('debug dialog action', dialog);
@@ -298,9 +389,11 @@ function Positions() {
                 console.log('delete');
                 dataServicePrivate('POST', 'hr/careers/delete', {id: dialog.id}).then((result) => {
                     console.log("debug position delete", result);
+                    snackBar('Position successfully deleted','success')
                     init()
                 }).catch((err) => {
                     console.log("debug position error delete", err);
+                    snackBar('Position unsuccessfully deleted','success')
 
                 })
                 break
@@ -308,10 +401,10 @@ function Positions() {
     },[dialog])
 
     const actions = [
-        { name: 'View', type: 'button', key: 'view', color: 'secondary' },
-        { name: 'Edit', type: 'button', key: 'edit', color: 'warning' },
-        { name: 'Delete', type: 'button', key: 'delete', color: 'error', action: deleteHandle },
-    ]
+        { name: "View", type: "button", key: "view", color: "secondary" },
+        { name: "Edit", type: "button", key: "edit", color: "warning" },
+        { name: "Delete", type: "button", key: "delete", color: "error", action: deleteHandle },
+    ];
 
     const url = {
         fetch: 'hr/careers/fetch',
@@ -324,7 +417,7 @@ function Positions() {
         setAction(data.key)
 
         if (data.key == 'create') {
-            setValue({status: 'paused'})
+            setValue({status: 'paused', action: 'create'})
             setQuestions({ action: data.key });
         } else {
             var item = data.items
@@ -368,7 +461,7 @@ function Positions() {
         dataServicePrivate('POST', url.define, value).then((result) => {
             console.log("debug positions submit:", result);
             result = result.data
-            snackBar('Position Successfully '.concat(value.action == 'create' ? 'Created' : 'Edited'), 'success')
+            snackBar('Position successfully '.concat(value.action == 'create' ? 'created' : 'edited'), 'success')
             handleClose()
             init()
         }).catch((err) => {
@@ -428,7 +521,6 @@ function Positions() {
                 <AddIcon fontSize="medium" />
             </Fab>
             <Footer />
-            { confirmModal && <ConfirmDialog closeModal={handleCloseModal} title='Confirm Delete' content='Are you sure to Delete this Position?' data={handleDataModal} /> }
             <Modal
             open={open}
             onClose={handleClose}
