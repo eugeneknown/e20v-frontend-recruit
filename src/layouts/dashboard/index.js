@@ -270,7 +270,7 @@ function Dashboard() {
       }
 
       console.log('debug report data array:', dataSets)
-      setWeeklyReport(dataSets)
+      // setWeeklyReport(dataSets)
     }).catch((err) => {
       console.log('weekly report error data:', err)
     })
