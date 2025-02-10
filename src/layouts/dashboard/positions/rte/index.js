@@ -64,33 +64,16 @@ export function SimpleEditor({onChange, content, readOnly}) {
         editable: !readOnly,
         content,
         onUpdate: ({editor}) => {
-            onChange(editor.getHTML())
             if (editor) {
                 const attrs = editor.getAttributes('textStyle')
                 setFont(attrs.fontFamily || 'Arial')
                 setFontSize(attrs.fontSize || '12px')
             }
+            // onChange(editor.getJSON())
+            onChange(editor.getHTML())
+            console.log('rte', editor.getJSON());
         },
     });
-
-    // const fontFamily = [
-    //     {
-    //         title: 'Comic Sans',
-    //         font: '"Comic Sans MS", "Comic Sans"'
-    //     },
-    //     {
-    //         title: 'Serif',
-    //         font: 'serif'
-    //     },
-    //     {
-    //         title: 'Monospace',
-    //         font: 'monospace'
-    //     },
-    //     {
-    //         title: 'Cursive',
-    //         font: 'cursive'
-    //     },
-    // ]
 
     const fontFamilies = [
         "Arial",

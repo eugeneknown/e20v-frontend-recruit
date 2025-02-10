@@ -29,6 +29,7 @@ import { MuiFileInput } from 'mui-file-input';
 import MDTypography from 'components/MDTypography';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { ToHTML } from 'layouts/dashboard/positions/rte/html-converter';
 const CheckboxField = ({ props, sx, handleChange }) => {
     const [open, setOpen] = useState(false); // Dropdown open/close state
     const [selectedValues, setSelectedValues] = useState(
@@ -277,7 +278,7 @@ export const generateFormInput = (props) => {
                     <MDTypography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                         {props?.label}
                     </MDTypography>
-                    <MDBox display="grid">
+                    <MDBox display="grid" mt={2}>
                         {props.options?.map((item, key) => (
                             <Link
                                 key={key}
@@ -303,11 +304,13 @@ export const generateFormInput = (props) => {
                 </MDBox>
             );
         case 'label':
+            console.log('label:', props);
             return (
                 <MDBox>
                     <Divider />
                     <MDTypography>
                         <div dangerouslySetInnerHTML={{ __html: props?.options }} />
+                        {/* <ToHTML data={props?.options} /> */}
                     </MDTypography>
                     <Divider />
                 </MDBox>
