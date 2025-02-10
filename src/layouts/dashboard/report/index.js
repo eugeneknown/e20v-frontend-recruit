@@ -55,9 +55,10 @@ function Report() {
   const { e20 } = colors
 
   const { auth } = useAuth()
-  const [report, setReport] = useState()
-  const [ monthStart, setMonthStart ] = useState(moment().startOf('year'))
-  const [ monthEnd, setMonthEnd ] = useState(moment().endOf('year'))
+  const [report, setReport] = useState({ start: moment().subtract(30, 'days').startOf('day'), end: moment().endOf('day') })
+  const [reportBy, SetReportBy] = useState('day')
+  // const [ monthStart, setMonthStart ] = useState(moment().startOf('year'))
+  // const [ monthEnd, setMonthEnd ] = useState(moment().endOf('year'))
 
   const [step, setStep] = useState(0)
 
@@ -81,7 +82,7 @@ function Report() {
       }
     }
 
-    monthlyReportSequence()
+    initReport()
 
     return () => {
       isMounted = false;
@@ -89,57 +90,52 @@ function Report() {
     }
   }, [])
 
-  const monthlyReportSequence = () => {
-    var count = monthEnd.diff(monthStart, 'month')
-    
-    console.log('debug monthly report:', formatDateTime(monthStart), formatDateTime(monthEnd),  count)
+  const initReport = () => {
+    console.log('debug report date range:', formatDateTime(report['start']), formatDateTime(report['end']))
     
     dataServicePrivate('POST', 'hr/careers/entity/report',{
       filter: [
         {
-          target: 'created_at',
+          target: 'updated_at',
           operator: 'range',
-          value: [monthStart, monthEnd],
+          value: [report['start'], report['end']],
         }
       ],
       platforms: {
-        target: 'created_at',
-        operator: 'week',
+        target: 'updated_at',
+        operator: reportBy,
         value: 'id',
       },
     }).then((result) => {
-      console.log('monthly recruit data:', result)
+      console.log('debug report data:', result)
       result = result.data['entity_career']
 
+      var dataSeries = []
       var dataSets = []
-      var tempDataSet = {}
-      var totalCount = 0
-      // for ( var i=0; i<=count; i++ ) {
-      //   monthStart.add(i, 'month')
-      //   // console.log('debug report:', formatDateTime(monthStart))
 
-      //   tempDataSet['date'] = formatDateTime(monthStart, 'MMMM YYYY')
-      //   Object.keys(result).map((item, key) => {
-      //     // console.log('debug report format:', formatDateTime(moment(result[item]['date'])))
-      //     if (monthStart.isSame(result[item]['date'], 'month')) {
-      //       // console.log('debug report success:', data[item])
-      //       tempDataSet[result[item]['platform_id']] = result[item]['count']
-      //       totalCount += result[item]['count']
+      for ( var i in result['series'] ) {
+        var data = result['series'][i]
+        dataSeries.push({
+          'dataKey': data['id'],
+          'label': data['title'],
+          'color': data['color'],
+        })
+      }
 
-      //       // delete result[item]
-      //     }
-      //   })
+      for ( var i in result['sets'] ) {
+        var tempData = {}
 
-      //   tempDataSet['total'] = totalCount
-      //   totalCount = 0
+        var data = result['sets'][i]
+        tempData['date'] = formatDateTime(i, 'MMMM DD YYYY')
+        tempData['total'] = data['total']
+        for ( var j in data['data'] ) {
+          tempData[data['data'][j]['id']] = data['data'][j].value
+        }
 
-      //   monthStart.subtract(i, 'month')
-      //   dataSets.push(tempDataSet)
-      //   tempDataSet = {}
-      // }
+        dataSets.push(tempData)
+      }
 
-      // console.log('debug monthly report data array:', dataSets)
-      // setMonthlyReport(dataSets)
+      console.log('debug weekly report datasets', dataSeries, dataSets);
       
     }).catch((err) => {
       console.log('monthly recruit error data:', err)

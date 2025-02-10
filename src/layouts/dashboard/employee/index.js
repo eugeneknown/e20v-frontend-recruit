@@ -443,7 +443,7 @@ function Employee() {
                     number: recruit[key]['entity'].contact_number,
                     alternative: recruit[key]['entity'].alternative_number,
                     platforms_id: recruit[key]['platforms']?.id,
-                    applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
+                    applied: formatDateTime(recruit[key].updated_at, 'MMM DD, YYYY HH:mm:ss'),
                     entity_careers_id: recruit[key].id,
                     tags_id: recruit[key]['tags']?.id,
                     actions: (
