@@ -208,28 +208,37 @@ export const generateFormInput = (props) => {
             );
         
                 
-        case 'switch':
-            props['sx'] = {
-                ...sx,
-                display: 'flex',
-                alignItems: 'center',
-            };
-            return (
-                <FormControlLabel
-                    required={props.required}
-                    label={props.label}
-                    sx={props.sx}
-                    control={
-                        <Switch
-                            name={props.name}
-                            checked={props.value}
-                            onChange={(value) =>
-                                props.setFieldValue(props.id, value.target.checked, props.required)
-                            }
-                        />
-                    }
-                />
-            );
+            case 'switch':
+                props['sx'] = {
+                    ...sx,
+                    display: 'flex',
+                    alignItems: 'center',
+                };
+                return (
+                    <FormControlLabel
+                        required={props.required}
+                        label={props.label}
+                        sx={props.sx}
+                        control={
+                            <Switch
+                                name={props.name}
+                                checked={Boolean(props.value)}
+                                onChange={(event) => {
+                                    const isChecked = event.target.checked;
+                                    props.setFieldValue(props.id, isChecked, props.required);
+            
+                                    // Ensure the other toggle is updated accordingly
+                                    if (props.id === 'present' && isChecked) {
+                                        props.setFieldValue('undergrad', false);
+                                    } else if (props.id === 'undergrad' && isChecked) {
+                                        props.setFieldValue('present', false);
+                                    }
+                                }}
+                            />
+                        }
+                    />
+                );
+            
         case 'check':
             props['sx'] = [{ py: '0.75rem' }];
             props['value'] =

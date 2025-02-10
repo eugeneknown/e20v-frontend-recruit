@@ -33,17 +33,17 @@ export default [
             views: ['year'],
             disableFuture: true,
         },
-            validations: [
-            {
-                type: 'when',
-                params: [['present', 'end_date', 'undergrad'], {
-                    is: ((present, end_date, undergrad) => {
-                        return ((typeof present == 'undefined' || (!(present))) ?? (typeof undergrad == 'undefined' || (!(undergrad)))) && typeof end_date != 'undefined'
-                    }),
-                    then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated.'),
-                }]
-            },
-        ]
+        validations: [
+          {
+              type: 'when',
+              params: [['present', 'end_date', 'undergrad'], {
+                  is: (present, end_date, undergrad) => {
+                      return !present && !undergrad && typeof end_date !== 'undefined';
+                  },
+                  then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated.'),
+              }]
+          },
+      ],      
     },
     {
         id: 'end_date',
