@@ -15,6 +15,7 @@ import MDButton from "components/MDButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import MDInput from "components/MDInput";
 import CareersStepper from "../../careers-stepper";
+import { useSnackbar } from "notistack";
 
 import * as yup from 'yup';
 import { Field, FieldArray, Form, Formik, useFormik } from 'formik';
@@ -48,6 +49,19 @@ function PersonalForm(){
     var yupObject = generateObjectSchema(entityData)
     var yupSchema = yupObject.reduce(generateYupSchema, {})
     var validationSchema = yup.object().shape(yupSchema)
+
+     // snackbar nostick
+        const { enqueueSnackbar } = useSnackbar()
+        const snackBar = (title, error) => {
+            enqueueSnackbar(title, {
+                variant: error,
+                preventDuplicate: true,
+                anchorOrigin: {
+                    horizontal: 'right',
+                    vertical: 'top',
+                }
+            })
+        }
 
     useEffect(() => {
         var entity_id = auth['id']
@@ -91,14 +105,20 @@ function PersonalForm(){
     },[entity])
 
     const handleSubmit = (data) => {
-        dataServicePrivate('POST', 'entity/entities/define', {...data, age}).then((result) => {
-            console.log('debug entity define result', result);
-            removeLocalEntity()
-            navigate('/careers/personalinfo', { replace: true })
-        }).catch((err) => {
-            console.log('debug entity define error result', err);
-
-        })
+        if(age < 18){
+            snackBar(`Please enter a valid age as your current age of ${age} is less than 18 years old.`,`error`)
+            return;
+        }
+        else{
+            dataServicePrivate('POST', 'entity/entities/define', {...data, age}).then((result) => {
+                console.log('debug entity define result', result);
+                removeLocalEntity()
+                navigate('/careers/personalinfo', { replace: true })
+            }).catch((err) => {
+                console.log('debug entity define error result', err);
+    
+            })
+        }
     }
 
     return (
@@ -156,7 +176,7 @@ function PersonalForm(){
                                                                 helperText: touch && error,
                                                                 options: entityData[item].options ? entityData[item].options : undefined
                                                             })}
-                                                            <MDTypography sx={{ mx: 2 }} variant='button'>Age: {age} years old</MDTypography>
+                                                            <MDTypography sx={{ mx: 2 }} variant='button' color={age < 18 ? 'error' : 'inherit'}>Age: {age} years old</MDTypography>
                                                         </MDBox>
                                                     )
                                                 } else {
