@@ -153,6 +153,21 @@ function Response(){
         </MDBox>
     )
 
+<<<<<<< Updated upstream
+=======
+    const renderOtherDetails = (title, value, index) => (
+        <MDBox py={1} pr={2}>
+            {index!=0 && <Divider sx={{ my: 1 }} />}
+            <MDTypography variant="button" fontWeight="bold" color="black">
+                {title}: &nbsp;
+            </MDTypography>
+            <MDTypography variant="button" fontWeight="regular" color="black">
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : <div dangerouslySetInnerHTML={{__html: String(value).replace(/, /g, "<br>")}} />}
+            </MDTypography>
+        </MDBox>
+    )
+
+>>>>>>> Stashed changes
     return (
         <PageLayout>
             <NavBar position='absolute' />
