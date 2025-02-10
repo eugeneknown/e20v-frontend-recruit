@@ -277,7 +277,7 @@ export const generateFormInput = (props) => {
                     <MDTypography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                         {props?.label}
                     </MDTypography>
-                    <MDBox display="grid">
+                    <MDBox display="grid" mt={2}>
                         {props.options?.map((item, key) => (
                             <Link
                                 key={key}

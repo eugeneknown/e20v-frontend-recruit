@@ -29,6 +29,7 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
 import { SketchPicker } from "react-color";
 import MDBox from "components/MDBox";
+import Indent from "./IndentExtension";
 
 export function SimpleEditor({onChange, content, readOnly}) {
 
@@ -59,6 +60,7 @@ export function SimpleEditor({onChange, content, readOnly}) {
         TextStyle,
         FontFamily,
         FontSize,
+        Indent,
         Highlight.configure({ multicolor: true }),
         ],
         editable: !readOnly,
@@ -72,25 +74,6 @@ export function SimpleEditor({onChange, content, readOnly}) {
             }
         },
     });
-
-    // const fontFamily = [
-    //     {
-    //         title: 'Comic Sans',
-    //         font: '"Comic Sans MS", "Comic Sans"'
-    //     },
-    //     {
-    //         title: 'Serif',
-    //         font: 'serif'
-    //     },
-    //     {
-    //         title: 'Monospace',
-    //         font: 'monospace'
-    //     },
-    //     {
-    //         title: 'Cursive',
-    //         font: 'cursive'
-    //     },
-    // ]
 
     const fontFamilies = [
         "Arial",

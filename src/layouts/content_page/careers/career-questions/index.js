@@ -6,7 +6,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 import useAuth from "hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dataServicePrivate, formatDateTime } from "global/function";
 import NavBar from "layouts/content_page/nav_bar";
 
@@ -49,6 +49,8 @@ function CareerQuestionsForm(){
     const [answers, setAnswers] = useState(local ? JSON.parse(local) : {})
     const [questions, setQuestions] = useState()
     const [step, setStep] = useState(0)
+
+    const swipeRef = useRef()
 
     // must be revice
     const careerId = localStorage.getItem('career_id')
@@ -188,6 +190,12 @@ function CareerQuestionsForm(){
 
     }
 
+    const accordHeightChange = () => {
+        setTimeout(() => {
+            if (swipeRef) swipeRef.current.updateHeight()
+        }, 500);
+    }
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -214,12 +222,14 @@ function CareerQuestionsForm(){
                                     <SwipeableViews
                                         index={step}
                                         animateHeight
+                                        ref={swipeRef}
                                     >
                                         {Object.keys(questions).map((item, index) => (
                                             <FieldArray
                                                 render={arrayHelper => (
                                                 <MDBox>
-                                                    {console.log('values', values)}
+                                                    {/* {console.log('values', values)} */}
+                                                    {accordHeightChange()}
                                                     {setAnswers(values)}
                                                     {Object.keys(questions[item]).map((_item, index) => {
                                                         var data = questions[item][_item]
