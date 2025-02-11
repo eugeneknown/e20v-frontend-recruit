@@ -42,12 +42,13 @@ import ProgressLineChart from "examples/Charts/LineCharts/ProgressLineChart";
 import MDButton from "components/MDButton";
 import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
-import { AppBar, Card, Grid2, Paper, Tab, Tabs } from "@mui/material";
+import { AppBar, Card, Divider, FormControl, Grid2, InputLabel, MenuItem, Paper, Select, Tab, Tabs } from "@mui/material";
 import { dataServicePrivate } from "global/function";
 import useAuth from "hooks/useAuth";
 import colors from "assets/theme/base/colors";
 import reportsBarChartData from "../data/reportsBarChartData";
 import { formatDateTime } from "global/function";
+import configs from "./configs";
 
 
 function Report() {
@@ -55,8 +56,16 @@ function Report() {
   const { e20 } = colors
 
   const { auth } = useAuth()
-  const [report, setReport] = useState({ start: moment().subtract(30, 'days').startOf('day'), end: moment().endOf('day') })
+  const [report, setReport] = useState()
+  const [reportSeries, setReportSeries] = useState('platforms')
+  const [reportDate, setReportDate] = useState({ start: moment().startOf('month'), end: moment().endOf('month') })
   const [reportBy, SetReportBy] = useState('day')
+  const [isDateRange, setIsDateRange] = useState(false)
+  const [dateBy, setDateBy] = useState('currMonth')
+  const [reportType, SetReportType] = useState('month')
+
+  const { options } = configs(reportType)
+  const [reportProps, setReportProps] = useState({})
   // const [ monthStart, setMonthStart ] = useState(moment().startOf('year'))
   // const [ monthEnd, setMonthEnd ] = useState(moment().endOf('year'))
 
@@ -64,6 +73,69 @@ function Report() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const byDate = {
+    currMonth: {
+      label: 'Current Month',
+      start: moment().startOf('month'),
+      end: moment().endOf('month'),
+      by: 'day',
+      type: 'month',
+    },
+    lastMonth: {
+      label: 'Last Month',
+      start: moment().subtract(1, 'month').startOf('month'),
+      end: moment().subtract(1, 'month').endOf('month'),
+      by: 'day',
+      type: 'month',
+    },
+    currWeek: {
+      label: 'Current Week',
+      start: moment().startOf('week'),
+      end: moment().endOf('week'),
+      by: 'day',
+      type: 'week',
+    },
+    lastWeek: {
+      label: 'Last Week',
+      start: moment().subtract(1, 'week').startOf('week'),
+      end: moment().subtract(1, 'week').endOf('week'),
+      by: 'day',
+      type: 'week',
+    },
+    thirtyDays: {
+      label: 'Last 30 days',
+      start: moment().subtract(30, 'days').startOf('day'),
+      end: moment().endOf('day'),
+      by: 'day',
+      type: 'month',
+    },
+    ninetyDays: {
+      label: 'Last 90 days',
+      start: moment().subtract(3, 'month').startOf('month'),
+      end: moment().endOf('day'),
+      by: 'month',
+      type: 'year',
+    },
+  }
+
+  // {
+  //   label: 'Custom Range',
+  //   range: setIsDateRange(true),
+  // }
+
+  const handleDateBy = (e) => {
+    var value = e.target.value
+    console.log('date label', value);
+    setDateBy(value)
+    if (value=='range') {
+
+    } else {
+      setReportDate({ start: byDate[value].start, end: byDate[value].end })
+      SetReportBy(byDate[value].by)
+      SetReportType(byDate[value].type)
+    }
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -82,27 +154,25 @@ function Report() {
       }
     }
 
-    initReport()
-
     return () => {
       isMounted = false;
       controller.abort();
     }
   }, [])
 
-  const initReport = () => {
-    console.log('debug report date range:', formatDateTime(report['start']), formatDateTime(report['end']))
+  useEffect(() => {
+    console.log('debug report date range:', formatDateTime(reportDate['start']), formatDateTime(reportDate['end']))
     
     dataServicePrivate('POST', 'hr/careers/entity/report',{
       filter: [
         {
-          target: 'updated_at',
+          target: 'created_at',
           operator: 'range',
-          value: [report['start'], report['end']],
+          value: [reportDate['start'], reportDate['end']],
         }
       ],
-      platforms: {
-        target: 'updated_at',
+      [reportSeries]: {
+        target: 'created_at',
         operator: reportBy,
         value: 'id',
       },
@@ -135,14 +205,44 @@ function Report() {
         dataSets.push(tempData)
       }
 
+      if ( reportType == 'week' ) {
+        setReportProps({
+          topAxis: {
+            disableLine: true,
+            disableTicks: true,
+            valueFormatter: (value, context) => {
+              if (context.location == 'tick') {
+                return `${formatDateTime(value, 'ddd')}`
+              }
+            }
+          }
+        })
+      } else {
+        setReportProps({})
+      }
+
       console.log('debug weekly report datasets', dataSeries, dataSets);
+      setReport({ dataSeries, dataSets })
       
     }).catch((err) => {
       console.log('monthly recruit error data:', err)
     })
-  }
+  },[reportSeries, reportBy, reportDate])
 
   var tabs = ['Report', 'Comparison']
+
+  const CustomLegend = ({ series }) => {
+    return (
+      <MDBox justifyContent='center' flexWrap='wrap' style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        {series.map((item, index) => (
+          <MDBox key={index} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <MDBox style={{ width: "12px", height: "12px", backgroundColor: item.color, borderRadius: "3px" }} />
+            <MDTypography variant='button'>{item.label}</MDTypography>
+          </MDBox>
+        ))}
+      </MDBox>
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -169,22 +269,71 @@ function Report() {
             </AppBar>
           </Grid2>
         </Grid2>
-        <Card>
+        <Card sx={{ mt: 2 }}>
           <Grid2 container>
             <Grid2 size={{ xs: 12 }}>
-              <Card>
+              <MDBox display='flex' p={3}>
                 <MDBox display='flex'>
-                  <MDBox display='flex'>
-                    platforms
-                    tags
-                  </MDBox>
-                  <MDBox display='flex'>
-                    date filter
-                    filter by day, week, month, quarter, or year
-                  </MDBox>
+                  <FormControl sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel>Report By</InputLabel>
+                    <Select
+                      value={reportSeries}
+                      onChange={(e)=>setReportSeries(e.target.value)}
+                      autoWidth
+                      label="Report By"
+                      sx={{ p: 1 }}
+                    >
+                      <MenuItem value='platforms'>Platforms</MenuItem>
+                      <MenuItem value='tags'>Tags</MenuItem>
+                    </Select>
+                  </FormControl>
                 </MDBox>
-              </Card>
-              bar graph
+                <MDBox display='flex'>
+                  <FormControl sx={{ m: 1, minWidth: 150 }}>
+                    <Select
+                      value={dateBy}
+                      onChange={handleDateBy}
+                      autoWidth
+                      sx={{ p: 1 }}
+                    >
+                      {Object.keys(byDate).map((item, index) => {
+                        return (<MenuItem value={item}>{byDate[item].label}</MenuItem>)
+                      })}
+                      <Divider />
+                      <MenuItem value='range'>Custom Range</MenuItem>
+                    </Select>
+                  </FormControl>
+                </MDBox>
+              </MDBox>
+              <MDBox p="1rem">
+                {
+                  report &&
+                  <BarChart
+                    dataset={report['dataSets']}
+                    {...reportProps}
+                    {...options}
+                    series={
+                      Object.keys(report['dataSeries']).map((item, key) => {
+                        // console.log('debug series data', item, key, report);
+                        var series = {
+                          ...report['dataSeries'][item],
+                          valueFormatter: (value, context) => {
+                            // console.log('debug series value monthly formatter:', value, context);
+                            if (context.dataIndex >= 0) {
+                              var total = report['dataSets'][context.dataIndex].total
+                              var percentage = total != 0 ? Math.round((value/total)*100) : 0
+                              // return `Total ${value} -> ${percentage}%`
+                              return `${percentage}%`
+                            }
+                          }
+                        }
+                        return series
+                      })
+                    }
+                  />
+                }
+                {report && <CustomLegend series={report['dataSeries']} />}
+              </MDBox>
             </Grid2>
           </Grid2>
         </Card>
