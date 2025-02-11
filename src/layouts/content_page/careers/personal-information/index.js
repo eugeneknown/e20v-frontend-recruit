@@ -350,7 +350,7 @@ function PersonalInformation(){
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                {`${data ? 'Edit' : 'Create'} ${title}`}
+                {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -398,7 +398,7 @@ function PersonalInformation(){
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                {`${data ? 'Edit' : 'Create'} ${title}`}
+                {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -416,17 +416,22 @@ function PersonalInformation(){
                 missing: !entity || entity.length === 0
             });
     
+            // Dependents (Optional)
+            if (hasDependents) {
+                missing.push({
+                    key: "missing-dependents",
+                    label: "Dependents",
+                    missing: !dependents || dependents.length === 0
+                });
+            }
+    
             // Educational Background
             let missingEdu = [];
             const educationData = educations || [];
     
             const elementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
             const highSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
-            const seniorHigh = educationData.some(edu => edu.some(field => field.title === "Senior High School"));
-            const vocational = educationData.some(edu => edu.some(field => field.title === "Vocational"));
-            const college = educationData.some(edu => edu.some(field => field.title === "College"));
     
-            // Always display all education levels if they exist
             if (elementary) {
                 missingEdu.push({ key: "missing-elementary", label: "Elementary", missing: false });
             } else {
@@ -439,24 +444,7 @@ function PersonalInformation(){
                 missingEdu.push({ key: "missing-highschool", label: "High School", missing: true });
             }
     
-            if (seniorHigh) {
-                missingEdu.push({ key: "missing-seniorhigh", label: "Senior High School", missing: false });
-            }
-    
-            if (vocational) {
-                missingEdu.push({ key: "missing-vocational", label: "Vocational", missing: false });
-            }
-    
-            if (college) {
-                missingEdu.push({ key: "missing-college", label: "College", missing: false });
-            }
-    
-            // If neither Senior High nor College is filled, show the merged label
-            if (!seniorHigh && !college) {
-                missingEdu.push({ key: "missing-college", label: "College (Senior High School if not applicable)", missing: true });
-            }
-    
-            missing = [...missing, ...missingEdu]; // Merge education with other missing info
+            missing = [...missing, ...missingEdu];
     
             // Work Experience
             missing.push({
@@ -472,20 +460,12 @@ function PersonalInformation(){
                 missing: !details || details.length === 0
             });
     
-            // Dependents (Optional)
-            if (hasDependents) {
-                missing.push({
-                    key: "missing-dependents",
-                    label: "Dependents",
-                    missing: !dependents || dependents.length === 0
-                });
-            }
-    
             setMissingInfo(missing);
         };
     
         checkMissingInfo();
-    }, [entity, experience, details, dependents, educations]);
+    }, [entity, dependents, experience, details, educations]);
+    
     
     
     
@@ -527,7 +507,7 @@ function PersonalInformation(){
                                 subheader="Please provide the necessary details to proceed."
                                 avatar={<Icon fontSize="large" color="info">info</Icon>}
                             />
-                            <CardContent>
+                            <CardContent sx={{ pt: 1, mt: -1.5 }}>
                                 {missingInfo.map((item, index) => (
                                     <MDBox key={index} display="flex" alignItems="center">
                                         {item.missing ? (
@@ -535,7 +515,7 @@ function PersonalInformation(){
                                         ) : (
                                             <CheckCircleIcon color="success" sx={{ mr: 1 }} /> 
                                         )}
-                                        <MDTypography variant="body1" color={item.missing ? "error" : "success"}>
+                                        <MDTypography variant="body2" color={item.missing ? "error" : "success"}>
                                             {item.label}
                                         </MDTypography>
                                     </MDBox>
