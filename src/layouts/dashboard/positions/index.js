@@ -270,7 +270,7 @@ function Positions() {
     }
 
     const columns = [
-        { Header: "job sites", accessor: "title", align: "left" },
+        { Header: "position title", accessor: "title", align: "left" },
         { Header: "date created", accessor: "created", align: "center" },
         { Header: "date posted", accessor: "posted", align: "center" },
         { Header: "date closed", accessor: "closed", align: "center" },

@@ -648,7 +648,7 @@ function Dashboard() {
                     </MDBox>
                     <Tooltip title='Previous Week'><IconButton onClick={handlePrevWeek} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
                     <Tooltip title='Next Week'><IconButton onClick={handleNextWeek} color="grey.100" disabled={disabledWeek}><Icon>navigate_next</Icon></IconButton></Tooltip>
-                    <MDButton onClick={handleThisWeek}>Today</MDButton>
+                    <MDButton onClick={handleThisWeek}>Present</MDButton>
                   </MDBox>
                   <MDBox p="1rem">
                     {
@@ -752,7 +752,7 @@ function Dashboard() {
                     </MDBox>
                     <Tooltip title='Previous Year'><IconButton onClick={handlePrevTag} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
                     <Tooltip title='Next Year'><IconButton onClick={handleNextTag} color="grey.100" disabled={disabledTag}><Icon>navigate_next</Icon></IconButton></Tooltip>
-                    <MDButton onClick={handleThisTag}>Today</MDButton>
+                    <MDButton onClick={handleThisTag}>Present</MDButton>
                   </MDBox>
                 </Card>
               </MDBox>
@@ -774,7 +774,7 @@ function Dashboard() {
                     </MDBox>
                     <Tooltip title='Previous Year'><IconButton onClick={handlePrevMonth} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
                     <Tooltip title='Next Year'><IconButton onClick={handleNextMonth} color="grey.100" disabled={disabledMonth}><Icon>navigate_next</Icon></IconButton></Tooltip>
-                    <MDButton onClick={handleThisMonth}>Today</MDButton>
+                    <MDButton onClick={handleThisMonth}>Present</MDButton>
                   </MDBox>
                   <MDBox p="1rem">
                     {
