@@ -1,6 +1,6 @@
 import {Card, CardContent, Chip, Container, Divider, Icon, IconButton, Link, TextField} from "@mui/material";
 import Grid from "@mui/material/Grid2";
-
+import { Switch, FormControlLabel } from "@mui/material";
 import PageLayout from "examples/LayoutContainers/PageLayout";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -41,7 +41,7 @@ function EducationalAttainmentForm(){
     const {isAuth, auth} = useAuth();
     var entity_id = auth['id']
     const id = location.state?.id || null
-    const [education, setEducation] = useState()
+    const [education, setEducation] = useState();
     const [endDate, setEndDate] = useState()
     const [data, setData] = useState({})
 
@@ -66,7 +66,7 @@ function EducationalAttainmentForm(){
                 result = result.data['entity_education'][0]
     
                 setData(init(result['education']))
-                setEducation(result)
+                setEducation(result)|| { education: ed }
             }).catch((err) => {
                 console.log('debug education error result', err);
     
@@ -105,21 +105,35 @@ function EducationalAttainmentForm(){
         if ( ed == "Graduate School (Master's or Doctorate)" ) return masterData
     }
 
-    const handleSubmit = (data) => {
-        if (id) data['id'] = id;
-        data['entity_id'] = entity_id
-        console.log('submit id', data);
+    const handleSubmit = (values) => {
+        console.log("Submitting education data:", values);
 
-        dataServicePrivate('POST', 'entity/education/define', data).then((result) => {
-            console.log('debug education define result', result);
-            removeLocal()
-            prevPage()
-        }).catch((err) => {
-            console.log('debug education define error result', err);
-
-        })
-
-    }
+        if (id) values['id'] = id;
+        values['entity_id'] = entity_id;
+    
+        // Ensure boolean fields are properly set
+        values['undergrad'] = values['undergrad'] || false;
+        values['present'] = values['present'] || false;
+    
+        // Ensure end_date is null if Presently Enrolled or Undergraduate is selected
+        if (values.present || values.undergrad) {
+            values['end_date'] = null;
+        }
+    
+        console.log("Final Data before Submission:", values);
+    
+        dataServicePrivate('POST', 'entity/education/define', values)
+            .then((result) => {
+                console.log("Successfully saved education data:", result);
+                removeLocal();
+                prevPage();
+            })
+            .catch((err) => {
+                console.error("Error saving education data:", err);
+            });
+    };
+    
+    
     const educationLevels = {
         Elementary: 'Edit Elementary',
         'Secondary (High School)': 'Edit High School',
@@ -144,7 +158,9 @@ function EducationalAttainmentForm(){
                                 handleSubmit(data)
                             }}
                         >
+                            
                             {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
+                                
                                 <Form>
                                     <FieldArray
                                         render={arrayHelper => (
@@ -180,7 +196,7 @@ function EducationalAttainmentForm(){
                                                 // universal format
                                                 var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
                                                 var error = data[item].type == 'date' ? !(disabled) && errors[data[item].id] : errors[data[item].id]
-
+                                                console.log("Current Form Values:", values); // Debug log
                                                 return (generateFormInput({
                                                     variant: 'outlined',
                                                     fullWidth: true,
@@ -203,8 +219,59 @@ function EducationalAttainmentForm(){
                                             })}
                                         </MDBox>
                                         )}
+                                        
                                     />
-                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit'startIcon={<Icon>save</Icon>}>Save</MDButton>
+                                    {(values.education === "College" || values.education === "Graduate School (Master's or Doctorate)") && (
+                                        <>
+                                        <FormControlLabel
+                                                label="Presently Enrolled"
+                                                sx={{ display: 'flex', alignItems: 'center' }}
+                                                control={
+                                                    <Switch
+                                                        name="present"
+                                                        checked={Boolean(values.present)}
+                                                        onChange={(event) => {
+                                                            const isChecked = event.target.checked;
+                                                            setFieldValue("present", isChecked);
+
+                                                            if (isChecked) {
+                                                                setFieldValue("undergrad", false); 
+                                                                setFieldValue("end_date", null); // Ensure end_date is null when Present is checked
+                                                            } else {
+                                                                setFieldValue("end_date", endDate || null); // Restore previous end_date when unchecked
+                                                            }
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                            <FormControlLabel
+                                                label="Undergraduate"
+                                                sx={{ display: 'flex', alignItems: 'center' }}
+                                                control={
+                                                    <Switch
+                                                        name="undergrad"
+                                                        checked={Boolean(values.undergrad)}
+                                                        onChange={(event) => {
+                                                            const isChecked = event.target.checked;
+                                                            console.log("Undergraduate switch toggled:", isChecked);
+                                                            
+                                                            setFieldValue("undergrad", isChecked);
+
+                                                            if (isChecked) {
+                                                                setFieldValue("present", false); 
+                                                                setFieldValue("end_date", null);
+                                                            } else {
+                                                                setFieldValue("end_date", endDate || null);
+                                                            }
+
+                                                            console.log("Updated values after switch:", values);
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </>
+                                    )}
+                                    <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' startIcon={<Icon>save</Icon>}>Save</MDButton>
                                 </Form>
                             )}
                         </Formik>}

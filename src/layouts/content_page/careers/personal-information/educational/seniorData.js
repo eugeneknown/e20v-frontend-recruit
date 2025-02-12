@@ -27,7 +27,7 @@ export default [
     },
     {
         id: 'end_date',
-        label: 'Year graduated',
+        label: 'Year Graduated',
         type: 'date',
         required: true,
         options: { 
