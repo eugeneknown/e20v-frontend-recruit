@@ -60,6 +60,7 @@ function Report() {
   const { auth } = useAuth()
   const [categorize, setCategorize] = useState('report')
   const [report, setReport] = useState()
+  const [comparison, setComparison] = useState()
   const [reportSeries, setReportSeries] = useState('platforms')
   const [reportDate, setReportDate] = useState({ start: moment().startOf('month'), end: moment().endOf('month') })
   const [reportBy, SetReportBy] = useState('day')
@@ -241,12 +242,15 @@ function Report() {
         var row = []
         Object.keys(result).map((item, index) => {
           row.push({
-            title: '',
-            result1: '',
-            result2: '',
-            percent: '',
+            title: result[item].title,
+            result1: result[item].value1,
+            result2: result[item].value2,
+            percent: calcPercentage(result[item].value1, result[item].value2),
           })
         })
+
+        console.log('row', row);
+        setComparison(row)
       }
 
       handleSwipeHeight()
@@ -255,6 +259,14 @@ function Report() {
       console.log('monthly recruit error data:', err)
     })
   },[reportSeries, reportBy, reportDate])
+
+  const calcPercentage = (val1, val2) => {
+    if ( val1 == 0 ) {
+      return val2 == 0 ? '0%' : '100%'
+    }
+
+    return (((val2 - val1) / val1) * 100).toFixed(2) + '%'
+  }
 
   useEffect(() => {
     if (categorize == 'report') {
@@ -388,13 +400,16 @@ function Report() {
                   {report && <CustomLegend series={report['dataSeries']} />}
                 </MDBox>
                 <MDBox p='1rem'>
-                  {/* <DataTable
-                    table={{ columns, report }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
+                  {
+                    comparison &&
+                    <DataTable
+                      table={{ columns, rows: comparison }}
+                      isSorted={false}
+                      entriesPerPage={false}
+                      showTotalEntries={false}
+                      noEndBorder
+                    />
+                  }
                 </MDBox>
               </SwipeableViews>
             </Grid2>
