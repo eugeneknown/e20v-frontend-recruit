@@ -406,68 +406,78 @@ function PersonalInformation(){
     const [missingInfo, setMissingInfo] = useState([]);
 
     useEffect(() => {
-        const checkMissingInfo = () => {
-            let missing = [];
-    
-            // Personal Information
+    const checkMissingInfo = () => {
+        let missing = [];
+
+        // Personal Information
+        missing.push({
+            key: "personal-info",
+            label: "Personal Information",
+            missing: !entity || entity.length === 0
+        });
+
+        // Dependents (Optional)
+        if (hasDependents) {
             missing.push({
-                key: "personal-info",
-                label: "Personal Information",
-                missing: !entity || entity.length === 0
+                key: "missing-dependents",
+                label: "Dependents",
+                missing: !dependents || dependents.length === 0
             });
-    
-            // Dependents (Optional)
-            if (hasDependents) {
-                missing.push({
-                    key: "missing-dependents",
-                    label: "Dependents",
-                    missing: !dependents || dependents.length === 0
-                });
-            }
-    
-            // Educational Background
-            let missingEdu = [];
-            const educationData = educations || [];
-    
-            const elementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
-            const highSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
-    
-            if (elementary) {
-                missingEdu.push({ key: "missing-elementary", label: "Elementary", missing: false });
-            } else {
-                missingEdu.push({ key: "missing-elementary", label: "Elementary", missing: true });
-            }
-    
-            if (highSchool) {
-                missingEdu.push({ key: "missing-highschool", label: "High School", missing: false });
-            } else {
-                missingEdu.push({ key: "missing-highschool", label: "High School", missing: true });
-            }
-    
-            missing = [...missing, ...missingEdu];
-    
-            // Work Experience
-            missing.push({
-                key: "missing-work-experience",
-                label: "Work Experience",
-                missing: !experience || experience.length === 0
-            });
-    
-            // Other Details
-            missing.push({
-                key: "missing-other-details",
-                label: "Other Details",
-                missing: !details || details.length === 0
-            });
-    
-            setMissingInfo(missing);
-        };
-    
-        checkMissingInfo();
+        }
+
+        // Educational Background Check
+        const educationData = educations || [];
+
+        const hasElementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
+        const hasHighSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
+        const hasVocational = educationData.some(edu => edu.some(field => field.title === "Vocational & Technical Education"));
+        const hasSeniorHigh = educationData.some(edu => edu.some(field => field.title === "Senior High School"));
+        const hasCollege = educationData.some(edu => edu.some(field => field.title === "College"));
+
+        let missingEdu = [];
+
+        if (!hasElementary) missingEdu.push("• Elementary is required");
+        if (!hasHighSchool) missingEdu.push("• High School is required");
+        if (!hasVocational && !hasSeniorHigh && !hasCollege) {
+            missingEdu.push("• At least one of Vocational, Senior High School, or College is required");
+        }
+
+        missing.push({
+            key: "missing-educational-background",
+            label: (
+                <>
+                    Educational Background
+                    {missingEdu.length > 0 && (
+                        <div style={{ marginLeft: "15px", whiteSpace: "pre-line" }}>
+                            {missingEdu.map((text, index) => (
+                                <div key={index}>{text}</div>
+                            ))}
+                        </div>
+                    )}
+                </>
+            ),
+            missing: missingEdu.length > 0
+        });
+
+        // Work Experience
+        missing.push({
+            key: "missing-work-experience",
+            label: "Work Experience",
+            missing: !experience || experience.length === 0
+        });
+
+        // Other Details
+        missing.push({
+            key: "missing-other-details",
+            label: "Other Details",
+            missing: !details || details.length === 0
+        });
+
+        setMissingInfo(missing);
+    };
+
+    checkMissingInfo();
     }, [entity, dependents, experience, details, educations]);
-    
-    
-    
     
     return (
         <PageLayout>
@@ -509,13 +519,13 @@ function PersonalInformation(){
                             />
                             <CardContent sx={{ pt: 1, mt: -1.5 }}>
                                 {missingInfo.map((item, index) => (
-                                    <MDBox key={index} display="flex" alignItems="center">
+                                    <MDBox key={index} display="flex" alignItems="flex-start" sx={{ mb: 1 }}>
                                         {item.missing ? (
                                             <CancelIcon color="error" sx={{ mr: 1 }} />  
                                         ) : (
                                             <CheckCircleIcon color="success" sx={{ mr: 1 }} /> 
                                         )}
-                                        <MDTypography variant="body2" color={item.missing ? "error" : "success"}>
+                                        <MDTypography variant="body2" color={item.missing ? "error" : "success"} sx={{whiteSpace: "pre-line", ml: 1}}>
                                             {item.label}
                                         </MDTypography>
                                     </MDBox>
