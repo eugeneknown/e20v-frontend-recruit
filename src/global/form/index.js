@@ -217,23 +217,6 @@ export const generateFormInput = (props) => {
                         required={props.required}
                         label={props.label}
                         sx={props.sx}
-                        control={
-                            <Switch
-                                name={props.name}
-                                checked={Boolean(props.value)}
-                                onChange={(event) => {
-                                    const isChecked = event.target.checked;
-                                    props.setFieldValue(props.id, isChecked, props.required);
-            
-                                    // Ensure the other toggle is updated accordingly
-                                    if (props.id === 'present' && isChecked) {
-                                        props.setFieldValue('undergrad', false);
-                                    } else if (props.id === 'undergrad' && isChecked) {
-                                        props.setFieldValue('present', false);
-                                    }
-                                }}
-                            />
-                        }
                     />
                 );
             
