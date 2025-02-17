@@ -60,7 +60,7 @@ function Response(){
                 target: 'id',
                 value: id,
             }],
-            relations: ['details', 'educations', 'reference', 'dependents']
+            relations: [{ details: { relations: ['platforms'] } }, 'educations', 'reference', 'dependents']
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
@@ -303,7 +303,13 @@ function Response(){
                                 >
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Other Details</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {details && Object.keys(detailsData).map((item, index) => renderOtherDetails(detailsData[item].label, details[0][detailsData[item].id], index))}
+                                        {details && Object.keys(detailsData).map((item, index) => {
+                                            if (detailsData[item].id == 'platforms_id') {
+                                                return renderOtherDetails(detailsData[item].label, details[0]['platforms']['title'], index)
+                                            } else {
+                                                return renderOtherDetails(detailsData[item].label, details[0][detailsData[item].id], index)
+                                            }
+                                        })}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>

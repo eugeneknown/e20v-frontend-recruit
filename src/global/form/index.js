@@ -158,7 +158,7 @@ export const generateFormInput = (props) => {
             return <TextField {...props} {...props?.options} />;
         case 'radio':
         case 'select':
-            props['sx'] = [{ py: '0.75rem' }];
+            // props['sx'] = [{ py: '0.75rem' }];
             return (
                 <FormControl sx={sx} required={props.required} fullWidth={props.fullWidth} error={props?.error}>
                     <InputLabel>{props.label}</InputLabel>
@@ -179,8 +179,6 @@ export const generateFormInput = (props) => {
                     {props?.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
                 </FormControl>
             )
-
-    
 
         case 'date':
             let valueProps = {}
@@ -207,7 +205,6 @@ export const generateFormInput = (props) => {
                     {...props?.options} 
                 />
             );
-        
                 
         case 'switch':
             props['sx'] = {

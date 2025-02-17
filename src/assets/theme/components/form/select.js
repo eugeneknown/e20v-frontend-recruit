@@ -23,6 +23,14 @@ const { transparent } = colors;
 
 const select = {
   styleOverrides: {
+    root: {
+      paddingTop: `${pxToRem(12)}`,
+      paddingBottom: `${pxToRem(12)}`,
+      display: `inline-flex!important`,
+      marginTop: `0!important`,
+      marginBottom: `0!important`,
+    },
+
     select: {
       display: "grid",
       alignItems: "center",
@@ -37,7 +45,7 @@ const select = {
       background: "none",
       height: "none",
       minHeight: "none",
-      overflow: "unset",
+      // overflow: "unset",
     },
 
     // icon: {
