@@ -40,7 +40,7 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { axiosPrivate } from "api/axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import moment from "moment";
@@ -50,9 +50,10 @@ import ProgressLineChart from "examples/Charts/LineCharts/ProgressLineChart";
 import MDButton from "components/MDButton";
 import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
-import { Card, colors, IconButton, Paper, Tooltip } from "@mui/material";
+import { Card, colors, FormControl, IconButton, MenuItem, Paper, Select, Tooltip } from "@mui/material";
 import { dataServicePrivate } from "global/function";
 import useAuth from "hooks/useAuth";
+import { formatDateTime } from "global/function";
 
 
 function Dashboard() {
@@ -72,6 +73,8 @@ function Dashboard() {
   const [ weekStart, setWeekStart ] = useState(moment().startOf('week'))
   const [ weekEnd, setWeekEnd ] = useState(moment().endOf('week'))
   const [ disabledWeek, setDisabledWeek ] = useState(false)
+
+
   const [ monthStart, setMonthStart ] = useState(moment().startOf('year'))
   const [ monthEnd, setMonthEnd ] = useState(moment().endOf('year'))
   const [ disabledMonth, setDisabledMonth ] = useState(false)
@@ -80,12 +83,21 @@ function Dashboard() {
   const [ tagEnd, setTagEnd ] = useState(moment().endOf('year'))
   const [ disabledTag, setDisabledTag ] = useState(false)
 
+  const years = useMemo(() => {
+    var years = []
+    var now = Number(formatDateTime(moment(), 'YYYY'))
+    for ( var i=now; i>=now-50; i-- ) {
+      years.push(i)
+    }
+    return years
+  },[])
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const formatDateTime = ( date='', output = 'YYYY-MM-DD HH:mm:ss') => {
-    return moment( date ).format( output );
-  }
+  // const formatDateTime = ( date='', output = 'YYYY-MM-DD HH:mm:ss') => {
+  //   return moment( date ).format( output );
+  // }
 
   useEffect(() => {
     let isMounted = true;
@@ -193,16 +205,21 @@ function Dashboard() {
   const handleNextWeek = () => {
     console.log('next week', formatDateTime(weekStart), formatDateTime(weekEnd));
     setWeekStart(moment(weekStart).startOf('week').add(1, 'week'))
-    setWeekEnd(moment(weekStart).endOf('week').add(1, 'week'))
+    setWeekEnd(moment(weekEnd).endOf('week').add(1, 'week'))
   }
   const handlePrevWeek = () => {
     console.log('prev week', weekStart, weekEnd);
     setWeekStart(moment(weekStart).startOf('week').subtract(1, 'week'))
-    setWeekEnd(moment(weekStart).endOf('week').subtract(1, 'week'))
+    setWeekEnd(moment(weekEnd).endOf('week').subtract(1, 'week'))
   }
   const handleThisWeek = () => {
     setWeekStart(moment().startOf('week'))
     setWeekEnd(moment().endOf('week'))
+  }
+  const handleWeekYear = (e) => {
+    console.log('week year', e);
+    setWeekStart(moment(weekStart).year(e.target.value).startOf('week'))
+    setWeekEnd(moment(weekStart).year(e.target.value).endOf('week'))
   }
 
   const handleNextMonth = () => {
@@ -218,6 +235,11 @@ function Dashboard() {
   const handleThisMonth = () => {
     setMonthStart(moment().startOf('year'))
     setMonthEnd(moment().endOf('year'))
+  }
+  const handleMonthYear = (e) => {
+    console.log('month year', e);
+    setMonthStart(moment(monthStart).year(e.target.value).startOf('year'))
+    setMonthEnd(moment(monthStart).year(e.target.value).endOf('year'))
   }
   
   const weeklyReportSequence = () => {
@@ -384,6 +406,11 @@ function Dashboard() {
     setTagStart(moment().startOf('year'))
     setTagEnd(moment().endOf('year'))
   }
+  const handleTagYear = (e) => {
+    console.log('tag year', e);
+    setTagStart(moment(tagStart).year(e.target.value).startOf('year'))
+    setTagEnd(moment(tagStart).year(e.target.value).endOf('year'))
+  }
   
   const tagsReportSequence = () => {
     var count = tagEnd.diff(tagStart, 'month')
@@ -492,11 +519,11 @@ function Dashboard() {
                 icon="person_add"
                 title="Total Applicants"
                 count={total}
-                percentage={{
-                  color: "success",
-                  amount: "+3%",
-                  label: "than yesterday",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "+3%",
+                //   label: "than yesterday",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -506,11 +533,11 @@ function Dashboard() {
                 icon="person_add"
                 title="Shortlisted"
                 count={tagsCount && dailyTagsFinder('Shortlisted').count || 0}
-                percentage={{
-                  color: "success",
-                  amount: "+3%",
-                  label: "than yesterday",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "+3%",
+                //   label: "than yesterday",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -521,11 +548,11 @@ function Dashboard() {
                 icon="leaderboard"
                 title="Initial Interview"
                 count={tagsCount && dailyTagsFinder('Initial Interview').count || 0}
-                percentage={{
-                  color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "+55%",
+                //   label: "than lask week",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -536,11 +563,11 @@ function Dashboard() {
                 icon="leaderboard"
                 title="No Show Initial Interview"
                 count={tagsCount && dailyTagsFinder('No Show Initial Interview').count || 0}
-                percentage={{
-                  color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "+55%",
+                //   label: "than lask week",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -551,11 +578,11 @@ function Dashboard() {
                 icon="work"
                 title="Final Interview"
                 count={tagsCount && dailyTagsFinder('Final Interview').count || 0}
-                percentage={{
-                  color: "success",
-                  amount: "+1%",
-                  label: "than yesterday",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "+1%",
+                //   label: "than yesterday",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -566,11 +593,11 @@ function Dashboard() {
                 icon="work"
                 title="No Show Final Interview"
                 count={tagsCount && dailyTagsFinder('No Show Final Interview').count || 0}
-                percentage={{
-                  color: "success",
-                  amount: "+1%",
-                  label: "than yesterday",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "+1%",
+                //   label: "than yesterday",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -579,11 +606,11 @@ function Dashboard() {
               icon="person_add"
               title="Job Offer"
               count={tagsCount && dailyTagsFinder('Job Offer').count || 0}
-              percentage={{
-                color: "success",
-                amount: "+3%",
-                label: "than yesterday",
-              }}
+              // percentage={{
+              //   color: "success",
+              //   amount: "+3%",
+              //   label: "than yesterday",
+              // }}
             />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
@@ -593,11 +620,11 @@ function Dashboard() {
                 icon="person_minus"
                 title="Hired"
                 count={tagsCount && dailyTagsFinder('Hired').count || 0}
-                percentage={{
-                  color: "success",
-                  amount: "",
-                  label: "Just updated",
-                }}
+                // percentage={{
+                //   color: "success",
+                //   amount: "",
+                //   label: "Just updated",
+                // }}
               />
             </MDBox>
           </Grid>
@@ -608,10 +635,20 @@ function Dashboard() {
               <MDBox mb={3}>
                 <Card sx={{ height: "100%" }}>
                   <MDBox display='flex' justifyContent='end' alignItems='center' p={1}>
-                    <MDTypography variant='button' sx={{ mx: 1 }}>Year: {formatDateTime(weekStart, 'YYYY')}</MDTypography>
+                    <MDBox display='flex' alignItems='center'>
+                      <MDTypography variant='button'>Year:</MDTypography>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: 60 }} size="small">
+                        <Select
+                          value={Number(formatDateTime(weekStart, 'YYYY'))}
+                          onChange={handleWeekYear}
+                        >
+                          {Object.keys(years).map((item, index) => (<MenuItem value={years[index]}>{String(years[index])}</MenuItem>))}
+                        </Select>
+                      </FormControl>
+                    </MDBox>
                     <Tooltip title='Previous Week'><IconButton onClick={handlePrevWeek} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
                     <Tooltip title='Next Week'><IconButton onClick={handleNextWeek} color="grey.100" disabled={disabledWeek}><Icon>navigate_next</Icon></IconButton></Tooltip>
-                    <MDButton onClick={handleThisWeek}>Today</MDButton>
+                    <MDButton onClick={handleThisWeek}>Present</MDButton>
                   </MDBox>
                   <MDBox p="1rem">
                     {
@@ -702,10 +739,20 @@ function Dashboard() {
                     />
                   </MDBox>
                   <MDBox display='flex' justifyContent='end' alignItems='center' p={1}>
-                    <MDTypography variant='button' sx={{ mx: 1 }}>Year: {formatDateTime(tagStart, 'YYYY')}</MDTypography>
+                    <MDBox display='flex' alignItems='center'>
+                      <MDTypography variant='button'>Year:</MDTypography>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: 60 }} size="small">
+                        <Select
+                          value={Number(formatDateTime(tagStart, 'YYYY'))}
+                          onChange={handleTagYear}
+                        >
+                          {Object.keys(years).map((item, index) => (<MenuItem value={years[index]}>{String(years[index])}</MenuItem>))}
+                        </Select>
+                      </FormControl>
+                    </MDBox>
                     <Tooltip title='Previous Year'><IconButton onClick={handlePrevTag} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
                     <Tooltip title='Next Year'><IconButton onClick={handleNextTag} color="grey.100" disabled={disabledTag}><Icon>navigate_next</Icon></IconButton></Tooltip>
-                    <MDButton onClick={handleThisTag}>Today</MDButton>
+                    <MDButton onClick={handleThisTag}>Present</MDButton>
                   </MDBox>
                 </Card>
               </MDBox>
@@ -714,10 +761,20 @@ function Dashboard() {
               <MDBox mb={3}>
                 <Card sx={{ height: "100%" }}>
                   <MDBox display='flex' justifyContent='end' alignItems='center' p={1}>
-                    <MDTypography variant='button' sx={{ mx: 1 }}>Year: {formatDateTime(monthStart, 'YYYY')}</MDTypography>
+                    <MDBox display='flex' alignItems='center'>
+                      <MDTypography variant='button'>Year:</MDTypography>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: 60 }} size="small">
+                        <Select
+                          value={Number(formatDateTime(monthStart, 'YYYY'))}
+                          onChange={handleMonthYear}
+                        >
+                          {Object.keys(years).map((item, index) => (<MenuItem value={years[index]}>{String(years[index])}</MenuItem>))}
+                        </Select>
+                      </FormControl>
+                    </MDBox>
                     <Tooltip title='Previous Year'><IconButton onClick={handlePrevMonth} color="grey.100"><Icon>navigate_before</Icon></IconButton></Tooltip>
                     <Tooltip title='Next Year'><IconButton onClick={handleNextMonth} color="grey.100" disabled={disabledMonth}><Icon>navigate_next</Icon></IconButton></Tooltip>
-                    <MDButton onClick={handleThisMonth}>Today</MDButton>
+                    <MDButton onClick={handleThisMonth}>Present</MDButton>
                   </MDBox>
                   <MDBox p="1rem">
                     {

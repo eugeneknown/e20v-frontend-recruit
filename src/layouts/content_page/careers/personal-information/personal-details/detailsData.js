@@ -67,7 +67,7 @@ export default [
         label: 'Pre-Employment Requirements (check if applicable or available)',
         type: 'check',
         required: true,
-        options: ['SSS ID', 'PHIC ID', 'HDMF ID', '2316 from previous employer', 'Birth Certificate (preferably PSA)', 'Picture with white background (for ID)',
+        options: ['SSS ID', 'PHIC ID', 'HDMF ID', '2316 from previous employer', 'Birth Certificate (preferably PSA)', '2x2 picture with white background (for ID purposes)',
             'Certificate of Employment (recent previous employer)', 'TOR', 'None of the Above'
         ],
     },

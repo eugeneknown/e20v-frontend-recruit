@@ -10,7 +10,7 @@ export default [
     },
     {
         id: 'birthday',
-        label: 'Day of Birth',
+        label: 'Date of Birth',
         type: 'date',
         required: true,
         options: { 

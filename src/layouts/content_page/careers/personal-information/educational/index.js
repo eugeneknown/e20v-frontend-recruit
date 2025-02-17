@@ -137,28 +137,16 @@ function Educational(){
     
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+        let error = false;
+        let errorMessage = "";
         let missingFields = [];
         if (!elem) missingFields.push("Elementary");
         if (!high) missingFields.push("High School");
-        if (!senior && !tech && !college) missingFields.push("Either Vocational or College");
-    
+
         if (missingFields.length > 0) {
             snackBar(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`, 'error');
             return;
         }
-    
-        let error = false;
-        let errorMessage = "";
-    
-        console.log("Education Data:");
-        console.log("Elem:", elem?.end_date);
-        console.log("High:", high?.end_date);
-        console.log("Senior:", senior?.end_date, senior?.start_date);
-        console.log("Tech:", tech?.end_date, tech?.start_date);
-        console.log("College:", college?.start_date);
-        console.log("Master:", master?.start_date);
-    
         const validateDateOrder = (prev, curr, minYears, labelPrev, labelCurr) => {
             if (prev && curr) {
                 console.log(`${labelPrev} (${prev}) vs ${labelCurr} (${curr})`);
@@ -184,7 +172,6 @@ function Educational(){
                 error = true;
             }
         }
-
         if (!senior?.end_date && tech?.end_date && high?.end_date) {
             console.log(`Checking Vocational (${tech.end_date}) >= High School End (${high.end_date})`);
             if (moment(tech.end_date).isBefore(moment(high.end_date))) {
@@ -192,14 +179,14 @@ function Educational(){
                 error = true;
             }
         }
-
+        
         if (error) {
-            console.log("❌ Error Detected:", errorMessage);
+            console.log("Error Detected:", errorMessage);
             snackBar(errorMessage, 'error');
             return;
         }
     
-        console.log("✅ Validation Passed, Proceeding...");
+        console.log("Validation Passed, Proceeding...");
         prevPage(); 
     };
 
@@ -419,6 +406,9 @@ function Educational(){
             </MDBox>
         );
     }
+    // useEffect(() => {
+    //     console.log("Fetched Education Data:", education);
+    // }, [education]);
 
     const EduFinder = (edu, key) => education[Object.keys(education).findIndex(item => education[item][edu.key] == edu.value)]?.[key] ?? undefined
 
@@ -498,7 +488,7 @@ function Educational(){
                     />
                     <Divider />
                     <form onSubmit={handleSubmit}>
-                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)} startIcon={<Icon>save</Icon>}> Save</MDButton>
+                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high} startIcon={<Icon>save</Icon>}> Save</MDButton>
                     </form>
                 </CardContent>
             </Card>

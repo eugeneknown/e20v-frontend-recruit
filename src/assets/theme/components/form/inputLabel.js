@@ -26,6 +26,7 @@ const inputLabel = {
       fontSize: size.sm,
       color: black.main,
       lineHeight: 0.9,
+      overflow: `visible`,
 
       ".MuiInputLabel-asterisk": {
         display: 'none'

@@ -60,7 +60,7 @@ function Response(){
                 target: 'id',
                 value: id,
             }],
-            relations: ['details', 'educations', 'reference', 'dependents']
+            relations: [{ details: { relations: ['platforms'] } }, 'educations', 'reference', 'dependents']
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
@@ -116,7 +116,7 @@ function Response(){
                     value: careers_id,
                 },
             ],
-            relations: ['question'],
+            relations: ['question', 'files'],
         }).then((result) => {
             console.log('debug answers result', result);
             setAnswers(result.data['career_answers'])
@@ -150,6 +150,18 @@ function Response(){
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="black">
                 &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : value}
+            </MDTypography>
+        </MDBox>
+    )
+
+    const renderOtherDetails = (title, value, index) => (
+        <MDBox py={1} pr={2}>
+            {index!=0 && <Divider sx={{ my: 2 }} />}
+            <MDTypography variant="button" fontWeight="bold" color="black">
+                {title}: &nbsp;
+            </MDTypography>
+            <MDTypography variant="button" fontWeight="regular" color="black">
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : <div dangerouslySetInnerHTML={{__html: String(value).replace(/, /g, "<br>")}} />}
             </MDTypography>
         </MDBox>
     )
@@ -270,7 +282,14 @@ function Response(){
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        {renderInfo('Other Experience', experience['other_experience'])}
+                                        <MDBox py={1} pr={2}>
+                                            <MDTypography variant="button" fontWeight="bold" color="black">
+                                                Other Experience: &nbsp;
+                                            </MDTypography>
+                                            <MDTypography variant="button" fontWeight="regular" color="black">
+                                                &nbsp;<div dangerouslySetInnerHTML={{__html: String(experience['other_experience']).replace(/\n/g, "<br>")}} />
+                                            </MDTypography>
+                                        </MDBox>
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -284,7 +303,13 @@ function Response(){
                                 >
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Other Details</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {details && Object.keys(detailsData).map((item, index) => renderInfo(detailsData[item].label, details[0][detailsData[item].id]))}
+                                        {details && Object.keys(detailsData).map((item, index) => {
+                                            if (detailsData[item].id == 'platforms_id') {
+                                                return renderOtherDetails(detailsData[item].label, details[0]['platforms']['title'], index)
+                                            } else {
+                                                return renderOtherDetails(detailsData[item].label, details[0][detailsData[item].id], index)
+                                            }
+                                        })}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>

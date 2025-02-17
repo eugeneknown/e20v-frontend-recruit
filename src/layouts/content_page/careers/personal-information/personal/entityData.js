@@ -108,7 +108,7 @@ export default [
         label: 'Educational Attainment',
         type: 'select',
         required: true,
-        options: ['College Graduate', 'High School Graduate', 'Senior High', 'College Level', 'Master\'s Degree'],
+        options: ['High School Graduate', 'Senior High Level', 'Senior High Graduate', 'College Level', 'College Graduate', 'Master\'s Degree Level', 'Master\'s Degree Graduate', 'Doctor\'s Degree Level', 'Doctor\'s Degree Graduate'],
     },
     {
         id: 'course',
@@ -116,4 +116,4 @@ export default [
         type: 'text',
         required: true,
     },
-]
+]  
