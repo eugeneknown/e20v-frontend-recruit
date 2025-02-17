@@ -205,7 +205,7 @@ export const generateFormInput = (props) => {
                     {...props?.options} 
                 />
             );
-                
+                 
             case 'switch':
                 props['sx'] = {
                     ...sx,

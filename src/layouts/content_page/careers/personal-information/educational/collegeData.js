@@ -82,16 +82,4 @@ export default [
           },
         ],
     },
-    // {
-    //     id: 'present',
-    //     label: 'Presently Enrolled',
-    //     type: 'switch',
-    //     required: false,
-    // },
-    // {
-    //     id: 'undergrad',
-    //     label: 'Undergraduate',
-    //     type: 'switch',
-    //     required: false,
-    // },
 ]

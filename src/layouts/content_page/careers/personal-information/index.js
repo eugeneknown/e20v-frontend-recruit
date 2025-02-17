@@ -464,7 +464,7 @@ function PersonalInformation(){
 
         setMissingInfo(missing);
     };
-
+ 
     checkMissingInfo();
     }, [entity, dependents, experience, details, educations]);
     

@@ -219,7 +219,7 @@ function EducationalAttainmentForm(){
                                             })}
                                         </MDBox>
                                         )}
-                                        
+                                         
                                     />
                                     {(values.education === "College" || values.education === "Graduate School (Master's or Doctorate)") && (
                                         <>
