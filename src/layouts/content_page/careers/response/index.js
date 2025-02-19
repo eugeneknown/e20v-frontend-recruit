@@ -156,7 +156,6 @@ function Response(){
 
     const renderOtherDetails = (title, value, index) => (
         <MDBox py={1} pr={2}>
-            {index!=0 && <Divider sx={{ my: 2 }} />}
             <MDTypography variant="button" fontWeight="bold" color="black">
                 {title}: &nbsp;
             </MDTypography>
@@ -344,7 +343,7 @@ function Response(){
                                                             {
                                                                 String(answers[item]['files']['file_type']).split('/')[1] == 'pdf' &&
                                                                 <Link href={answers[item]['files']['files_url']} target="_blank">
-                                                                    Open File
+                                                                    <MDButton sx={{ width: '100%', borderRadius: 0, marginTop: '15px', }}>Open File</MDButton>
                                                                 </Link>
                                                             }
                                                             {

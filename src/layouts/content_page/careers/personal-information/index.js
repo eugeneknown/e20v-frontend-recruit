@@ -88,7 +88,7 @@ function PersonalInformation(){
             var detail = result['details'][0]
             var title = ['salary', 'us_time', 'work_in_office', 'application', 'start']
             var color = []
-            var variant = ['h6']
+            var variant = []
 
             if ( detail?.created_at ) {
                 var temp = []
@@ -132,7 +132,7 @@ function PersonalInformation(){
                 result = result.data['experience_details']
                 var title = []
                 Object.keys(result).map((item, index) => {
-                    title.push(['position_held', 'company', 'start_date', 'stay_length'])
+                    title.push(['company', 'position_held', 'start_date', 'stay_length'])
                 })
                 var color = []
                 var variant = ['h6']
@@ -185,7 +185,7 @@ function PersonalInformation(){
                 "College",
                 "Graduate School (Master's or Doctorate)"
             ]
-            var check = ['education', 'course', 'school', 'start_date', 'end_date']
+            var check = ['education', 'school', 'course', 'start_date', 'end_date']
             
             if ( Object.keys(result).length ) {
                 var color = []
@@ -221,8 +221,6 @@ function PersonalInformation(){
                                     color: color[_index] ? color[_index] : 'inherit',
                                     variant: variant[_index] ? variant[_index] : 'body2',
                                 })
-                                // if ( _item != 'start_date' ) {
-                                // }
                             }
                         })
                         temp.push(_temp)
@@ -321,7 +319,7 @@ function PersonalInformation(){
                         key={index} 
                         color={data[item]?.color ? data[item].color : 'inherit'}
                         variant={data[item]?.variant ? data[item].variant : ''}
-                        sx={{ textTransform: 'capitalize' }}
+                        sx={{ textTransform: 'math-auto' }}
                         >{data[item].title}{Object.keys(data).length == index+1 && '...'}</MDTypography>
                     )) 
                     : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
@@ -365,7 +363,7 @@ function PersonalInformation(){
                                     key={index} 
                                     color={data[item][_item]?.color ? data[item][_item].color : 'inherit'}
                                     variant={data[item][_item]?.variant ? data[item][_item].variant : ''}
-                                    sx={{ textTransform: 'capitalize' }}
+                                    sx={{ textTransform: 'math-auto' }}
                                     >{data[item][_item].title}</MDTypography>
                                 ))}
                                 <Divider />

@@ -13,8 +13,8 @@ const steps = [
     stepDescription: <MDTypography variant='button'>Answer the following questions</MDTypography>,
   },
   {
-    stepLabel: "Reference",
-    stepDescription: <MDTypography variant='button'>Add your reference</MDTypography>,
+    stepLabel: "Character Reference",
+    stepDescription: <MDTypography variant='button'>Add your references</MDTypography>,
   },
 ];
 
