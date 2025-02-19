@@ -221,7 +221,7 @@ export const DateRangeFilterColumnFN = ({
 }
 
 
-const PlatformFilterColumnFN = ({ column: { filterValue, setFilter, id }, platforms }) => (
+const FilterColumnFN = ({ column: { filterValue, setFilter, id }, data }) => (
     <FormControl variant="outlined" size="small" fullWidth>
         <InputLabel><MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography></InputLabel>
         <Select
@@ -231,24 +231,7 @@ const PlatformFilterColumnFN = ({ column: { filterValue, setFilter, id }, platfo
             sx={{ padding: '0.625rem!important' }}
         >
             <MenuItem value="">No Filter</MenuItem>
-            {platforms && platforms.map((item, index) => (
-                <MenuItem key={index} value={item.title}>{item.title}</MenuItem>
-            ))}
-        </Select>
-    </FormControl>
-)
-
-const TagsFilterColumnFN = ({ column: { filterValue, setFilter, id }, tags }) => (
-    <FormControl variant="outlined" size="small" fullWidth>
-        <InputLabel><MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography></InputLabel>
-        <Select
-            label={<MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography>}
-            value={filterValue ?? ''}
-            onChange={(e) => setFilter(e.target.value)}
-            sx={{ padding: '0.625rem!important' }}
-        >
-            <MenuItem value="">No Filter</MenuItem>
-            {tags && tags.map((item, index) => (
+            {data && data.map((item, index) => (
                 <MenuItem key={index} value={item.title}>{item.title}</MenuItem>
             ))}
         </Select>
