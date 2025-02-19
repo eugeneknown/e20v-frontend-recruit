@@ -369,7 +369,12 @@ function Employee() {
     }
 
     const handleTagUpdate = (id, tags_id) => {
-        dataServicePrivate('POST', 'hr/careers/entity/tag', { id, tags_id }).then((result) => {
+        var data = { id, tags_id }
+        if ( tags[Object.keys(tags).findIndex((item) => tags[item].id == tags_id)].title == 'Hired' ) {
+            data['hired_at'] = moment()
+        }
+
+        dataServicePrivate('POST', 'hr/careers/entity/tag', data).then((result) => {
             console.log("debug update career tag", result);
             getInit();
         }, (err) => {
@@ -417,7 +422,6 @@ function Employee() {
                     email: recruit[key]['entity'].email,
                     career: recruit[key]['careers'].title,
                     number: recruit[key]['entity'].contact_number,
-                    alternative: recruit[key]['entity'].alternative_number,
                     platforms: recruit[key]['platforms'],
                     applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
                     entity_careers_id: recruit[key].id,
@@ -484,11 +488,6 @@ function Employee() {
             <Employee image={team3} name={row.original.full_name} email={row.original.email} />
         ), align: "left", sort: true },
         { Header: "contact number", accessor: "number", Cell: ({value}) => (
-            <MDTypography variant="caption" color="text" fontWeight="medium">
-                {formatPhoneNumber(value)}
-            </MDTypography>
-        ), align: "left", sort: true },
-        { Header: "alternative number", accessor: "alternative", Cell: ({value}) => (
             <MDTypography variant="caption" color="text" fontWeight="medium">
                 {formatPhoneNumber(value)}
             </MDTypography>
