@@ -143,24 +143,24 @@ function Response(){
 
     var tabs = ['Information', 'Questions', 'Reference']
 
-    const renderInfo = (title, value) => (
-        <MDBox display="flex" py={1} pr={2}>
-            <MDTypography variant="button" fontWeight="bold" color="black">
-                {title}: &nbsp;
-            </MDTypography>
-            <MDTypography variant="button" fontWeight="regular" color="black">
-                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : value}
-            </MDTypography>
-        </MDBox>
-    )
-
-    const renderOtherDetails = (title, value, index) => (
+    const renderInfo = (title, value, format='YYYY') => (
         <MDBox py={1} pr={2}>
             <MDTypography variant="button" fontWeight="bold" color="black">
                 {title}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="black">
-                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : <div dangerouslySetInnerHTML={{__html: String(value).replace(/, /g, "<br>")}} />}
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, format) : value}
+            </MDTypography>
+        </MDBox>
+    )
+
+    const renderOtherDetails = (title, value, format='YYYY') => (
+        <MDBox py={1} pr={2}>
+            <MDTypography variant="button" fontWeight="bold" color="black">
+                {title}: &nbsp;
+            </MDTypography>
+            <MDTypography variant="button" fontWeight="regular" color="black">
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, format) : <div dangerouslySetInnerHTML={{__html: String(value).replace(/, /g, "<br>")}} />}
             </MDTypography>
         </MDBox>
     )
@@ -201,7 +201,7 @@ function Response(){
                                 >
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Personal Information</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {entity && Object.keys(entityData).map((item, index) => renderInfo(entityData[item].label, entity[entityData[item].id]))}
+                                        {entity && Object.keys(entityData).map((item, index) => renderInfo(entityData[item].label, entity[entityData[item].id], 'MMMM dd, YYYY'))}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -219,7 +219,7 @@ function Response(){
                                         {dependents && Object.keys(dependents).map((item, index) => (
                                             <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(dependentsData).map((_item, _index) => renderInfo(dependentsData[_item].label, dependents[item][dependentsData[_item].id]))}
+                                                    {Object.keys(dependentsData).map((_item, _index) => renderInfo(dependentsData[_item].label, dependents[item][dependentsData[_item].id], 'MMMM dd, YYYY'))}
                                                 </CardContent>
                                             </Card>
                                         ))}
@@ -252,7 +252,7 @@ function Response(){
                                                                     </MDBox>
                                                                 )
                                                             } else {
-                                                                return renderInfo(educationData[_item].label, education[item][educationData[_item].id])
+                                                                return renderInfo(educationData[_item].label, education[item][educationData[_item].id], ) //todo
                                                             }
                                                         }
                                                     })}
