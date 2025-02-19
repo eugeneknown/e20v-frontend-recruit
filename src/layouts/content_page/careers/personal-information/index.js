@@ -291,7 +291,6 @@ function PersonalInformation(){
             if (!educations || !educations.length) return false;
     
             const requiredLevels = ["Elementary", "Secondary (High School)"];
-            const optionalLevels = ["Senior High School", "Vocational & Technical Education", "College"];
     
             const hasRequiredLevels = requiredLevels.every((level) =>
                 educations.some((edu) =>
@@ -299,13 +298,9 @@ function PersonalInformation(){
                 )
             );
     
-            const hasOptionalLevel = optionalLevels.some((level) =>
-                educations.some((edu) =>
-                    edu.some((field) => field.title === level)
-                )
-            );
+           
     
-            return hasRequiredLevels && hasOptionalLevel;
+            return hasRequiredLevels;
         };
     
         const allFieldsFilled = entity && details && (hasDependents ? dependents : true);
@@ -430,18 +425,12 @@ function PersonalInformation(){
 
         const hasElementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
         const hasHighSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
-        const hasVocational = educationData.some(edu => edu.some(field => field.title === "Vocational & Technical Education"));
-        const hasSeniorHigh = educationData.some(edu => edu.some(field => field.title === "Senior High School"));
-        const hasCollege = educationData.some(edu => edu.some(field => field.title === "College"));
-
+      
         let missingEdu = [];
 
         if (!hasElementary) missingEdu.push("• Elementary is required");
         if (!hasHighSchool) missingEdu.push("• High School is required");
-        if (!hasVocational && !hasSeniorHigh && !hasCollege) {
-            missingEdu.push("• At least one of Vocational, Senior High School, or College is required");
-        }
-
+    
         missing.push({
             key: "missing-educational-background",
             label: (
@@ -475,7 +464,7 @@ function PersonalInformation(){
 
         setMissingInfo(missing);
     };
-
+ 
     checkMissingInfo();
     }, [entity, dependents, experience, details, educations]);
     

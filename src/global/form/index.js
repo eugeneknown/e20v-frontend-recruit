@@ -205,29 +205,21 @@ export const generateFormInput = (props) => {
                     {...props?.options} 
                 />
             );
-                
-        case 'switch':
-            props['sx'] = {
-                ...sx,
-                display: 'flex',
-                alignItems: 'center',
-            };
-            return (
-                <FormControlLabel
-                    required={props.required}
-                    label={props.label}
-                    sx={props.sx}
-                    control={
-                        <Switch
-                            name={props.name}
-                            checked={props.value}
-                            onChange={(value) =>
-                                props.setFieldValue(props.id, value.target.checked, props.required)
-                            }
-                        />
-                    }
-                />
-            );
+                 
+            case 'switch':
+                props['sx'] = {
+                    ...sx,
+                    display: 'flex',
+                    alignItems: 'center',
+                };
+                return (
+                    <FormControlLabel
+                        required={props.required}
+                        label={props.label}
+                        sx={props.sx}
+                    />
+                );
+            
         case 'check':
             props['sx'] = [{ py: '0.75rem' }];
             props['value'] =

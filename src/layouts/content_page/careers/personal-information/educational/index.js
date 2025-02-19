@@ -142,7 +142,6 @@ function Educational(){
         let missingFields = [];
         if (!elem) missingFields.push("Elementary");
         if (!high) missingFields.push("High School");
-        if (!senior && !tech && !college) missingFields.push("Either Vocational or College");
 
         if (missingFields.length > 0) {
             snackBar(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`, 'error');
@@ -181,18 +180,18 @@ function Educational(){
             }
         }
         
-        // If there's an error, display the error message
         if (error) {
+            console.log("Error Detected:", errorMessage);
             snackBar(errorMessage, 'error');
-        } else {
-            prevPage(); // Proceed to the next page or action
+            return;
         }
+    
+        console.log("Validation Passed, Proceeding...");
+        prevPage(); 
     };
-    
-    
+
     
     const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
-
 
     const deleteHandle = (id,level) => {
         const educationOrder = [
@@ -233,7 +232,7 @@ function Educational(){
                 boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
                 position: "relative",
               }}
-            >
+            > 
               <Typography
                 variant="h6"
                 color="white"
@@ -460,9 +459,21 @@ function Educational(){
                         data={college} 
                         required 
                         disabled={!high} 
-                        end_date={education && EduFinder({key: 'education', value: tech ? 'Vocational & Technical Education' : senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date') 
-                            ? moment(EduFinder({key: 'education', value: tech ? 'Vocational & Technical Education' : senior ? 'Senior High School' : 'Secondary (High School)'}, 'end_date')).add(1, 'years').format('YYYY') 
-                            : undefined} 
+                        end_date={education && EduFinder(
+                            { key: 'education', value: tech 
+                                ? 'Vocational & Technical Education' 
+                                : senior 
+                                ? 'Senior High School' 
+                                : 'Secondary (High School)' 
+                            }, 'end_date') 
+                            ? moment(EduFinder(
+                                { key: 'education', value: tech 
+                                    ? 'Vocational & Technical Education' 
+                                    : senior 
+                                    ? 'Senior High School' 
+                                    : 'Secondary (High School)' 
+                                }, 'end_date')).format('YYYY') 
+                            : undefined}                         
                     />
                     <EducationAttainment 
                         attainment="Graduate School (Master's or Doctorate)" 
@@ -477,7 +488,7 @@ function Educational(){
                     />
                     <Divider />
                     <form onSubmit={handleSubmit}>
-                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high || (!senior && !tech && !college)} startIcon={<Icon>save</Icon>}> Save</MDButton>
+                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' disabled={!elem || !high} startIcon={<Icon>save</Icon>}> Save</MDButton>
                     </form>
                 </CardContent>
             </Card>
