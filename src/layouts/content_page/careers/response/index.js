@@ -26,6 +26,7 @@ import educationData from "./educationData";
 import experienceData from "../personal-information/work-experience/experienceData";
 import referenceData from "../reference-information/referenceData";
 import colors from "assets/theme/base/colors";
+import { SvgIcon } from '@mui/material'; 
 
 
 function Response(){
@@ -59,7 +60,7 @@ function Response(){
                 target: 'id',
                 value: id,
             }],
-            relations: ['details', 'educations', 'reference', 'dependents']
+            relations: [{ details: { relations: ['platforms'] } }, 'educations', 'reference', 'dependents']
         }).then((result) => {
             console.log('debug entity result', result);
             result = result.data['entity'][0]
@@ -115,7 +116,7 @@ function Response(){
                     value: careers_id,
                 },
             ],
-            relations: ['question'],
+            relations: ['question', 'files'],
         }).then((result) => {
             console.log('debug answers result', result);
             setAnswers(result.data['career_answers'])
@@ -149,6 +150,18 @@ function Response(){
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="black">
                 &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : value}
+            </MDTypography>
+        </MDBox>
+    )
+
+    const renderOtherDetails = (title, value, index) => (
+        <MDBox py={1} pr={2}>
+            {index!=0 && <Divider sx={{ my: 2 }} />}
+            <MDTypography variant="button" fontWeight="bold" color="black">
+                {title}: &nbsp;
+            </MDTypography>
+            <MDTypography variant="button" fontWeight="regular" color="black">
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, 'YYYY') : <div dangerouslySetInnerHTML={{__html: String(value).replace(/, /g, "<br>")}} />}
             </MDTypography>
         </MDBox>
     )
@@ -269,7 +282,14 @@ function Response(){
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        {renderInfo('Other Experience', experience['other_experience'])}
+                                        <MDBox py={1} pr={2}>
+                                            <MDTypography variant="button" fontWeight="bold" color="black">
+                                                Other Experience: &nbsp;
+                                            </MDTypography>
+                                            <MDTypography variant="button" fontWeight="regular" color="black">
+                                                &nbsp;<div dangerouslySetInnerHTML={{__html: String(experience['other_experience']).replace(/\n/g, "<br>")}} />
+                                            </MDTypography>
+                                        </MDBox>
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -283,7 +303,13 @@ function Response(){
                                 >
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Other Details</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {details && Object.keys(detailsData).map((item, index) => renderInfo(detailsData[item].label, details[0][detailsData[item].id]))}
+                                        {details && Object.keys(detailsData).map((item, index) => {
+                                            if (detailsData[item].id == 'platforms_id') {
+                                                return renderOtherDetails(detailsData[item].label, details[0]['platforms']['title'], index)
+                                            } else {
+                                                return renderOtherDetails(detailsData[item].label, details[0][detailsData[item].id], index)
+                                            }
+                                        })}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
@@ -378,8 +404,51 @@ function Response(){
                     </MDBox>
                 </SwipeableViews>
                 <MDBox my={2} display='flex' justifyContent={step==0 ? 'end' : step==2 ? 'start' : 'space-between'}>
-                    {step!=0 && <MDButton onClick={()=>setStep(step-1)}>prev</MDButton>}
-                    {step!=2 && <MDButton onClick={nextStep}>Next</MDButton>}
+                {step !== 0 && (
+                 <MDButton
+                 onClick={() => setStep(step - 1)}
+                 variant="contained"
+                 startIcon={<Icon sx={{ color: 'white' }}>navigate_before</Icon>}
+                 sx={{
+                   backgroundColor: '#666666 !important', 
+                   color: 'white !important', 
+                   '&:hover': {
+                     backgroundColor: '#555555 !important', 
+                     boxShadow: 'none',
+                     color: 'white !important'
+                   },
+                   '&.Mui-disabled': {
+                     backgroundColor: '#666666 !important',
+                     color: 'white !important',
+                     opacity: 0.5,
+                   }
+                 }}
+               >
+                 Prev
+               </MDButton>
+               
+                )}
+
+                    {step !== 2 && (
+                    <MDButton
+                        onClick={nextStep}
+                        variant="contained"
+                        color="primary"
+                        endIcon={<Icon>navigate_next</Icon>}
+                        sx={{
+                        color: 'white', 
+                        transition: 'all 0.3s ease',
+                        '& .MuiSvgIcon-root': { color: 'inherit' },
+                        '&:hover': {
+                            backgroundColor: '#2196f3', // Lighter blue on hover
+                            boxShadow: '0px 4px 10px rgba(33, 150, 243, 0.5)', // Soft glow effect
+                        } 
+                        }}
+                    >
+                        Next
+                    </MDButton>
+                    )}
+
                 </MDBox>
             </MDBox>
             <Footer />

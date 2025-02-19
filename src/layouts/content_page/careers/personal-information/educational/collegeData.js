@@ -34,16 +34,17 @@ export default [
             disableFuture: true,
         },
             validations: [
-            {
-                type: 'when',
-                params: [['present', 'end_date', 'undergrad'], {
-                    is: ((present, end_date, undergrad) => {
-                        return ((typeof present == 'undefined' || (!(present))) ?? (typeof undergrad == 'undefined' || (!(undergrad)))) && typeof end_date != 'undefined'
-                    }),
-                    then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated.'),
-                }]
-            },
-        ]
+              {
+                  type: 'when',
+                  params: [['present', 'end_date', 'undergrad'], {
+                      is: (present, end_date, undergrad) => {
+                          // Ensure max validation is ONLY applied when neither 'present' nor 'undergrad' is true
+                          return !present && !undergrad && typeof end_date !== 'undefined';
+                      },
+                      then: (schema) => schema.max(yup.ref('end_date'), 'Year attended cannot be more than year graduated.'),
+                  }]
+              },
+          ]
     },
     {
         id: 'end_date',
@@ -81,16 +82,16 @@ export default [
           },
         ],
     },
-    {
-        id: 'present',
-        label: 'Presently Enrolled',
-        type: 'switch',
-        required: false,
-    },
-    {
-        id: 'undergrad',
-        label: 'Undergraduate',
-        type: 'switch',
-        required: false,
-    },
+    // {
+    //     id: 'present',
+    //     label: 'Presently Enrolled',
+    //     type: 'switch',
+    //     required: false,
+    // },
+    // {
+    //     id: 'undergrad',
+    //     label: 'Undergraduate',
+    //     type: 'switch',
+    //     required: false,
+    // },
 ]

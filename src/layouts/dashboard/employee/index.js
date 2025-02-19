@@ -16,9 +16,14 @@ Coded by www.creative-tim.com
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
+import { Fade, FormControl, Typography, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
     FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Popover, Dialog, DialogContent, DialogActions, DialogTitle, IconButton, CardContent, CardHeader, Chip, 
-    Link} from "@mui/material";
+    Link,
+    Popper,
+    Paper,
+    Grow,
+    MenuList,
+    ClickAwayListener} from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -56,16 +61,19 @@ import ImageView from "./image-viewer";
 import AudioPlayer from 'react-h5-audio-player';
 import GenerateExel from "./generate-exel";
 import { DateRangePicker } from "react-date-range";
+import { useMaterialUIController, setDialog } from "context";
 
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import { isSameDay, startOfDay } from "date-fns";
 import entityData from "./entityData";
-
+import { DateRangeFilterColumnFN, DateRangeFilterFN } from "./filter-fn";
+import PopupState, { bindPopper, bindToggle } from "material-ui-popup-state";
 
 
 function Employee() {
-
+    const [controller, dispatch] = useMaterialUIController()
+    const { dialog } = controller
     const [recruit, setRecruit] = useState({});
     const [tags, setTags] = useState()
     const [platforms, setPlatforms] = useState()
@@ -112,9 +120,18 @@ function Employee() {
     }
     const handlePopClose = () => setPopOpen(null);
 
-
     const handleCloseModal = () => {
         setFilterModal(false)
+    }
+    const snackBar = (title, error) => {
+        enqueueSnackbar(title, {
+            variant: error,
+            preventDuplicate: true,
+            anchorOrigin: {
+                horizontal: 'right',
+                vertical: 'top',
+            }
+        })
     }
 
     const formHandle = (entity_id, careers_id, readOnly=true) => {
@@ -351,77 +368,44 @@ function Employee() {
         });
     }
 
-    const handleTagsData = async (data) => {
-        console.log('debug badge popper tags data:', data)
-
-        if ( data.action == 'select' ) {
-            dataServicePrivate('POST', 'hr/careers/entity/tag', { id: data.id, tags_id: data.data_id }).then((result) => {
-                console.log("debug update career tag", result.data);
-                getInit();
-            }, (err) => {
-                console.log("debug update career tag error", err);
-            });
+    const handleTagUpdate = (id, tags_id) => {
+        var data = { id, tags_id }
+        if ( tags[Object.keys(tags).findIndex((item) => tags[item].id == tags_id)].title == 'Job Offer' ) {
+            data['jo_at'] = moment()
+        }
+        if ( tags[Object.keys(tags).findIndex((item) => tags[item].id == tags_id)].title == 'Hired' ) {
+            data['hired_at'] = moment()
         }
 
-        if ( data.action == 'add' || data.action == 'edit' ) {
-            dataServicePrivate('POST', 'hr/careers/tags/define', data).then((result) => {
-                console.log("debug define tag", result.data);
-                getTags();
-            }, (err) => {
-                console.log("debug define tag error", err);
-            });
-        }
-
-        if ( data.action == 'delete' ) {
-            setConfirmModal(true)
-            setIdDelete(data.id)
-            setContentURL('hr/careers/tags/delete')
-            setConfirmContent('Are you sure to Delete this Tag?')
-        }
-
+        dataServicePrivate('POST', 'hr/careers/entity/tag', data).then((result) => {
+            console.log("debug update career tag", result);
+            getInit();
+        }, (err) => {
+            console.log("debug update career tag error", err);
+        });
     }
 
-    const handlePlatformData = (data) => {
-        console.log('debug handle platform data:', data);
-
-        if ( data.action == 'select' ) {
-            dataServicePrivate('POST', 'hr/careers/entity/define', { id: data.id, platforms_id: data.data_id }).then((result) => {
-                console.log("debug update career platform", result.data);
-                getInit();
-            }, (err) => {
-                console.log("debug update career platform error", err);
-            });
-        }
-
-        if ( data.action == 'add' || data.action == 'edit' ) {
-            dataServicePrivate('POST', 'hr/careers/platform/define', data).then((result) => {
-                console.log("debug define platform", result.data);
-                getPlatforms()
-            }, (err) => {
-                console.log("debug define platform error", err);
-            });
-
-        } 
-
-        if (data.action == 'delete') {
-            setConfirmModal(true)
-            setIdDelete(data.id)
-            setContentURL('hr/careers/platform/delete')
-            setConfirmContent('Are you sure to Delete this Plaform?')
-        }
-
+    const handlePlatformsUpdate = (id, platforms_id) => {
+        dataServicePrivate('POST', 'hr/careers/entity/define', { id, platforms_id }).then((result) => {
+            console.log("debug update career platform", result);
+            getInit();
+        }, (err) => {
+            console.log("debug update career platform error", err);
+        });
     }
 
     const handleDeleteData = (data) => {
         if (data) {
             dataServicePrivate('POST', contentURL, {id: idDelete}).then((result) => {
                 console.log("debug delete", result.data);
+                snackBar('Recruit successfully deleted','success')
                 getPlatforms()
                 getTags()
                 getInit()
                 setConfirmModal(false)
             }, (err) => {
                 console.log("debug delete error", err);
+                snackBar('Recruit unsuccessfully deleted','error')
             });
         }
     }
@@ -441,11 +425,10 @@ function Employee() {
                     email: recruit[key]['entity'].email,
                     career: recruit[key]['careers'].title,
                     number: recruit[key]['entity'].contact_number,
-                    alternative: recruit[key]['entity'].alternative_number,
-                    platforms_id: recruit[key]['platforms']?.id,
-                    applied: formatDateTime(recruit[key].updated_at, 'MMM DD, YYYY HH:mm:ss'),
+                    platforms: recruit[key]['platforms'],
+                    applied: formatDateTime(recruit[key].created_at, 'MMM DD, YYYY HH:mm:ss'),
                     entity_careers_id: recruit[key].id,
-                    tags_id: recruit[key]['tags']?.id,
+                    tag: recruit[key]['tags'],
                     actions: (
                         <MDBox>
                             <Grid container spacing={.5}>
@@ -468,220 +451,6 @@ function Employee() {
         if (rows) setRows(rows)
 
     },[recruit, tags, platforms])
-
-    const DateRangeFilterFN = (rows, id, filterValues) => {
-        const sd = filterValues[0] ? moment(filterValues[0]).startOf('day').toDate() : undefined;
-        const ed = filterValues[1] ? moment(filterValues[1]).endOf('day').toDate() : undefined;
-        if (ed || sd) {
-            return rows.filter((r) => {
-                const cellDate = moment(r.values[id]).toDate()
-                console.log('range filter', sd, ed, cellDate);
-
-                if (ed && sd) {
-                    return cellDate >= sd && cellDate <= ed;
-                } else if (sd) {
-                    return cellDate >= sd;
-                } else {
-                    return cellDate <= ed;
-                }
-            });
-        } else {
-            return rows;
-        }
-    }
-
-    const DateRangeFilterColumnFN = ({
-        column: { filterValue = [], preFilteredRows, setFilter, id }
-    }) => {
-        const [open, setOpen] = useState(false)
-        const [state, setState] = useState([
-            {
-              startDate: moment().toDate(),
-              endDate: moment().toDate(),
-              key: 'selection'
-            }
-        ]);
-
-        // var exMoment = moment().startOf('day').toDate()
-        // var exFns = startOfDay(new Date())
-        // console.log('date comparison', exMoment, exFns );
-
-        const staticRanges = [
-            {
-                label: 'Today',
-                range: () => ({
-                    startDate: moment().startOf('day').toDate(),
-                    endDate: moment().endOf('day').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'Yesterday',
-                range: () => ({
-                    startDate: moment().startOf('day').subtract(1, 'day').toDate(),
-                    endDate: moment().endOf('day').subtract(1, 'day').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'This Week',
-                range: () => ({
-                    startDate: moment().startOf('week').toDate(),
-                    endDate: moment().endOf('week').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'Last Week',
-                range: () => ({
-                    startDate: moment().startOf('week').subtract(1, 'week').toDate(),
-                    endDate: moment().endOf('week').subtract(1, 'week').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'This Month',
-                range: () => ({
-                    startDate: moment().startOf('month').toDate(),
-                    endDate: moment().endOf('month').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'Last Month',
-                range: () => ({
-                    startDate: moment().startOf('month').subtract(1, 'month').toDate(),
-                    endDate: moment().endOf('month').subtract(1, 'month').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'This Year',
-                range: () => ({
-                    startDate: moment().startOf('year').toDate(),
-                    endDate: moment().endOf('year').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-            {
-                label: 'Last Year',
-                range: () => ({
-                    startDate: moment().startOf('year').subtract(1, 'year').toDate(),
-                    endDate: moment().endOf('year').subtract(1, 'year').toDate(),
-                }),
-                isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                    );
-                },
-            },
-        ]
-
-        const ApplyFilter = () => {
-            const { startDate, endDate } = state[0]
-            setFilter((old = []) => [startDate, old[1]]);
-            setFilter((old = []) => [old[0], endDate]);
-            setOpen(!open)
-        }
-
-        const ClearFilter = () => {
-            setState([
-                {
-                  startDate: moment().toDate(),
-                  endDate: moment().toDate(),
-                  key: 'selection'
-                }
-            ])
-            setFilter([])
-        }
-
-        return (
-            <MDBox>
-                <MDInput
-                    label={<MDTypography textTransform='capitalize' fontWeight='medium' variant='caption'>{id}</MDTypography>}
-                    fullWidth
-                    size='small'
-                    value={filterValue.length ? `${formatDateTime(filterValue[0], 'MM-DD-YYYY')} to ${formatDateTime(filterValue[1], 'MM-DD-YYYY')}` : ''}
-                    onClick={()=>setOpen(!open)}
-                    />
-                <Dialog
-                    open={open}
-                    onClose={()=>setOpen(!open)}
-                    maxWidth='unset'
-                >
-                    <DialogContent>
-                        <DateRangePicker
-                            onChange={item => setState([item.selection])}
-                            showSelectionPreview={true}
-                            editableDateInputs={true}
-                            ranges={state}
-                            direction="horizontal"
-                            preventSnapRefocus={true}
-                            calendarFocus="backwards"
-                            staticRanges={staticRanges}
-                        />
-                    </DialogContent>
-                    <DialogActions sx={{ justifyContent: 'space-between' }}>
-                        <MDButton color='error' onClick={()=>setOpen(!open)} autoFocus>
-                            Close
-                        </MDButton>
-                        <MDBox>
-                            <MDButton color='warning' onClick={ClearFilter}>
-                                Clear
-                            </MDButton>
-                            <MDButton sx={{ ml: 1 }} color='info' onClick={ApplyFilter}>
-                                Apply
-                            </MDButton>
-                        </MDBox>
-                    </DialogActions>
-                </Dialog>
-            </MDBox>
-        )
-    }
 
     const PlatformFilterColumnFN = ({ column: { filterValue, setFilter, id } }) => (
         <FormControl variant="outlined" size="small" fullWidth>
@@ -726,45 +495,144 @@ function Employee() {
                 {formatPhoneNumber(value)}
             </MDTypography>
         ), align: "left", sort: true },
-        { Header: "alternative number", accessor: "alternative", Cell: ({value}) => (
-            <MDTypography variant="caption" color="text" fontWeight="medium">
-                {formatPhoneNumber(value)}
-            </MDTypography>
-        ), align: "left", sort: true },
         { Header: "position applied", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
-        { Header: "source", accessor: (row) => (
-            platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
-        ), id: "platform", align: "center", sort: true, Cell: ({row}) => {
-            return (<BadgePopper
-                id={row.original.entity_careers_id}
-                badgeId={row.original.platforms_id} 
-                variant="customGradient" 
-                content={platforms}
-                data={handlePlatformData}
-                editable={true}
-                deletable={true}
-            />)
-        }, Filter: PlatformFilterColumnFN},
+        { Header: "source", accessor: (row) => (row?.platforms ? row.platforms['title'] : 'unassigned' ), 
+            id: "platform", 
+            align: "center", 
+            sort: true, 
+            Cell: ({row}) => PlatformPopperFn(row), 
+            Filter: PlatformFilterColumnFN},
         { Header: "applied date", accessor: "applied", align: "center", Cell: ({value}) => (
             <MDTypography variant="caption" color="text" fontWeight="medium">
                 {value}
             </MDTypography>
         ), Filter: DateRangeFilterColumnFN, filter: DateRangeFilterFN, sort: true},
-        { Header: 'status', accessor: (row) => (
-            tags[Object.keys(tags).find(key => tags[key].id == row.tags_id)]?.title || 'unassigned' 
-        ), id: 'status', align: "center", sort: true, Cell: ({row}) => {
-            return (<BadgePopper
-                id={row.original.entity_careers_id}
-                badgeId={row.original.tags_id} 
-                variant="customGradient" 
-                content={tags}
-                data={handleTagsData}
-                editable={true}
-                deletable={true}
-            />)
-        }, Filter: TagsFilterColumnFN},
+        { Header: 'status', accessor: (row) => (row?.tag ? row.tag['title'] : 'unassigned' ), 
+            id: 'status', 
+            align: "center", 
+            sort: true, 
+            Cell: ({row}) => TagPopperFn(row), 
+            Filter: TagsFilterColumnFN},
         { Header: "actions", accessor: "actions", align: "center", disableFilters: true, disableGlobalFilter: true },
     ]
+
+    const PlatformPopperFn = (row) => (
+        <PopupState variant="popper">
+            {(popupState) => (
+                <MDBox>
+                    <MDButton {...bindToggle(popupState)}>
+                        <MDBadge 
+                            badgeContent={row.original?.platforms ? row.original.platforms['title'] : 'unassigned'} 
+                            color={row.original?.platforms ? row.original.platforms['color'] : '#D3D3D3'} 
+                            variant='customGradient'
+                            sx={{ cursor: 'pointer' }}
+                        />
+                    </MDButton>
+                    <Popper
+                        placement="left"
+                        transition
+                        {...bindPopper(popupState)}
+                    >
+                    {({ TransitionProps, placement }) => (
+                        <Grow
+                            {...TransitionProps}
+                            style={{
+                                transformOrigin: placement="center right"
+                            }}
+                        >
+                            <Paper>
+                                <ClickAwayListener onClickAway={popupState.close}>
+                                    <MenuList
+                                        autoFocusItem={popupState.isOpen}
+                                    >
+                                        {
+                                            platforms && Object.keys(platforms).map((item, key) => (
+                                                <MenuItem 
+                                                    key={key} 
+                                                    onClick={() => handlePlatformsUpdate(row.original.entity_careers_id, platforms[item].id)}
+                                                    sx={{ 
+                                                        bgcolor: 'transparent', 
+                                                        justifyContent: 'space-between' 
+                                                    }}
+                                                    
+                                                >
+                                                    <MDBadge
+                                                        badgeContent={platforms[item].title}
+                                                        color={platforms[item].color}
+                                                        variant='customGradient'
+                                                    />
+                                                </MenuItem>
+                                            ))
+                                        }
+                                    </MenuList>
+                                </ClickAwayListener>
+                            </Paper>
+                        </Grow>
+                    )}
+                    </Popper>
+                </MDBox>
+            )}
+        </PopupState>
+    )
+
+    const TagPopperFn = (row) => (
+        <PopupState variant="popper">
+            {(popupState) => (
+                <MDBox>
+                    <MDButton {...bindToggle(popupState)}>
+                        <MDBadge 
+                            badgeContent={row.original?.tag ? row.original.tag['title'] : 'unassigned'} 
+                            color={row.original?.tag ? row.original.tag['color'] : '#D3D3D3'} 
+                            variant='customGradient'
+                            sx={{ cursor: 'pointer' }}
+                        />
+                    </MDButton>
+                    <Popper
+                        placement="left"
+                        transition
+                        {...bindPopper(popupState)}
+                    >
+                    {({ TransitionProps, placement }) => (
+                        <Grow
+                            {...TransitionProps}
+                            style={{
+                                transformOrigin: placement="center right"
+                            }}
+                        >
+                            <Paper>
+                                <ClickAwayListener onClickAway={popupState.close}>
+                                    <MenuList
+                                        autoFocusItem={popupState.isOpen}
+                                    >
+                                        {
+                                            tags && Object.keys(tags).map((item, key) => (
+                                                <MenuItem 
+                                                    key={key} 
+                                                    onClick={() => handleTagUpdate(row.original.entity_careers_id, tags[item].id)}
+                                                    sx={{ 
+                                                        bgcolor: 'transparent', 
+                                                        justifyContent: 'space-between' 
+                                                    }}
+                                                    
+                                                >
+                                                    <MDBadge
+                                                        badgeContent={tags[item].title}
+                                                        color={tags[item].color}
+                                                        variant='customGradient'
+                                                    />
+                                                </MenuItem>
+                                            ))
+                                        }
+                                    </MenuList>
+                                </ClickAwayListener>
+                            </Paper>
+                        </Grow>
+                    )}
+                    </Popper>
+                </MDBox>
+            )}
+        </PopupState>
+    )
 
     const Employee = ({ image, name, email }) => (
         <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -855,29 +723,6 @@ function Employee() {
                 </Grid>
             </MDBox>
             <Footer />
-            { filterModal && <FilterDialog closeModal={handleCloseModal} title='Select Tag' content={(
-                <MDBox display='flex' justifyContent='center' alignItems='center'>
-                    <FormControl sx={{ mt: 1 }}>
-                        <InputLabel>Tags</InputLabel>
-                        <Select
-                            label='Tags'
-                            value={selectedTag != null ? selectedTag : 'Unassigned'}
-                            defaultValue='0'
-                            autoWidth
-                            sx={{ height: "44px", textTransform: 'capitalize'  }}
-                            onChange={(e) => setSelectedTag(e.target.value)}
-                        >
-                            <MenuItem value='0'>No Filter</MenuItem>
-                            <MenuItem value='null'>Unassigned</MenuItem>
-                            {
-                                tags && Object.keys(tags).map((item, key) => (
-                                    <MenuItem key={key} value={tags[item]['id']} sx={{ textTransform: 'capitalize' }}>{tags[item]['title']}</MenuItem>
-                                ))
-                            }
-                        </Select>
-                    </FormControl>
-                </MDBox>
-            )} data={handleDataModal} /> }
 
             <Dialog
                 open={open}
@@ -904,7 +749,113 @@ function Employee() {
                 </DialogContent>
             </Dialog>
 
-            { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> }
+            {/* { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> } */}
+            {confirmModal && (
+            <Dialog
+                open={confirmModal}
+                onClose={() => setConfirmModal(false)} // Close modal on background click or close button
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle textAlign="center" sx={{ m: 0, p: 2 }}>
+                    <MDBox
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#2E3B55",
+                            padding: "12px 20px",
+                            borderTopLeftRadius: "8px",
+                            borderTopRightRadius: "8px",
+                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                            position: "relative",
+                        }}
+                    >
+                        <MDTypography
+                            variant="h6"
+                            color="white"
+                            sx={{
+                                fontWeight: "600",
+                                fontSize: "1.25rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                        >
+                            <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                            Confirm Delete
+                        </MDTypography>
+                        <IconButton
+                            onClick={() => setConfirmModal(false)} // Close modal on close button click
+                            sx={{
+                                position: "absolute",
+                                top: "10px",
+                                right: "20px",
+                                color: "#FFFFFF",
+                                "&:hover": {
+                                    color: "red",
+                                },
+                            }}
+                        >
+                            <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+                        </IconButton>
+                    </MDBox>
+                </DialogTitle>
+
+                <DialogContent>
+                    <MDBox p={2}>
+                        <Typography variant="body1" color="textSecondary">
+                            {confirmContent} This action cannot be undone.
+                        </Typography>
+                    </MDBox>
+                </DialogContent>
+
+                <DialogActions>
+                    <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+                        <MDButton
+                            onClick={() => setConfirmModal(false)}
+                            color="secondary"
+                            variant="outlined"
+                            sx={{
+                                padding: "8px 16px",
+                                borderColor: "#f44336",
+                                color: "#f44336",
+                                fontWeight: "bold",
+                                "&:hover": {
+                                    backgroundColor: "#ffcccc",
+                                    borderColor: "#f44336",
+                                },
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                        >
+                            <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                            Cancel
+                        </MDButton>
+                        <MDButton
+                            color="primary"
+                            variant="contained"
+                            sx={{
+                                padding: "8px 16px",
+                                backgroundColor: "#4caf50",
+                                "&:hover": {
+                                    backgroundColor: "#388e3c",
+                                },
+                                fontWeight: "bold",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                            onClick={() => handleDeleteData(idDelete)} // Call handleDeleteData to perform the deletion
+                        >
+                            <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                            Confirm
+                        </MDButton>
+                    </MDBox>
+                </DialogActions>
+            </Dialog>
+          )}
         </DashboardLayout>
     );
 }

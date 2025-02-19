@@ -1,5 +1,7 @@
 import {Card, CardContent, CardHeader, Chip, Container, Divider, Icon, Link} from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
 import MDBox from "components/MDBox";
@@ -41,7 +43,8 @@ function PersonalInformation(){
     const [hasDependents, setHasDependents] = useState(false)
     const [dependents, setDependents] = useState()
     const [disabled, setDisable] = useState(true)
-
+    const [elem, setElem] = useState()
+    const [high, setHigh] = useState()
     // remove personal local data
     localStorage.removeItem('entity')
     localStorage.removeItem('entity_details')
@@ -187,8 +190,8 @@ function PersonalInformation(){
             if ( Object.keys(result).length ) {
                 var color = []
                 var variant = ['h6']
-
                 var temp = []
+            
                 seq.forEach((item) => {
                     var _temp = []
                     var index = Object.keys(result).findIndex((e) => result[e].education == item)
@@ -197,30 +200,38 @@ function PersonalInformation(){
 
                         check.forEach((_item, _index) => {
                             if ( result[index][_item] ) {
-                                if ( _item != 'start_date' ) {
-                                    _temp.push({
-                                        title: _item == 'end_date' ? 
-                                            result[index]['start_date'] ? 
+                                _temp.push({
+                                    title: 
+                                    _item == 'start_date' || _item == 'end_date'
+                                    ?   result[index]['start_date'] 
+                                        ?   _item == 'start_date' && ( result[index]['start_date'] && result[index]['start_date'] ) &&
                                             <MDTypography variant='body2'>
-                                                {formatDateTime(result[index]['start_date'], 'YYYY')} to {result[index]['end_date'] ?  formatDateTime(result[index]['end_date'], 'YYYY') : `Present`}
+                                                {formatDateTime(result[index].start_date, 'YYYY')} {
+                                                    result[index]['present'] 
+                                                    ? `to Present` 
+                                                    : result[index]['undergrad']
+                                                    ? `Undergraduate`
+                                                    : `to ${formatDateTime(result[index].end_date, 'YYYY')}`
+                                                }
                                             </MDTypography>
-                                            : <MDTypography variant='body2'>
-                                                {formatDateTime(result[index]['end_date'], 'YYYY')}
-                                            </MDTypography> 
-                                        : result[index][_item],
-                                        color: color[_index] ? color[_index] : 'inherit',
-                                        variant: variant[_index] ? variant[_index] : 'body2',
-                                    })
-                                }
+                                        : <MDTypography variant='body2'>
+                                            {formatDateTime(result[index]['end_date'], 'YYYY')}
+                                        </MDTypography> 
+                                    : result[index][_item],
+                                    color: color[_index] ? color[_index] : 'inherit',
+                                    variant: variant[_index] ? variant[_index] : 'body2',
+                                })
+                                // if ( _item != 'start_date' ) {
+                                // }
                             }
                         })
                         temp.push(_temp)
-
                     }
-
                 })
+            
                 setEducations(temp)
             }
+            
 
         }).catch((err) => {
             console.log('debug entity education error result', err);
@@ -320,15 +331,26 @@ function PersonalInformation(){
                     )) 
                     : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
                 }
-                <MDButton   
+               <MDButton   
                 onClick={() => toPage(url)} 
-                sx={{ mt: 2 }} 
+                sx={{ 
+                    mt: 2, 
+                    borderColor: 'secondary.main', // Default border color
+                    color: 'secondary.main', // Default text color
+                    transition: 'all 0.3s ease', // Smooth transition for hover effect
+                    '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
+                    '&:hover': {
+                    borderColor: 'red', // Border turns red
+                    color: 'red', // Text turns red
+                    '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
+                    }
+                }} 
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Create'} ${title}`}
+                {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
@@ -357,20 +379,106 @@ function PersonalInformation(){
                     })
                     : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
                 }
-                <MDButton   
+              <MDButton   
                 onClick={() => toPage(url)} 
-                sx={{ mt: 2 }} 
+                sx={{ 
+                    mt: 2, 
+                    borderColor: 'secondary.main', // Default border color
+                    color: 'secondary.main', // Default text color
+                    transition: 'all 0.3s ease', // Smooth transition effect
+                    '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
+                    '&:hover': {
+                    borderColor: 'red', // Border turns red
+                    color: 'red', // Text turns red
+                    '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
+                    }
+                }} 
                 variant='outlined' 
                 fullWidth 
                 color='secondary' 
                 startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                    {`${data ? 'Edit' : 'Create'} ${title}`}
+                {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
     )
+    const [missingInfo, setMissingInfo] = useState([]);
 
+    useEffect(() => {
+    const checkMissingInfo = () => {
+        let missing = [];
+
+        // Personal Information
+        missing.push({
+            key: "personal-info",
+            label: "Personal Information",
+            missing: !entity || entity.length === 0
+        });
+
+        // Dependents (Optional)
+        if (hasDependents) {
+            missing.push({
+                key: "missing-dependents",
+                label: "Dependents",
+                missing: !dependents || dependents.length === 0
+            });
+        }
+
+        // Educational Background Check
+        const educationData = educations || [];
+
+        const hasElementary = educationData.some(edu => edu.some(field => field.title === "Elementary"));
+        const hasHighSchool = educationData.some(edu => edu.some(field => field.title === "Secondary (High School)"));
+        const hasVocational = educationData.some(edu => edu.some(field => field.title === "Vocational & Technical Education"));
+        const hasSeniorHigh = educationData.some(edu => edu.some(field => field.title === "Senior High School"));
+        const hasCollege = educationData.some(edu => edu.some(field => field.title === "College"));
+
+        let missingEdu = [];
+
+        if (!hasElementary) missingEdu.push("• Elementary is required");
+        if (!hasHighSchool) missingEdu.push("• High School is required");
+        if (!hasVocational && !hasSeniorHigh && !hasCollege) {
+            missingEdu.push("• At least one of Vocational, Senior High School, or College is required");
+        }
+
+        missing.push({
+            key: "missing-educational-background",
+            label: (
+                <>
+                    Educational Background
+                    {missingEdu.length > 0 && (
+                        <div style={{ marginLeft: "15px", whiteSpace: "pre-line" }}>
+                            {missingEdu.map((text, index) => (
+                                <div key={index}>{text}</div>
+                            ))}
+                        </div>
+                    )}
+                </>
+            ),
+            missing: missingEdu.length > 0
+        });
+
+        // Work Experience
+        missing.push({
+            key: "missing-work-experience",
+            label: "Work Experience",
+            missing: !experience || experience.length === 0
+        });
+
+        // Other Details
+        missing.push({
+            key: "missing-other-details",
+            label: "Other Details",
+            missing: !details || details.length === 0
+        });
+
+        setMissingInfo(missing);
+    };
+
+    checkMissingInfo();
+    }, [entity, dependents, experience, details, educations]);
+    
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -380,7 +488,7 @@ function PersonalInformation(){
                         <Card variant="outlined">
                             <CardHeader 
                                 title={<MDTypography variant='h3'>INFORMATION</MDTypography>} 
-                                subheader='Add a personal information'
+                                subheader='Add personal information'
                                 avatar={<Icon fontSize="large">person_outline</Icon>} 
                             />
                             <CardContent>
@@ -390,18 +498,45 @@ function PersonalInformation(){
                                 <WorkExpContent title='WORK EXPERIENCE' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='OTHER DETAILS' data={details} url='/careers/personalinfo/detailsform' />
                                 <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled || loading} startIcon={<Icon>check</Icon>} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}> {loading ? 'Loading...' : 'Continue'} </MDButton>
-
                             </CardContent>
                         </Card>
                     </MDBox>
                 </Grid>
-                <Grid display={{ xs: 'none', lg: 'block' }} size={{ lg: 5 }}>
-                    <CareersStepper activeStep={0} orientation='vertical' position='fixed' />
+                <Grid display={{ xs: 'none', lg: 'block' }} item lg={5}>
+                    <MDBox 
+                        display="flex" 
+                        flexDirection="column" 
+                        position="fixed" 
+                        sx={{ top: "5%", width: "30%", gap: 1 }}
+                    >  
+                        <CareersStepper activeStep={0} orientation='vertical' />  
+    
+                    <Card variant="outlined" sx={{ p: 1, mt: -10, width: "79%",maxWidth: "75vw", mx: "auto" }}>
+                            <CardHeader 
+                                title={<MDTypography variant='h5'>Complete Your Information</MDTypography>} 
+                                subheader="Please provide the necessary details to proceed."
+                                avatar={<Icon fontSize="large" color="info">info</Icon>}
+                            />
+                            <CardContent sx={{ pt: 1, mt: -1.5 }}>
+                                {missingInfo.map((item, index) => (
+                                    <MDBox key={index} display="flex" alignItems="flex-start" sx={{ mb: 1 }}>
+                                        {item.missing ? (
+                                            <CancelIcon color="error" sx={{ mr: 1 }} />  
+                                        ) : (
+                                            <CheckCircleIcon color="success" sx={{ mr: 1 }} /> 
+                                        )}
+                                        <MDTypography variant="body2" color={item.missing ? "error" : "success"} sx={{whiteSpace: "pre-line", ml: 1}}>
+                                            {item.label}
+                                        </MDTypography>
+                                    </MDBox>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </MDBox>
                 </Grid>
             </Grid>
-            <Footer />
         </PageLayout>
-    );
+    );    
 }
 
 export default PersonalInformation;

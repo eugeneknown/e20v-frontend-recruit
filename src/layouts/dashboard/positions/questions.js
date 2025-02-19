@@ -15,7 +15,7 @@ Coded by www.creative-tim.com
 
 // @mui material components
 import Card from "@mui/material/Card";
-import { Fade, FormControl, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, Grid, 
+import { Fade, FormControl, Typography, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, Grid, 
     Chip, Popover, Tabs, Tab, CardMedia, CardContent, CardActions, List, ListItemButton, ListItemText, ListItem, IconButton, 
     Dialog,
     DialogTitle,
@@ -104,32 +104,33 @@ function Questions({data={}}) {
     // region confirm modal
 
     const [confirmModal, setConfirmModal] = useState(false)
-    const [actionhandle, setActionHandle] = useState('')
     const [idDelete, setIdDelete] = useState(0)
     const [action, setAction] = useState('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
-
+  
     const [modalData, setModalData] = useState({})
+    const [actionHandle, setActionHandle] = useState("");  
 
     const handleCloseModal = () => {
         setConfirmModal(false)
     }
 
     const handleDataModal = (e) => {
-        console.log('debug confirm dialog data:', e, modalData)
-        setConfirmModal(false)
-
-        if ( e ) {
-            if ( actionhandle == 'deleteQuestion' ) {
-                handleDelete(modalData.key, modalData.id)
+        console.log('debug confirm dialog data:', e, modalData);
+        setConfirmModal(false);
+    
+        if (e) {
+            if (actionHandle === 'deleteQuestion') {  
+                handleDelete(modalData.key, modalData.id);
             }
-
-            if ( actionhandle == 'addQuestion' ) {
-                addQuestionHandle(modalData.id, modalData.data)
+    
+            if (actionHandle === 'addQuestion') { 
+                addQuestionHandle(modalData.id, modalData.data);
             }
         }
-    }
+    };
+    
 
     // endregion confirm modal
 
@@ -215,38 +216,38 @@ function Questions({data={}}) {
     }
 
     const addQuestionHandle = (career_id, question_data) => {
-        console.log('debug add question handle', career_id, question_data, section)
-
-        if (!questions) {
-            submitHasQuestion(career_id, question_data.id, 0).then((result) => {
-                question_data['has_id'] = result.id
+        console.log('debug add question handle', career_id, question_data, section);
     
-                setQuestions({ 
+        if (!questions || !questions[section]) {  
+            submitHasQuestion(career_id, question_data.id, 0).then((result) => {
+                question_data['has_id'] = result.id;
+    
+                setQuestions(prev => ({  
+                    ...prev,
                     [section]: {
                         0: question_data
-                    } 
-                })
-            })
+                    }
+                }));
+            });
         } else {
-            var count = 0
-            Object.keys(questions[section]).map(() => {
-                count+=1
-            })
+            let count = Object.keys(questions[section] || {}).length;  
+    
             submitHasQuestion(career_id, question_data.id, count).then((result) => {
-                question_data['has_id'] = result.id
-
-                setQuestions(prev => ({ 
-                    ...prev, 
+                question_data['has_id'] = result.id;
+    
+                setQuestions(prev => ({
+                    ...prev,
                     [section]: {
                         ...prev[section],
                         [count]: question_data
-                    } 
-                }))
-            })
+                    }
+                }));
+            });
         }
-        snackBar('Question Added', 'success')
-
-    }
+    
+        snackBar('Question added', 'success');
+    };
+    
 
     useEffect(() => {
         setNewQuestions(prev => ({ ...prev, 'value': newAnswer.join(', ') }))
@@ -260,7 +261,7 @@ function Questions({data={}}) {
             await axiosPrivate.post('hr/careers/has/questions/delete', {id}).then((result) => {
                 getCareerHasQuestion().then((_result) => {
                     var question = sortQuestions(_result)
-                    snackBar('Question Deleted', 'success')
+                    snackBar('Question deleted', 'success')
                     setQuestions(question)
                     handleSort(question)
                 })
@@ -299,7 +300,7 @@ function Questions({data={}}) {
                 await axiosPrivate.post('hr/careers/questions/define', newQuestions).then((result) => {
                     console.log('debug submit question:', result)
                     var result = result.data['career_questions']
-                    snackBar('Question Successfully Created', 'success')
+                    snackBar('Question successfully created', 'success')
                     if (!careerQuestions) {
                         setQuestions({ 
                             0: result
@@ -323,7 +324,7 @@ function Questions({data={}}) {
                 
             } catch (err) {
                 console.log("debug new question error", err);
-                snackBar('Question Submit Failed', 'error')
+                snackBar('Question submission failed', 'error')
             }
         }
         submitQuestion();
@@ -451,7 +452,8 @@ function Questions({data={}}) {
                                         textOverflow: 'ellipsis', 
                                         overflow: 'hidden', 
                                         width: '15rem',
-                                    }}>
+                                    }}
+                                  >
                                         Additional Questions {key+1}
                                     </MDTypography>
                                 </AccordionSummary>
@@ -497,7 +499,7 @@ function Questions({data={}}) {
                                                     setTitle('Confirm Delete Question')
                                                     setContent('Are you sure to Delete this Question?')
                                                     setConfirmModal(true)
-                                                }} sx={{ mx: "3px" }} color="error" variant="outlined">Delete</MDButton> }
+                                                }} sx={{ mx: "3px" }} color="error" variant="outlined" startIcon = {<Icon>delete</Icon>}>Delete</MDButton> }
                                             </MDBox>
                                         </AccordionDetails>
                                     </Accordion>
@@ -505,12 +507,26 @@ function Questions({data={}}) {
                                 
                                 { data.action != 'view' && 
                                 <Grid container spacing={1}>
-                                    <Grid item xs={6}><MDButton onClick={(e) => {
-                                        handlePopOpenQuestion(e);
-                                    }} variant="outlined" size="large" color="secondary" fullWidth
-                                    >
+                                    <Grid item xs={6}><MDButton
+                                        onClick={(e) => {
+                                            handlePopOpenQuestion(e);
+                                        }}
+                                        variant="outlined"
+                                        size="large"
+                                        color="secondary"
+                                        fullWidth
+                                        sx={{
+                                            '&:hover': {
+                                            borderColor: '#f44336',    
+                                            color: '#f44336',          
+                                            '& .MuiSvgIcon-root': {
+                                                color: '#f44336',        
+                                            },
+                                            },
+                                        }}
+                                        >
                                         Add Question
-                                    </MDButton></Grid>
+                                        </MDButton></Grid>
                                     <Grid item xs={6}><DragQuestions id={data['questions'].id} section={key} onClose={dragOnCloseHandle} /></Grid>
                                 </Grid>
                                 }
@@ -519,7 +535,13 @@ function Questions({data={}}) {
                         ))
                     )
                 }
-                { data.action != 'view' && <MDButton onClick={addSectionHandle} variant="outlined" size="large" color="secondary" fullWidth>Add Additional Questions</MDButton> }
+                { data.action != 'view' && <MDButton onClick={addSectionHandle} variant="outlined" size="large" color="secondary" fullWidth startIcon={<Icon>add</Icon>} sx={{'&:hover': {borderColor: 'red', color: 'red',   
+                '& .MuiSvgIcon-root': {
+                    color: 'red',          // Change icon color on hover
+                },
+                },
+                }}
+                >Add Additional Questions</MDButton> }
                 <Popover 
                 id={popQuestionId}
                 open={openPopQuestion}
@@ -582,11 +604,112 @@ function Questions({data={}}) {
                             </MDBox>
                         ))
                     }
-                    <MDButton onClick={() => {handleOpen(); handleChange(0);}} variant="outlined" size="large" color="secondary" fullWidth>Create Question</MDButton>
+                    {/* <MDButton onClick={() => {handleOpen(); handleChange(0);}} variant="outlined" size="large" color="secondary" fullWidth startIcon {<Icon>create</Icon>}>Create Question</MDButton> */}
+                    <MDButton
+                    onClick={() => { handleOpen(); handleChange(0); }}
+                    variant="outlined"
+                    size="large"
+                    color="secondary"
+                    fullWidth
+                    startIcon={<Icon>create</Icon>}
+                    sx={{
+                        '&:hover': {
+                        borderColor: 'red',  
+                        color: 'red',       
+                        '& .MuiSvgIcon-root': { color: 'red' },  
+                        },
+                    }}
+                    >
+                    Create Question
+                    </MDButton>
                     </MDBox>
                 </Popover>
             </MDBox>
-            { confirmModal && <ConfirmDialog closeModal={handleCloseModal} title={title} content={content} data={handleDataModal} /> }
+            
+            {confirmModal && (
+    <Dialog open={confirmModal} onClose={() => setConfirmModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ m: 0, p: 2 }}>
+            <MDBox
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#2E3B55",
+                    padding: "12px 20px",
+                    borderTopLeftRadius: "8px",
+                    borderTopRightRadius: "8px",
+                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                    position: "relative",
+                }}
+            >
+                <MDTypography
+                    variant="h6"
+                    color="white"
+                    sx={{ fontWeight: "600", fontSize: "1.25rem", display: "flex", alignItems: "center", gap: 1 }}
+                >
+                    <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                    Confirm 
+                </MDTypography>
+                <IconButton
+                    onClick={() => setConfirmModal(false)}
+                    sx={{ position: "absolute", top: "10px", right: "20px", color: "#FFFFFF", "&:hover": { color: "red" } }}
+                >
+                    <Icon sx={{ fontSize: 30, color: "white" }}>close</Icon>
+                </IconButton>
+            </MDBox>
+        </DialogTitle>
+
+        <DialogContent>
+            <MDBox p={2}>
+                <Typography variant="body1" color="textSecondary">
+                    {content} This action cannot be undone.
+                </Typography>
+            </MDBox>
+        </DialogContent>
+
+        <DialogActions>
+            <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+                <MDButton
+                    onClick={() => setConfirmModal(false)}
+                    color="secondary"
+                    variant="outlined"
+                    sx={{
+                        padding: "8px 16px",
+                        borderColor: "#f44336",
+                        color: "#f44336",
+                        fontWeight: "bold",
+                        "&:hover": { backgroundColor: "#ffcccc", borderColor: "#f44336" },
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                    }}
+                >
+                    <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                    Cancel
+                </MDButton>
+                <MDButton
+                        color="primary"
+                        variant="contained"
+                        sx={{
+                            padding: "8px 16px",
+                            backgroundColor: "#4caf50",
+                            "&:hover": {
+                            backgroundColor: "#388e3c",
+                             },
+                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            }}
+                            onClick={() => handleDataModal(true)}
+                            >
+                        <Icon sx={{ fontSize: 20 }}>add</Icon>
+                        Confirm
+                 </MDButton>
+            </MDBox>
+        </DialogActions>
+    </Dialog>
+)}
             <Dialog
             open={open}
             onClose={() => { handleClose(); handleChange(0) }}

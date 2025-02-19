@@ -6,7 +6,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 import useAuth from "hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dataServicePrivate, formatDateTime } from "global/function";
 import NavBar from "layouts/content_page/nav_bar";
 
@@ -50,6 +50,8 @@ function CareerQuestionsForm(){
     const [questions, setQuestions] = useState()
     const [step, setStep] = useState(0)
 
+    const swipeRef = useRef()
+    
     // must be revice
     const careerId = localStorage.getItem('career_id')
     console.log('career id', careerId);
@@ -112,9 +114,10 @@ function CareerQuestionsForm(){
                             || data[order]['questions'].type == 'radio'
                             || data[order]['questions'].type == 'file'
                             || data[order]['questions'].type == 'link'
-                            || data[order]['questions'].type == 'label'
+                            // || data[order]['questions'].type == 'label'
                         ) 
-                        && {options: (data[order]['questions'].value).split(', ')}
+                        ? {options: (data[order]['questions'].value).split(', ')} 
+                        : {options: data[order]['questions'].value}
                     })
 
                     continue
@@ -188,6 +191,12 @@ function CareerQuestionsForm(){
 
     }
 
+    const accordHeightChange = () => {
+        setTimeout(() => {
+            if (swipeRef) swipeRef.current.updateHeight()
+        }, 500);
+    }
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -214,12 +223,14 @@ function CareerQuestionsForm(){
                                     <SwipeableViews
                                         index={step}
                                         animateHeight
+                                        ref={swipeRef}
                                     >
                                         {Object.keys(questions).map((item, index) => (
                                             <FieldArray
                                                 render={arrayHelper => (
                                                 <MDBox>
-                                                    {console.log('values', values)}
+                                                    {/* {console.log('values', values)} */}
+                                                    {accordHeightChange()}
                                                     {setAnswers(values)}
                                                     {Object.keys(questions[item]).map((_item, index) => {
                                                         var data = questions[item][_item]
@@ -253,12 +264,24 @@ function CareerQuestionsForm(){
                                     </SwipeableViews>
                                     <MDBox style={{ display: 'flex' }} justifyContent={step > 0 ? 'space-between' : 'end'}>
                                         {step > 0 && (
-                                        <MDButton onClick={() => setStep(step-1)} sx={{ my: 1 }} color='secondary'>
+                                        <MDButton onClick={() => setStep(step-1)} sx={{ my: 1,  
+                                            backgroundColor: '#666666 !important', 
+                                            color: 'white !important', 
+                                            '&:hover': {
+                                              backgroundColor: '#555555 !important', 
+                                              boxShadow: 'none',
+                                              color: 'white !important'
+                                            },
+                                            '&.Mui-disabled': {
+                                              backgroundColor: '#666666 !important',
+                                              color: 'white !important',
+                                              opacity: 0.5,
+                                            } }} startIcon={<Icon sx={{ color: 'white' }}>navigate_before</Icon>}>
                                             Back
                                         </MDButton>
                                         )}
                                         <MDBox>
-                                            <MDButton sx={{ my: 1 }} color='info' type="submit">
+                                            <MDButton sx={{ my: 1 }} color='info' type="submit" endIcon={<Icon>navigate_next</Icon>}>
                                                 {step == Object.keys(questions).length-1 ? 'Continue' : 'Next'}
                                             </MDButton>
                                         </MDBox>

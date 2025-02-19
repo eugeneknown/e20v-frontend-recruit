@@ -6,8 +6,7 @@ import { formatDateTime } from "global/function";
 import workExp from "./work-experience";
 import otherDetails from "./other-details";
 import { dataServicePrivate } from "global/function";
-
-
+import {Icon} from "@mui/material";
 function GenerateExel({
     data
 }) {
@@ -351,7 +350,20 @@ function GenerateExel({
     }
 
     return (
-        <MDButton onClick={handleDownload}>Export</MDButton>
+        // <MDButton onClick={handleDownload}>Export</MDButton>
+        <MDButton
+        onClick={handleDownload}
+        variant="contained"
+        color="primary"
+        startIcon={<Icon>file_download</Icon>}
+        sx={{
+        color: 'white', // Default font color
+        transition: 'all 0.3s ease',
+        '& .MuiSvgIcon-root': { color: 'inherit' }, // Icon inherits text color
+        }}
+    >
+        EXPORT
+        </MDButton>
     )
 }
 

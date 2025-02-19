@@ -196,7 +196,7 @@ function Dependents() {
                 variant="h5"
                 sx={{ my: 2, textAlign: "center" }}
               >
-                No Dependents found.
+                No dependents found
               </MDTypography>
             ) : (
               memoizedDependents.map((dependent, index) => (
@@ -249,15 +249,23 @@ function Dependents() {
               variant="outlined"
               color="secondary"
               fullWidth
-              sx={{ mt: 3 }}
+              sx={{ 
+                mt: 3, 
+                borderColor: 'secondary.main', // Default border color
+                color: 'secondary.main', // Default text color
+                transition: 'all 0.3s ease', // Smooth transition effect
+                '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
+                '&:hover': {
+                  borderColor: 'red', // Border turns red
+                  color: 'red', // Text turns red
+                  '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
+                }
+              }}
               startIcon={<Icon>add</Icon>}
-              onClick={() =>
-                toPage("/careers/personalinfo/dependentsform", { mode: "add" })
-              }
+              onClick={() => toPage("/careers/personalinfo/dependentsform", { mode: "add" })}
             >
               Add Dependents
             </MDButton>
-            
 
             <form onSubmit={handleSubmit}>
               <MDButton
