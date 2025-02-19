@@ -90,14 +90,14 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Report",
-  //   key: "report",
-  //   icon: <Icon fontSize="small">assessment</Icon>,
-  //   route: "/report",
-  //   component: <Report />,
-  // },
+  {
+    type: "collapse",
+    name: "Report",
+    key: "report",
+    icon: <Icon fontSize="small">assessment</Icon>,
+    route: "/report",
+    component: <Report />,
+  },
   {
     type: "collapse",
     name: "Recruit",

@@ -263,36 +263,35 @@ function Dashboard() {
       console.log('weekly report data:', result)
       result = result.data['entity_career']
 
+      var dataSeries = []
       var dataSets = []
-      var tempDataSet = {}
-      var totalCount = 0
 
-      for ( var i=0; i<=count; i++ ) {
-        weekStart.add(i, 'd')
-        // console.log('debug report:', formatDateTime(weekStart))
-
-        tempDataSet['date'] = formatDateTime(weekStart, 'MMMM DD YYYY')
-        Object.keys(result).map((item, key) => {
-          // console.log('debug report format:', formatDateTime(moment(result[item]['date'])))
-          if (weekStart.isSame(result[item]['date'], 'day')) {
-            // console.log('debug report success:', data[item])
-            tempDataSet[result[item]['platform_id']] = result[item]['count']
-            totalCount += result[item]['count']
-
-            delete result[item]
-          }
+      for ( var i in result['series'] ) {
+        var data = result['series'][i]
+        dataSeries.push({
+          'dataKey': data['id'],
+          'label': data['title'],
+          'color': data['color'],
         })
-
-        tempDataSet['total'] = totalCount
-        totalCount = 0
-
-        weekStart.subtract(i, 'd')
-        dataSets.push(tempDataSet)
-        tempDataSet = {}
       }
 
-      console.log('debug report data array:', dataSets)
-      setWeeklyReport(dataSets)
+      for ( var i in result['sets'] ) {
+        var tempData = {}
+
+        var data = result['sets'][i]
+        tempData['date'] = formatDateTime(i, 'MMMM DD YYYY')
+        tempData['total'] = data['total']
+        for ( var j in data['data'] ) {
+          tempData[data['data'][j]['id']] = data['data'][j].value
+        }
+
+        dataSets.push(tempData)
+      }
+
+      console.log('debug weekly report datasets', dataSeries, dataSets);
+
+      setWeeklyReport({ dataSeries, dataSets })
+
     }).catch((err) => {
       console.log('weekly report error data:', err)
     })
@@ -323,35 +322,33 @@ function Dashboard() {
       console.log('monthly recruit data:', result)
       result = result.data['entity_career']
 
+      var dataSeries = []
       var dataSets = []
-      var tempDataSet = {}
-      var totalCount = 0
-      for ( var i=0; i<=count; i++ ) {
-        monthStart.add(i, 'month')
-        // console.log('debug report:', formatDateTime(monthStart))
 
-        tempDataSet['date'] = formatDateTime(monthStart, 'MMMM YYYY')
-        Object.keys(result).map((item, key) => {
-          // console.log('debug report format:', formatDateTime(moment(result[item]['date'])))
-          if (monthStart.isSame(result[item]['date'], 'month')) {
-            // console.log('debug report success:', data[item])
-            tempDataSet[result[item]['platform_id']] = result[item]['count']
-            totalCount += result[item]['count']
-
-            // delete result[item]
-          }
+      for ( var i in result['series'] ) {
+        var data = result['series'][i]
+        dataSeries.push({
+          'dataKey': data['id'],
+          'label': data['title'],
+          'color': data['color'],
         })
-
-        tempDataSet['total'] = totalCount
-        totalCount = 0
-
-        monthStart.subtract(i, 'month')
-        dataSets.push(tempDataSet)
-        tempDataSet = {}
       }
 
-      console.log('debug monthly report data array:', dataSets)
-      setMonthlyReport(dataSets)
+      for ( var i in result['sets'] ) {
+        var tempData = {}
+
+        var data = result['sets'][i]
+        tempData['date'] = formatDateTime(i, 'MMMM DD YYYY')
+        tempData['total'] = data['total']
+        for ( var j in data['data'] ) {
+          tempData[data['data'][j]['id']] = data['data'][j].value
+        }
+
+        dataSets.push(tempData)
+      }
+
+      console.log('debug monthly report data array:', dataSeries, dataSets)
+      setMonthlyReport({ dataSeries, dataSets })
       
     }).catch((err) => {
       console.log('monthly recruit error data:', err)
@@ -652,9 +649,9 @@ function Dashboard() {
                   </MDBox>
                   <MDBox p="1rem">
                     {
-                      weeklyReport && platformDataSeries &&
+                      weeklyReport &&
                       <BarChart
-                        dataset={weeklyReport}
+                        dataset={weeklyReport['dataSets']}
                         xAxis={[{
                           scaleType: 'band',
                           dataKey: 'date',
@@ -688,10 +685,10 @@ function Dashboard() {
                           },
                         }}
                         series={
-                          Object.keys(platformDataSeries).map((item, key) => {
+                          Object.keys(weeklyReport['dataSeries']).map((item, key) => {
                             // console.log('debug series data', item, key, weeklyReport);
                             var series = {
-                              ...platformDataSeries[item],
+                              ...weeklyReport['dataSeries'][item],
                               valueFormatter: (value, context) => {
                                 // console.log('debug series value weekly formatter:', value, context);
                                 if (context.dataIndex >= 0) {
@@ -706,11 +703,11 @@ function Dashboard() {
                             return series
                           })
                         }
-                        height={300}
+                        height={300}  
                         // margin={{ bottom: 70 }}
                       />
                     }
-                    {platformDataSeries && <CustomLegend series={platformDataSeries} />}
+                    {weeklyReport && <CustomLegend series={weeklyReport['dataSeries']} />}
                     <MDBox pt={3} pb={1} px={1}>
                       <MDTypography variant="h6" textTransform="capitalize">Weekly Platform Tracker</MDTypography>
                       <MDTypography component="div" variant="button" color="text" fontWeight="light">
@@ -733,7 +730,6 @@ function Dashboard() {
                         </MDTypography>
                       </MDBox>
                     </MDBox>
-                    {console.log('data', tagsMonthlyReport)}
                     <PieChart
                       chart={tagsMonthlyReport}
                     />
@@ -778,9 +774,9 @@ function Dashboard() {
                   </MDBox>
                   <MDBox p="1rem">
                     {
-                      monthlyReport && platformDataSeries &&
+                      monthlyReport &&
                       <BarChart
-                        dataset={monthlyReport}
+                        dataset={monthlyReport['dataSets']}
                         xAxis={[{
                           scaleType: 'band',
                           dataKey: 'date',
@@ -793,15 +789,6 @@ function Dashboard() {
                             }
                           },
                         }]}
-                        // topAxis={{
-                        //   disableLine: true,
-                        //   disableTicks: true,
-                        //   valueFormatter: (value, context) => {
-                        //     if (context.location == 'tick') {
-                        //       return `${formatDateTime(value, 'ddd')}`
-                        //     }
-                        //   }
-                        // }}
                         slotProps={{
                           legend: {
                             // position: { vertical: 'bottom' },
@@ -817,10 +804,10 @@ function Dashboard() {
                           }
                         }}
                         series={
-                          Object.keys(platformDataSeries).map((item, key) => {
+                          Object.keys(monthlyReport['dataSeries']).map((item, key) => {
                             // console.log('debug series data', item, key, monthlyReport);
                             var series = {
-                              ...platformDataSeries[item],
+                              ...monthlyReport['dataSeries'][item],
                               valueFormatter: (value, context) => {
                                 // console.log('debug series value monthly formatter:', value, context);
                                 if (context.dataIndex >= 0) {
@@ -839,7 +826,7 @@ function Dashboard() {
                         // margin={{ bottom: 70 }}
                       />
                     }
-                    {platformDataSeries && <CustomLegend series={platformDataSeries} />}
+                    {monthlyReport && <CustomLegend series={monthlyReport['dataSeries']} />}
                     <MDBox pt={3} pb={1} px={1}>
                       <MDTypography variant="h6" textTransform="capitalize">Yearly Platform Report</MDTypography>
                       <MDTypography component="div" variant="button" color="text" fontWeight="light">
