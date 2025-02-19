@@ -19,9 +19,12 @@ import Icon from "@mui/material/Icon";
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import { ResponsiveChartContainer, BarPlot, ChartsAxis, ChartsYAxis, ChartsXAxis, BarChart } from "@mui/x-charts";
+import FormControl from '@mui/material/FormControl';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -50,7 +53,7 @@ import ProgressLineChart from "examples/Charts/LineCharts/ProgressLineChart";
 import MDButton from "components/MDButton";
 import MDProgress from "components/MDProgress";
 import MDTypography from "components/MDTypography";
-import { Card, colors, FormControl, IconButton, MenuItem, Paper, Select, Tooltip } from "@mui/material";
+import { Card, colors, IconButton, Paper, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import { dataServicePrivate } from "global/function";
 import useAuth from "hooks/useAuth";
 import { formatDateTime } from "global/function";
@@ -507,124 +510,159 @@ function Dashboard() {
       </MDBox>
     );
   };
+  const theme = useTheme();
+   // Breakpoints for responsiveness
+   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+   const isMediumScreen = useMediaQuery(theme.breakpoints.between("sm", "md"));
+   
+   // Adjust icon size based on screen size
+   const iconSize = isSmallScreen ? "small" : isMediumScreen ? "medium" : "large";
+   // Adjust font sizes
+   const titleFontSize = isSmallScreen ? "1rem" : isMediumScreen ? "1.2rem" : "1.5rem";
+   const countFontSize = isSmallScreen ? "1.5rem" : isMediumScreen ? "2rem" : "2.5rem";
+   const percentageFontSize = isSmallScreen ? "0.8rem" : isMediumScreen ? "1rem" : "1.2rem";
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 icon="person_add"
+                iconSize={iconSize}
                 title="Total Applicants"
+                titleFontSize={titleFontSize}
                 count={total}
-                // percentage={{
-                //   color: "success",
-                //   amount: "+3%",
-                //   label: "than yesterday",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "+3%",
+                  label: "than yesterday",
+                }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 icon="person_add"
+                iconSize={iconSize}
                 title="Shortlisted"
+                titleFontSize={titleFontSize}
                 count={tagsCount && dailyTagsFinder('Shortlisted').count || 0}
-                // percentage={{
-                //   color: "success",
-                //   amount: "+3%",
-                //   label: "than yesterday",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "+3%",
+                  label: "than yesterday",
+                }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="dark"
                 icon="leaderboard"
+                iconSize={iconSize}
                 title="Initial Interview"
+                titleFontSize={titleFontSize}
                 count={tagsCount && dailyTagsFinder('Initial Interview').count || 0}
-                // percentage={{
-                //   color: "success",
-                //   amount: "+55%",
-                //   label: "than lask week",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "+55%",
+                  label: "than lask week",
+                }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="dark"
                 icon="leaderboard"
+                iconSize={iconSize}
                 title="No Show Initial Interview"
+                titleFontSize={titleFontSize}
                 count={tagsCount && dailyTagsFinder('No Show Initial Interview').count || 0}
-                // percentage={{
-                //   color: "success",
-                //   amount: "+55%",
-                //   label: "than lask week",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "+55%",
+                  label: "than lask week",
+                }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="success"
                 icon="work"
+                iconSize={iconSize}
                 title="Final Interview"
+                titleFontSize={titleFontSize}
                 count={tagsCount && dailyTagsFinder('Final Interview').count || 0}
-                // percentage={{
-                //   color: "success",
-                //   amount: "+1%",
-                //   label: "than yesterday",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "+1%",
+                  label: "than yesterday",
+                }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="success"
                 icon="work"
+                iconSize={iconSize}
                 title="No Show Final Interview"
+                titleFontSize={titleFontSize}
                 count={tagsCount && dailyTagsFinder('No Show Final Interview').count || 0}
-                // percentage={{
-                //   color: "success",
-                //   amount: "+1%",
-                //   label: "than yesterday",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "+1%",
+                  label: "than yesterday",
+                }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <ComplexStatisticsCard
               icon="person_add"
+              iconSize={iconSize}
               title="Job Offer"
+              titleFontSize={titleFontSize}
               count={tagsCount && dailyTagsFinder('Job Offer').count || 0}
-              // percentage={{
-              //   color: "success",
-              //   amount: "+3%",
-              //   label: "than yesterday",
-              // }}
+              countFontSize={countFontSize} 
+              percentage={{
+                color: "success",
+                amount: "+3%",
+                label: "than yesterday",
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={2.3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="error"
                 icon="person_minus"
+                iconSize={iconSize}
                 title="Hired"
+                titleFontSize={titleFontSize}
                 count={tagsCount && dailyTagsFinder('Hired').count || 0}
-                // percentage={{
-                //   color: "success",
-                //   amount: "",
-                //   label: "Just updated",
-                // }}
+                countFontSize={countFontSize} 
+                percentage={{
+                  color: "success",
+                  amount: "",
+                  label: "Just updated",
+                }}
               />
             </MDBox>
           </Grid>

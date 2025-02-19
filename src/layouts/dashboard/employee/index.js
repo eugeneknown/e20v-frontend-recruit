@@ -482,7 +482,7 @@ function Employee() {
             _result = _result.data['entity'][0];
     
             setContent((
-                <Dialog open={true} onClose={handleClose} maxWidth="md" fullWidth>
+                <Dialog open={true} onClose={handleClose} maxWidth="sm" fullWidth>
                     <DialogTitle textAlign='center' sx={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
                         Applicant Information
                     </DialogTitle>
@@ -515,9 +515,6 @@ function Employee() {
                     </DialogContent>
                     {/* <DialogActions sx={{ justifyContent: 'center', p: 2 }}>
                         <GenerateExel data={{ entity_id: entityId }} />
-                        <MDButton onClick={handleClose} color="primary" variant="contained" sx={{ fontSize: '1rem' }}>
-                            Close
-                        </MDButton>
                     </DialogActions> */}
                 </Dialog>
             ));
@@ -539,7 +536,7 @@ function Employee() {
             result = result.data['career_answers'] ?? [];
     
             setContent((
-                <Dialog open={true} onClose={handleClose} maxWidth="md" fullWidth>
+                <Dialog open={true} onClose={handleClose} maxWidth="sm" fullWidth>
                     <DialogTitle textAlign='center' sx={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
                         Applicant Answers
                     </DialogTitle>
@@ -571,7 +568,7 @@ function Employee() {
                                                     </MDTypography>
                                                 ) : (
                                                     // File-Based Answer
-                                                    <MDBox display="flex" justifyContent="center" mt={1}>
+                                                    <MDBox display="flex" mt={1}>
                                                         {item.files?.file_type.includes('pdf') && (
                                                             <Link href={item.files?.files_url} target="_blank">
                                                                 Open File
@@ -965,53 +962,119 @@ function Employee() {
     )
 
     const columns = [
-        { Header: "name", accessor: (row) => `${row.full_name} ${row.email}`, id: 'name', Cell: ({row}) => (
-            <Employee image={team3} name={row.original.full_name} email={row.original.email} />
-        ), align: "left", sort: true },
-        { Header: "contact number", accessor: "number", Cell: ({value}) => (
-            <MDTypography variant="caption" color="text" fontWeight="medium">
-                {formatPhoneNumber(value)}
-            </MDTypography>
-        ), align: "left", sort: true },
-        { Header: "alternative number", accessor: "alternative", Cell: ({value}) => (
-            <MDTypography variant="caption" color="text" fontWeight="medium">
-                {formatPhoneNumber(value)}
-            </MDTypography>
-        ), align: "left", sort: true },
-        { Header: "position applied", accessor: "career", Cell: ({value}) => (<Career title={value} />), align: "left", sort: true},
-        { Header: "source", accessor: (row) => (
-            platforms[Object.keys(platforms).find(key => platforms[key].id == row.platforms_id)]?.title || 'unassigned' 
-        ), id: "platform", align: "center", sort: true, Cell: ({row}) => {
-            return (<BadgePopper
-                id={row.original.entity_careers_id}
-                badgeId={row.original.platforms_id} 
-                variant="customGradient" 
-                content={platforms}
-                data={handlePlatformData}
-                editable={true}
-                deletable={true}
-            />)
-        }, Filter: PlatformFilterColumnFN},
-        { Header: "applied date", accessor: "applied", align: "center", Cell: ({value}) => (
-            <MDTypography variant="caption" color="text" fontWeight="medium">
-                {value}
-            </MDTypography>
-        ), Filter: DateRangeFilterColumnFN, filter: DateRangeFilterFN, sort: true},
-        { Header: 'status', accessor: (row) => (
-            tags[Object.keys(tags).find(key => tags[key].id == row.tags_id)]?.title || 'unassigned' 
-        ), id: 'status', align: "center", sort: true, Cell: ({row}) => {
-            return (<BadgePopper
-                id={row.original.entity_careers_id}
-                badgeId={row.original.tags_id} 
-                variant="customGradient" 
-                content={tags}
-                data={handleTagsData}
-                editable={true}
-                deletable={true}
-            />)
-        }, Filter: TagsFilterColumnFN},
-        { Header: "actions", accessor: "actions", align: "center", disableFilters: true, disableGlobalFilter: true },
-    ]
+        { 
+            Header: "name", 
+            accessor: (row) => `${row?.full_name || ''} ${row?.email || ''}`, 
+            id: 'name', 
+            Cell: ({ row }) => {
+                const employee = row?.original || {};
+                return (
+                    <Employee 
+                        image={team3} 
+                        name={employee.full_name || 'N/A'} 
+                        email={employee.email || 'N/A'} 
+                    />
+                );
+            }, 
+            align: "left", 
+            sort: true 
+        },
+        { 
+            Header: "contact number", 
+            accessor: "number", 
+            Cell: ({ value }) => (
+                <MDTypography variant="caption" color="text" fontWeight="medium">
+                    {value ? formatPhoneNumber(value) : "N/A"}
+                </MDTypography>
+            ), 
+            align: "left", 
+            sort: true 
+        },
+        { 
+            Header: "position applied", 
+            accessor: "career", 
+            Cell: ({ value }) => (
+                <Career title={value || "N/A"} />
+            ), 
+            align: "left", 
+            sort: true 
+        },
+        { 
+            Header: "source", 
+            accessor: (row) => (
+                platforms && Object.keys(platforms || {}).length > 0
+                    ? platforms[Object.keys(platforms).find(key => platforms[key]?.id === row?.platforms_id)]?.title
+                    : 'unassigned'
+            ), 
+            id: "platform", 
+            align: "center", 
+            sort: true, 
+            Cell: ({ row }) => {
+                const entityId = row?.original?.entity_careers_id;
+                const platformId = row?.original?.platforms_id;
+                return (
+                    <BadgePopper
+                        id={entityId || 0}
+                        badgeId={platformId || 0}
+                        variant="customGradient"
+                        content={platforms || {}}
+                        data={handlePlatformData}
+                        editable={true}
+                        deletable={true}
+                    />
+                );
+            }, 
+            Filter: PlatformFilterColumnFN
+        },
+        { 
+            Header: "applied date", 
+            accessor: "applied", 
+            align: "center", 
+            Cell: ({ value }) => (
+                <MDTypography variant="caption" color="text" fontWeight="medium">
+                    {value || "N/A"}
+                </MDTypography>
+            ), 
+            Filter: DateRangeFilterColumnFN, 
+            filter: DateRangeFilterFN, 
+            sort: true 
+        },
+        { 
+            Header: "status", 
+            accessor: (row) => (
+                tags && Object.keys(tags || {}).length > 0
+                    ? tags[Object.keys(tags).find(key => tags[key]?.id === row?.tags_id)]?.title
+                    : 'unassigned'
+            ), 
+            id: 'status', 
+            align: "center", 
+            sort: true, 
+            Cell: ({ row }) => {
+                const entityId = row?.original?.entity_careers_id;
+                const tagId = row?.original?.tags_id;
+                return (
+                    <BadgePopper
+                        id={entityId || 0}
+                        badgeId={tagId || 0}
+                        variant="customGradient"
+                        content={tags || {}}
+                        data={handleTagsData}
+                        editable={true}
+                        deletable={true}
+                    />
+                );
+            }, 
+            Filter: TagsFilterColumnFN
+        },
+        { 
+            Header: "actions", 
+            accessor: "actions", 
+            align: "center", 
+            disableFilters: true, 
+            disableGlobalFilter: true 
+        }
+    ];
+    
 
     const Employee = ({ image, name, email }) => (
         <MDBox display="flex" alignItems="center" lineHeight={1}>
