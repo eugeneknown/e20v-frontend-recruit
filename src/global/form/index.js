@@ -217,6 +217,15 @@ export const generateFormInput = (props) => {
                         required={props.required}
                         label={props.label}
                         sx={props.sx}
+                        control={
+                            <Switch
+                                name={props.name}
+                                checked={props.value}
+                                onChange={(value) =>
+                                    props.setFieldValue(props.id, value.target.checked, props.required)
+                                }
+                            />
+                        }
                     />
                 );
             
