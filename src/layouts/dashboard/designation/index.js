@@ -299,6 +299,11 @@ function Designation() {
                             variant='customGradient'
                         />
                     ),
+                    jo: (
+                        <MDTypography variant="caption" color="text" fontWeight="medium">
+                            {result[key].jo_at ? formatDateTime(result[key].hired_at, 'MMM DD, YYYY HH:mm:ss') : 'No Data'}
+                        </MDTypography>
+                    ),
                     hired: (
                         <MDTypography variant="caption" color="text" fontWeight="medium">
                             {result[key].hired_at ? formatDateTime(result[key].hired_at, 'MMM DD, YYYY HH:mm:ss') : 'No Data'}
@@ -316,8 +321,9 @@ function Designation() {
     }
 
     const columns = [
-        { Header: "employee", accessor: "name", align: "left", sort: true, },
-        { Header: "platform", accessor: "platforms", align: "center", sort: true, },
+        { Header: "employee name", accessor: "name", align: "left", sort: true, },
+        { Header: "source", accessor: "platforms", align: "center", sort: true, },
+        { Header: "jo date", accessor: "jo", align: "center", sort: true, },
         { Header: "date hired", accessor: "hired", align: "center", sort: true, },
         {
             Header: "designation", 

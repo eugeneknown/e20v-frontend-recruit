@@ -370,6 +370,9 @@ function Employee() {
 
     const handleTagUpdate = (id, tags_id) => {
         var data = { id, tags_id }
+        if ( tags[Object.keys(tags).findIndex((item) => tags[item].id == tags_id)].title == 'Job Offer' ) {
+            data['jo_at'] = moment()
+        }
         if ( tags[Object.keys(tags).findIndex((item) => tags[item].id == tags_id)].title == 'Hired' ) {
             data['hired_at'] = moment()
         }
