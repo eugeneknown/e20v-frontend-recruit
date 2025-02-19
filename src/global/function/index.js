@@ -32,7 +32,7 @@ formatDateTime.defaultProps = {
     date: '',
     output: 'YYYY-MM-DD HH:mm:ss',
     timezone: 'Asia/Manila',
-    is_tz: false
+    is_tz: true
 }
 
 dataService.propTypes = {
@@ -50,4 +50,6 @@ dataServicePrivate.propTypes = {
 formatDateTime.propTypes = {
     date: propTypes.string.isRequired,
     output: propTypes.string,
+    timezone: propTypes.string,
+    is_tz: propTypes.bool,
 }

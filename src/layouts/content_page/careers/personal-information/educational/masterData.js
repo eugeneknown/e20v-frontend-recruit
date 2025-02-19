@@ -68,10 +68,10 @@ export default [
                     'Year graduated must be at least 2 years after the year attended for master’s programs.',
                     function (value) {
                       const { start_date } = this.parent;
-                      if (!start_date || !value) return true; // Skip validation if fields are missing
+                      if (!start_date || !value) return true; 
                       const startYear = new Date(start_date).getFullYear();
                       const endYear = new Date(value).getFullYear();
-                      return endYear >= startYear + 2; // Ensure at least 2 years difference
+                      return endYear >= startYear + 2; 
                     }
                   ),
               otherwise: (schema) => schema.notRequired(),

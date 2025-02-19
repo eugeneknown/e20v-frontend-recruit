@@ -73,6 +73,7 @@ import EducationalAttainmentForm from "layouts/content_page/careers/personal-inf
 import Dependents from "layouts/content_page/careers/personal-information/dependents";
 import DependentsForm from "layouts/content_page/careers/personal-information/dependents/dependents";
 import Report from "layouts/dashboard/report";
+import Designation from "layouts/dashboard/designation";
 
 const routes = [
   {
@@ -89,14 +90,14 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Report",
-  //   key: "report",
-  //   icon: <Icon fontSize="small">assessment</Icon>,
-  //   route: "/report",
-  //   component: <Report />,
-  // },
+  {
+    type: "collapse",
+    name: "Report",
+    key: "report",
+    icon: <Icon fontSize="small">assessment</Icon>,
+    route: "/report",
+    component: <Report />,
+  },
   {
     type: "collapse",
     name: "Recruit",
@@ -104,6 +105,14 @@ const routes = [
     icon: <Icon fontSize="small">person</Icon>,
     route: "/recruit",
     component: <Employee />,
+  },
+  {
+    type: "collapse",
+    name: "Hired",
+    key: "hired",
+    icon: <Icon fontSize="small">accessibility</Icon>,
+    route: "/hired",
+    component: <Designation />,
   },
   {
     type: "collapse",
