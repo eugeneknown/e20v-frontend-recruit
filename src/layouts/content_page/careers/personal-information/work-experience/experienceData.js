@@ -15,7 +15,7 @@ export default [
         label: 'Position Held',
         type: 'text',
         required: true,
-    },
+    }, 
     {
         id: 'department',
         label: 'Department',
@@ -78,22 +78,6 @@ export default [
             views: ['month', 'year'],
             openTo: 'month',
         },
-        // component: (props) => {
-        //     const value = moment(props.value);
-        //     const minDate = moment(); // Get current date
-
-        // return (
-        //     <LocalizationProvider dateAdapter={AdapterMoment}>
-        //         <DesktopDatePicker
-        //             {...props}
-        //             value={value.isValid() ? value : null}
-        //             minDate={minDate}
-        //             maxDate={maxDate}
-        //             renderInput={(params) => <TextField {...params} />}
-        //         />
-        //     </LocalizationProvider>
-        // );
-    // },
         validations: [
             {
                 type: 'when',

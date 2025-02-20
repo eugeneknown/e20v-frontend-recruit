@@ -313,8 +313,8 @@ function WorkExperienceForm(){
                                     <IconButton onClick={() => deleteHandle(details[item].id)}><Icon color="error">delete</Icon></IconButton>
                                 </MDBox>
                                 <CardContent>
-                                    <MDTypography variant='h5'>{details[item].position_held}</MDTypography>
-                                    <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].company}</MDTypography>
+                                    <MDTypography variant='h5'>{details[item].company}</MDTypography>
+                                    <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].position_held}</MDTypography>
                                     <MDTypography variant='body2' sx={{ textTransform: 'capitalize' }}>{details[item].department}</MDTypography>
                                     <MDTypography variant='body2'>
                                         {formatDateTime(details[item].start_date, 'MMMM YYYY')} to {details[item].present ? `Present` : formatDateTime(details[item].end_date, 'MMMM YYYY')}
