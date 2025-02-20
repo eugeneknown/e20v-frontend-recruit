@@ -43,14 +43,21 @@ const CheckboxField = ({ props, sx, handleChange }) => {
     };
 
     const handleSelectionChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        const newValues = typeof value === 'string' ? value.split(', ') : value;
-        setSelectedValues(newValues); // Update selected values
-        handleChange(event); // Call parent-provided handleChange
-    };
-
+        const { value } = event.target;
+        let newValues = typeof value === 'string' ? value.split(', ') : value;
+    
+        // If "None of the Above" is selected, deselect all other options
+        if (newValues.includes("None of the Above")) {
+            newValues = ["None of the Above"];
+        } else {
+            // If "None of the Above" is not selected, ensure it's unchecked
+            newValues = newValues.filter(item => item !== "None of the Above");
+        }
+    
+        setSelectedValues(newValues);
+        handleChange({ ...event, target: { ...event.target, value: newValues } });
+    };        
+    
     const handleSaveCheckedFields = () => {
         console.log('Checked Fields:', selectedValues);
         setOpen(false); // Close dropdown only when "OK" is clicked
@@ -80,7 +87,7 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                 {...props}
                 multiple
                 open={open}
-                value={selectedValues}
+                value={props.value || selectedValues}
                 input={<OutlinedInput notched label={props.label} />}
                 renderValue={(selected) => {
                     if (selected.length === 0) {
