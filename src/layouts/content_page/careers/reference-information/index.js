@@ -307,7 +307,7 @@ function ReferenceInformation(){
                         <Card variant="outlined">
                             <CardContent>
                                 <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                                <MDTypography sx={{ mt: 3 }} variant='h3'>CHARACTER REFERENCES</MDTypography>
+                                <MDTypography sx={{ mt: 3 }} variant='h5' color='primary'>CHARACTER REFERENCES</MDTypography>
                                 <MDTypography variant='button' color='error'>(Please exclude relatives/friends; kindly provide previous employment head, colleague, and HR)</MDTypography>
                                 <Divider />
                                 {ref && Object.keys(ref).map((item, index) => (
@@ -317,8 +317,8 @@ function ReferenceInformation(){
                                             <IconButton onClick={() => deleteHandle(ref[item].id)}><Icon color="error">delete</Icon></IconButton>
                                         </MDBox>
                                         <CardContent>
-                                            <MDTypography variant='h5'>{ref[item].name}</MDTypography>
-                                            <MDTypography variant='body2'>{ref[item].company}</MDTypography>
+                                            <MDTypography variant='h5'>{ref[item].company}</MDTypography>
+                                            <MDTypography variant='body2'>{ref[item].name}</MDTypography>
                                             <MDTypography variant='body2'>{ref[item].company_email}</MDTypography>
                                             <MDTypography variant='body2'>{ref[item].position}</MDTypography>
                                             <MDTypography variant='body2'>{ref[item].email}</MDTypography>
