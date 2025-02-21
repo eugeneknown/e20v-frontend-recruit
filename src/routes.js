@@ -100,10 +100,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Recruit",
+    name: "Candidate",
     key: "recruit",
     icon: <Icon fontSize="small">person</Icon>,
-    route: "/recruit",
+    route: "/candidate",
     component: <Employee />,
   },
   {
@@ -297,12 +297,6 @@ const routes = [
     key: "careerquestions",
     route: "/careers/questions",
     component: <CareerQuestionsForm />,
-  },
-  {
-    type: "hidden", //hidden
-    key: "referrence",
-    route: "/careers/reference",
-    component: <ReferenceInformation />,
   },
   {
     type: "hidden", //hidden

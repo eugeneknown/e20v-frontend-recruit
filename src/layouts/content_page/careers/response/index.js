@@ -145,11 +145,11 @@ function Response(){
 
     const renderInfo = (title, value, format='YYYY') => (
         <MDBox py={1} pr={2}>
-            <MDTypography variant="button" fontWeight="bold" color="black">
+            <MDTypography variant="button" fontWeight="bold" color="black" sx={{ display: 'block' }}>
                 {title}: &nbsp;
             </MDTypography>
             <MDTypography variant="button" fontWeight="regular" color="black">
-                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, format) : value}
+                &nbsp;{moment(value).isValid() && typeof value != 'number' && value != '0' ? formatDateTime(value, format) : typeof value == 'boolean' ? value==true?'Yes':'No' : value}
             </MDTypography>
         </MDBox>
     )
@@ -192,7 +192,7 @@ function Response(){
                     ref={actionRef}
                 >
                     <MDBox>
-                        <Card variant="outlined" sx={{ m: 2 }}>
+                        <Card variant="outlined" sx={{ my: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -201,13 +201,13 @@ function Response(){
                                 >
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Personal Information</MDTypography></AccordionSummary>
                                     <AccordionDetails>
-                                        {entity && Object.keys(entityData).map((item, index) => renderInfo(entityData[item].label, entity[entityData[item].id], 'MMMM dd, YYYY'))}
+                                        {entity && Object.keys(entityData).map((item, index) => renderInfo(entityData[item].label, entity[entityData[item].id], 'MMMM DD, YYYY'))}
                                     </AccordionDetails>
                                 </Accordion>
                             </CardContent>
                         </Card>
                         {dependents &&
-                        <Card variant="outlined" sx={{ m: 2 }}>
+                        <Card variant="outlined" sx={{ my: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -219,7 +219,7 @@ function Response(){
                                         {dependents && Object.keys(dependents).map((item, index) => (
                                             <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(dependentsData).map((_item, _index) => renderInfo(dependentsData[_item].label, dependents[item][dependentsData[_item].id], 'MMMM dd, YYYY'))}
+                                                    {Object.keys(dependentsData).map((_item, _index) => renderInfo(dependentsData[_item].label, dependents[item][dependentsData[_item].id], 'MMMM DD, YYYY'))}
                                                 </CardContent>
                                             </Card>
                                         ))}
@@ -228,12 +228,12 @@ function Response(){
                             </CardContent>
                         </Card>}
                         {education &&
-                        <Card variant="outlined" sx={{ m: 2 }}>
+                        <Card variant="outlined" sx={{ my: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
                                     defaultExpanded
-                                    slotProps={{ transition: { addEndListener: accordHeightChange } }}
+                                    slotProps={{ transition: { aDDEndListener: accordHeightChange } }}
                                 >
                                     <AccordionSummary expandIcon={<Icon fontSize="5px">expand_more</Icon>}><MDTypography variant='h5' textTransform='uppercase' color='e20'>Education</MDTypography></AccordionSummary>
                                     <AccordionDetails>
@@ -252,7 +252,7 @@ function Response(){
                                                                     </MDBox>
                                                                 )
                                                             } else {
-                                                                return renderInfo(educationData[_item].label, education[item][educationData[_item].id], ) //todo
+                                                                return renderInfo(educationData[_item].label, education[item][educationData[_item].id])
                                                             }
                                                         }
                                                     })}
@@ -264,7 +264,7 @@ function Response(){
                             </CardContent>
                         </Card>}
                         {experience &&
-                        <Card variant="outlined" sx={{ m: 2 }}>
+                        <Card variant="outlined" sx={{ my: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -277,7 +277,7 @@ function Response(){
                                         {experience && Object.keys(experience.details).map((item, index) => (
                                             <Card variant="outlined" sx={{ mb: 2 }}>
                                                 <CardContent>
-                                                    {Object.keys(experienceData).map((_item, _index) => experience['details'][item][experienceData[_item].id] && renderInfo(experienceData[_item].label, experience['details'][item][experienceData[_item].id]))}
+                                                    {Object.keys(experienceData).map((_item, _index) => experience['details'][item][experienceData[_item].id] && renderInfo(experienceData[_item].label, experience['details'][item][experienceData[_item].id], 'MMMM YYYY'))}
                                                 </CardContent>
                                             </Card>
                                         ))}
@@ -293,7 +293,7 @@ function Response(){
                                 </Accordion>
                             </CardContent>
                         </Card>}
-                        <Card variant="outlined" sx={{ m: 2 }}>
+                        <Card variant="outlined" sx={{ my: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}
@@ -304,9 +304,9 @@ function Response(){
                                     <AccordionDetails>
                                         {details && Object.keys(detailsData).map((item, index) => {
                                             if (detailsData[item].id == 'platforms_id') {
-                                                return renderOtherDetails(detailsData[item].label, details[0]['platforms']['title'], index)
+                                                return renderOtherDetails(detailsData[item].label, details[0]['platforms']['title'])
                                             } else {
-                                                return renderOtherDetails(detailsData[item].label, details[0][detailsData[item].id], index)
+                                                return renderOtherDetails(detailsData[item].label, details[0][detailsData[item].id])
                                             }
                                         })}
                                     </AccordionDetails>
@@ -379,7 +379,7 @@ function Response(){
                     </MDBox>
                     <MDBox>
                         {reference &&
-                        <Card variant="outlined" sx={{ m: 2 }}>
+                        <Card variant="outlined" sx={{ my: 2 }}>
                             <CardContent sx={{ p: '0.5rem 1.5rem!important' }}>
                                 <Accordion
                                     sx={{ boxShadow: 0 }}

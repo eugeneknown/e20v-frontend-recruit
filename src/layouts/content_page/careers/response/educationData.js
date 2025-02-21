@@ -27,6 +27,6 @@ export default [
     },
     {
         id: 'undergrad',
-        label: 'Undergraute',
+        label: 'Undergradute',
     },
 ]

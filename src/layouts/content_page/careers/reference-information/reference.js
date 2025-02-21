@@ -31,7 +31,7 @@ function ReferenceForm(){
     const navigate = useNavigate();
     const location = useLocation(); 
     const from = location.state?.from?.pathname || "/careers/personalinfo";
-    const prevPage = () => navigate(from, { replace: true })
+    const prevPage = () => navigate(from, { state: { prev: 1 },replace: true })
     const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     // get id from uselocation
