@@ -23,9 +23,12 @@ import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import moment from "moment";
 import SaveIcon from '@mui/icons-material/Save';
+import { useMaterialUIController, setDialog } from "context";
 
 
-function ReferenceForm(){
+function ReferenceForm({id}){
+    const [controller, dispatch] = useMaterialUIController();
+    const { dialog } = controller;
 
     // navigation
     const navigate = useNavigate();
@@ -35,8 +38,8 @@ function ReferenceForm(){
     const toPage = (url) => navigate(url, { state: { from: location }, replace: true })
 
     // get id from uselocation
-    const id = location.state?.id || null
-    console.log('location id', id);
+    // const id = location.state?.id || null
+    // console.log('location id', id);
 
     const {isAuth, auth} = useAuth();
     const [ref, setRef] = useState()
@@ -68,7 +71,7 @@ function ReferenceForm(){
             setRef({})
         }
 
-    }, [])
+    }, [id])
 
     useEffect(() => {
         if (ref) {
@@ -89,7 +92,7 @@ function ReferenceForm(){
         dataServicePrivate('POST', 'entity/reference/define', {entity_id, ...data}).then((result) => {
             console.log('debug reference define result', result);
             removeLocal()
-            prevPage()
+            setDialog(dispatch, { ...dialog, open: false });
         }).catch((err) => {
             console.log('debug reference define error result', err);
 
@@ -97,65 +100,56 @@ function ReferenceForm(){
     }
 
     return (
-        <PageLayout>
-            <NavBar position='absolute' />
-            <MDBox mt={5} maxWidth="sm" mx='auto' pt={6} pb={3}>
-                <Card variant="outlined">
-                    <CardContent>
-                        <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                        <MDTypography sx={{ mt: 3 }} variant='h3'>
-                            {ref && ref.id ? 'Edit Reference' : 'Add Reference'}
-                        </MDTypography>
-                        <Divider />
-                        {ref && (
-                            <Formik
-                                initialValues={ref}
-                                validationSchema={validationSchema}
-                                onSubmit={(data) => {
-                                    handleSubmit(data)
-                                }}
-                            >
-                                {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
-                                    <Form>
-                                        <FieldArray
-                                            render={arrayHelper => (
-                                            <MDBox>
-                                                {setRef(values)}
-                                                {Object.keys(data).map((item, index) => {
-                                                    // universal format
-                                                    var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
-                                                    var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
-                                                    return (generateFormInput({
-                                                        variant: 'outlined',
-                                                        fullWidth: true,
-                                                        type: data[item].type,
-                                                        id: data[item].id,
-                                                        name: data[item].id,
-                                                        label: data[item].label,
-                                                        value: values[data[item].id],
-                                                        required: data[item].required,
-                                                        onChange: handleChange,
-                                                        onBlur: handleBlur,
-                                                        setFieldValue,
-                                                        setFieldTouched,
-                                                        error: touch && Boolean(error),
-                                                        helperText: touch && error,
-                                                        options: data[item].options ? data[item].options : undefined
-                                                    }))
-                                                })}
-                                            </MDBox>
-                                            )}
-                                        />
-                                        <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' startIcon={<SaveIcon />}>Save</MDButton>
-                                    </Form>
+        <MDBox>
+            <MDTypography sx={{ mt: 3 }} variant='h3'>
+                {ref && ref?.id ? 'Edit Reference' : 'Add Reference'}
+            </MDTypography>
+            <Divider />
+            {ref && (
+                <Formik
+                    initialValues={ref}
+                    validationSchema={validationSchema}
+                    onSubmit={(data) => {
+                        handleSubmit(data)
+                    }}
+                >
+                    {({values, touched, errors, isValid, handleChange, handleBlur, setFieldValue, setFieldTouched}) => (
+                        <Form>
+                            <FieldArray
+                                render={arrayHelper => (
+                                <MDBox>
+                                    {setRef(values)}
+                                    {Object.keys(data).map((item, index) => {
+                                        // universal format
+                                        var touch = data[item].type == 'date' ? typeof touched[data[item].id] == 'undefined' ? true : touched[data[item].id] : touched[data[item].id]
+                                        var error = data[item].type == 'date' ? data[item].required && errors[data[item].id] : errors[data[item].id]
+                                        return (generateFormInput({
+                                            variant: 'outlined',
+                                            fullWidth: true,
+                                            type: data[item].type,
+                                            id: data[item].id,
+                                            name: data[item].id,
+                                            label: data[item].label,
+                                            value: values[data[item].id],
+                                            required: data[item].required,
+                                            onChange: handleChange,
+                                            onBlur: handleBlur,
+                                            setFieldValue,
+                                            setFieldTouched,
+                                            error: touch && Boolean(error),
+                                            helperText: touch && error,
+                                            options: data[item].options ? data[item].options : undefined
+                                        }))
+                                    })}
+                                </MDBox>
                                 )}
-                            </Formik>
-                        )}
-                    </CardContent>
-                </Card>
-            </MDBox>
-            <Footer />
-        </PageLayout>
+                            />
+                            <MDButton sx={{ my: 1 }} color='info' fullWidth type='submit' startIcon={<SaveIcon />}>Save</MDButton>
+                        </Form>
+                    )}
+                </Formik>
+            )}
+        </MDBox>
     );    
 }
 

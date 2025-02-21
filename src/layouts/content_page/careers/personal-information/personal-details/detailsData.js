@@ -46,7 +46,7 @@ export default [
     },
     {
         id: 'travel',
-        label: 'Any plan/booked travel for the next 30 days? (please specify the date and where)',
+        label: 'Any planned/booked travel for the next 30 days? (pls. specify the date/where)',
         type: 'text',
         required: true,
     },
@@ -67,8 +67,8 @@ export default [
         label: 'Pre-Employment Requirements (check if applicable or available)',
         type: 'check',
         required: true,
-        options: ['SSS ID', 'PHIC ID', 'HDMF ID', 'BIR 2316 (from latest company)', 'Birth Certificate (preferably PSA)', '2x2 picture with white background (for ID purposes)',
-            'Certificate of Employment (most recent)', 'TOR', 'None of the Above'
+        options: ['SSS ID', 'PHIC ID', 'HDMF ID', '2316 from previous employer', 'Birth Certificate (preferably PSA)', '2x2 picture with white background (for ID purposes)',
+            'Certificate of Employment (recent previous employer)', 'TOR', 'None of the Above'
         ],
     },
   

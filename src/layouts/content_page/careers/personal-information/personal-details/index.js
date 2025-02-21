@@ -122,7 +122,7 @@ function PersonalDetailsForm(){
     return (
         <PageLayout>
             <NavBar position='absolute' />
-            <MDBox mt={5} maxWidth="sm" mx='auto' pt={6} pb={3}>
+            <MDBox mt={5} maxWidth="md" mx='auto' pt={6} pb={3}>
                 <Card variant="outlined">
                     <CardContent>
                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>

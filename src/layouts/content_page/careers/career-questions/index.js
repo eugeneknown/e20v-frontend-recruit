@@ -471,7 +471,7 @@ function CareerQuestionsForm(){
                                     </CardContent>
                                     <CardContent>
                                         <IconButton onClick={()=>setPageStep(pageStep-1)}><Icon>keyboard_backspace</Icon></IconButton>
-                                        <ReferenceInformation />
+                                        <ReferenceInformation OnHeightChange={PageSwipeHeightChange} />
                                         <Divider />
                                         <form onSubmit={handleSubmit}>
                                         <AuthLetter />

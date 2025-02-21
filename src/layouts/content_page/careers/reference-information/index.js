@@ -18,6 +18,7 @@ import { formatDateTime } from "global/function";
 import { dataServicePrivate } from "global/function";
 import SendIcon from '@mui/icons-material/Send';
 import { useMaterialUIController, setDialog } from "context";
+import ReferenceForm from "./reference";
 
 function ReferenceInformation(){
     const [controller, dispatch] = useMaterialUIController();
@@ -38,8 +39,8 @@ function ReferenceInformation(){
     const [content, setContent] = useState()
 
     useEffect(() => {
-        init()
-    }, [])
+        if (!dialog.open) init()
+    },[dialog])
 
     const init = () => {
         // fetch reference
@@ -69,6 +70,7 @@ function ReferenceInformation(){
 
         })
     }
+
     const deleteHandle = (id) => {
         setDialog(dispatch, {
             open: true,
@@ -149,8 +151,8 @@ function ReferenceInformation(){
                         }}
                         autoFocus
                         onClick={() => {
-                        handleDelete(id);
-                        setDialog(dispatch, { ...dialog, open: false });
+                            handleDelete(id);
+                            setDialog(dispatch, { ...dialog, open: false });
                         }}
                     >
                         <Icon sx={{ fontSize: 20 }}>delete</Icon>
@@ -158,6 +160,17 @@ function ReferenceInformation(){
                     </MDButton>
                 </MDBox>
             ),
+        });
+    };
+
+    const handleAction = (id=null) => {
+        setDialog(dispatch, {
+            open: true,
+            props: { fullWidth: true, maxWidth: 'sm' },
+            content: (
+                <MDBox p={2}><ReferenceForm id={id} /></MDBox>
+            ),
+            action: (<></>)
         });
     };
 
@@ -185,7 +198,7 @@ function ReferenceInformation(){
             {ref && Object.keys(ref).map((item, index) => (
                 <Card position='relative' sx={{ my: 2 }}>
                     <MDBox display='flex' position='absolute' right={0} p={1}>
-                        <IconButton onClick={() => toPage('/careers/reference/referenceform', { id: ref[item].id })}><Icon color="primary">edit</Icon></IconButton>
+                        <IconButton onClick={() => handleAction(ref[item].id)}><Icon color="primary">edit</Icon></IconButton>
                         <IconButton onClick={() => deleteHandle(ref[item].id)}><Icon color="error">delete</Icon></IconButton>
                     </MDBox>
                     <CardContent>
@@ -204,7 +217,7 @@ function ReferenceInformation(){
                     color="secondary"
                     fullWidth
                     startIcon={<Icon>add</Icon>}
-                    onClick={() => toPage('/careers/reference/referenceform')}
+                    onClick={() => handleAction()}
                     sx={{
                         borderColor: "secondary.main",
                         "&:hover": {
