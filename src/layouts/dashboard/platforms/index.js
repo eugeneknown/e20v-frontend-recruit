@@ -123,7 +123,7 @@ function Platform() {
             'color': 'warning',
         },
     ]
-      const deleteHandle = (id) => {
+    const deleteHandle = (id) => {
         setDialog(dispatch, {
             open: true,
             title: (
@@ -155,7 +155,7 @@ function Platform() {
                         Confirm Delete
                     </MDTypography>
                     <IconButton
-                        onClick={handleDialogClose} 
+                        onClick={() => setDialog(dispatch, { open: false })} 
                         sx={{
                             position: "absolute",
                             top: "10px",
@@ -180,7 +180,7 @@ function Platform() {
             action: (
                 <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
                     <MDButton
-                        onClick={handleDialogClose}
+                        onClick={() => setDialog(dispatch, { open: false })}
                         color="secondary"
                         variant="outlined"
                         sx={{
@@ -214,7 +214,7 @@ function Platform() {
                             alignItems: "center",
                             gap: 1,
                         }}
-                        onClick={() => handleDataModal(id)}
+                        onClick={() => setDialog(dispatch, { ...dialog, actionType: "delete", id })}
                     >
                         <Icon sx={{ fontSize: 20 }}>delete</Icon>
                         Confirm
@@ -223,6 +223,7 @@ function Platform() {
             ),
         });
     };
+    
     
     const handleDataModal = async (id) => {
         try {

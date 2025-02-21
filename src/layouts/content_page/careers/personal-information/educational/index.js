@@ -80,16 +80,55 @@ function Educational(){
     }
 
     const setAttainment = (data) => {
-        Object.keys(data).map((item, index) => {
-            if ( data[item]['education'] == 'Elementary' ) setElem(data[item]) 
-            if ( data[item]['education'] == 'Secondary (High School)' ) setHigh(data[item]) 
-            if ( data[item]['education'] == 'Senior High School' ) setSenior(data[item]) 
-            if ( data[item]['education'] == 'Vocational & Technical Education' ) setTech(data[item]) 
-            if ( data[item]['education'] == 'College' ) setCollege(data[item]) 
-            if ( data[item]['education'] == "Graduate School (Master's or Doctorate)" ) setMaster(data[item]) 
-        })
-    }
-
+        let updatedData = { ...data };
+    
+        Object.keys(data).forEach((item) => {
+            let entry = data[item];
+            let eduType = entry.education;
+            
+            if (eduType === 'Elementary') setElem(entry);
+            if (eduType === 'Secondary (High School)') {
+                let minYear = elem?.end_date ? moment(elem.end_date).add(4, 'years').format('YYYY') : null;
+                if (minYear && moment(entry.end_date).year() < minYear) {
+                    entry.end_date = moment(minYear, 'YYYY').format('YYYY-MM-DD');
+                }
+                setHigh(entry);
+            }
+            if (eduType === 'Senior High School') {
+                let minYear = high?.end_date ? moment(high.end_date).add(2, 'years').format('YYYY') : null;
+                if (minYear && moment(entry.end_date).year() < minYear) {
+                    entry.end_date = moment(minYear, 'YYYY').format('YYYY-MM-DD');
+                }
+                setSenior(entry);
+            }
+            if (eduType === 'Vocational & Technical Education') {
+                let minYear = high?.end_date ? moment(high.end_date).format('YYYY') : null;
+                if (minYear && moment(entry.start_date).year() < minYear) {
+                    entry.start_date = moment(minYear, 'YYYY').format('YYYY-MM-DD');
+                }
+                setTech(entry);
+            }
+            if (eduType === 'College') {
+                let minYear = senior?.end_date
+                    ? moment(senior.end_date).format('YYYY')
+                    : high?.end_date
+                    ? moment(high.end_date).add(1, 'years').format('YYYY')
+                    : null;
+                if (minYear && moment(entry.start_date).year() < minYear) {
+                    entry.start_date = moment(minYear, 'YYYY').format('YYYY-MM-DD');
+                }
+                setCollege(entry);
+            }
+            if (eduType === "Graduate School (Master's or Doctorate)") {
+                let minYear = college?.end_date ? moment(college.end_date).format('YYYY') : null;
+                if (minYear && moment(entry.start_date).year() < minYear) {
+                    entry.start_date = moment(minYear, 'YYYY').format('YYYY-MM-DD');
+                }
+                setMaster(entry);
+            }
+        });
+    };
+    
     const handleDelete = (id, level) => {
         // Define the hierarchy of educational levels
         const educationOrder = [
@@ -135,61 +174,89 @@ function Educational(){
         }
     };
     
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        let error = false;
-        let errorMessage = "";
-        let missingFields = [];
-        if (!elem) missingFields.push("Elementary");
-        if (!high) missingFields.push("High School");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let error = false;
+    let errorMessage = "";
+    let missingFields = [];
 
-        if (missingFields.length > 0) {
-            snackBar(`Please fill up the following required Educational Background: ${missingFields.join(", ")}`, 'error');
-            return;
-        }
-        const validateDateOrder = (prev, curr, minYears, labelPrev, labelCurr) => {
-            if (prev && curr) {
-                console.log(`${labelPrev} (${prev}) vs ${labelCurr} (${curr})`);
-                if (moment(curr).diff(moment(prev), 'years') < minYears) {
-                    errorMessage = `${labelCurr} should be at least ${minYears} years after ${labelPrev}.`;
-                    error = true;
-                }
-            }
-        };
+    if (!elem) missingFields.push("Elementary");
+    if (!high) missingFields.push("High School");
 
-        validateDateOrder(elem?.end_date, high?.end_date, 4, "Elementary year graduated", "High School year graduated");
-        validateDateOrder(high?.end_date, senior?.end_date, 2, "High School year graduated", "Senior High School year graduated");
-        validateDateOrder(high?.end_date, tech?.start_date, 1, "High School year graduated", "Vocational year started");
-        validateDateOrder(senior?.end_date, college?.start_date, 0, "Senior High School year graduated", "College year started");
-        validateDateOrder(tech?.end_date, college?.start_date, 0, "Vocational year graduated", "College year started");
-        validateDateOrder(college?.end_date, master?.start_date, 0, "College year graduated", "Master's year started");
+    if (missingFields.length > 0) {
+        snackBar(`Please complete the required Educational Background: ${missingFields.join(", ")}`, 'error');
+        return;
+    }
+
+    // Validation Checks with "vs" format
+    if (elem?.end_date && high?.end_date && moment(high.end_date).year() - moment(elem.end_date).year() < 4) {
+        errorMessage = `Elementary graduation year (${moment(elem.end_date).format('YYYY')}) vs High School graduation year (${moment(high.end_date).format('YYYY')}) - High School must be at least 4 years after Elementary.`;
+        error = true;
+    }
+
+    if (high?.end_date && senior?.end_date && moment(senior.end_date).year() - moment(high.end_date).year() < 2) {
+        errorMessage = `High School graduation year (${moment(high.end_date).format('YYYY')}) vs Senior High School graduation year (${moment(senior.end_date).format('YYYY')}) - Senior High must be at least 2 years after High School.`;
+        error = true;
+    }
+
+    if (high?.end_date && tech?.start_date && moment(tech.start_date).isBefore(moment(high.end_date))) {
+        errorMessage = `High School graduation year (${moment(high.end_date).format('YYYY')}) vs Vocational start year (${moment(tech.start_date).format('YYYY')}) - Vocational start year must not be earlier than High School graduation year.`;
+        error = true;
+    }
+
+    if (senior?.end_date && college?.start_date && moment(college.start_date).isBefore(moment(senior.end_date))) {
+        errorMessage = `Senior High School graduation year (${moment(senior.end_date).format('YYYY')}) vs College start year (${moment(college.start_date).format('YYYY')}) - College start year must not be earlier than Senior High School graduation year.`;
+        error = true;
+    }
+
+    // College vs Vocational
+    if (tech?.end_date && college?.start_date && moment(college.start_date).isBefore(moment(tech.end_date))) {
+        errorMessage = `Vocational graduation year (${moment(tech.end_date).format('YYYY')}) vs College start year (${moment(college.start_date).format('YYYY')}) - College start year must not be earlier than Vocational graduation year.`;
+        error = true;
+    }
+
+    if (college?.start_date && high?.end_date && moment(college.start_date).isBefore(moment(high.end_date))) {
+        errorMessage = `High School graduation year (${moment(high.end_date).format('YYYY')}) vs College start year (${moment(college.start_date).format('YYYY')}) - College start year must not be earlier than High School graduation year.`;
+        error = true;
+    }
+
+    if (college?.end_date && high?.end_date && moment(college.end_date).isBefore(moment(high.end_date))) {
+        errorMessage = `High School graduation year (${moment(high.end_date).format('YYYY')}) vs College graduation year (${moment(college.end_date).format('YYYY')}) - College graduation year must not be earlier than High School graduation year.`;
+        error = true;
+    }
+
+    if (master?.start_date && college?.end_date && moment(master.start_date).isBefore(moment(college.end_date))) {
+        errorMessage = `College graduation year (${moment(college.end_date).format('YYYY')}) vs Graduate School (Master's/Doctorate) start year (${moment(master.start_date).format('YYYY')}) - Graduate School must not start before College graduation year.`;
+        error = true;
+    }
+
+    if (master?.end_date && college?.end_date && moment(master.end_date).isBefore(moment(college.end_date))) {
+        errorMessage = `College graduation year (${moment(college.end_date).format('YYYY')}) vs Graduate School (Master's/Doctorate) graduation year (${moment(master.end_date).format('YYYY')}) - Graduate School must not graduate before College.`;
+        error = true;
+    }
+
+    if (senior?.end_date && tech?.end_date && moment(tech.end_date).isBefore(moment(senior.end_date))) {
+        errorMessage = `Senior High School graduation year (${moment(senior.end_date).format('YYYY')}) vs Vocational graduation year (${moment(tech.end_date).format('YYYY')}) - Vocational must not graduate before Senior High School.`;
+        error = true;
+    }
+
+    if (!senior?.end_date && tech?.end_date && high?.end_date && moment(tech.end_date).isBefore(moment(high.end_date))) {
+        errorMessage = `High School graduation year (${moment(high.end_date).format('YYYY')}) vs Vocational graduation year (${moment(tech.end_date).format('YYYY')}) - Vocational must not graduate before High School.`;
+        error = true;
+    }
+
+    if (error) {
+        console.log("Error Detected:", errorMessage);
+        snackBar(errorMessage, 'error');
+        return;
+    }
+
+    console.log("Validation Passed, Proceeding...");
+    prevPage();
+};
 
 
-        if (senior?.end_date && tech?.end_date) {
-            console.log(`Checking Vocational (${tech.end_date}) >= Senior High End (${senior.end_date})`);
-            if (moment(tech.end_date).isBefore(moment(senior.end_date))) {
-                errorMessage = `Vocational year graduated (${moment(tech.end_date).format('YYYY')}) should NOT be before Senior High School year graduated (${moment(senior.end_date).format('YYYY')}).`;
-                error = true;
-            }
-        }
-        if (!senior?.end_date && tech?.end_date && high?.end_date) {
-            console.log(`Checking Vocational (${tech.end_date}) >= High School End (${high.end_date})`);
-            if (moment(tech.end_date).isBefore(moment(high.end_date))) {
-                errorMessage = `Vocational year graduated (${moment(tech.end_date).format('YYYY')}) should NOT be before High School year graduated (${moment(high.end_date).format('YYYY')}).`;
-                error = true;
-            }
-        }
-        
-        if (error) {
-            console.log("Error Detected:", errorMessage);
-            snackBar(errorMessage, 'error');
-            return;
-        }
     
-        console.log("Validation Passed, Proceeding...");
-        prevPage(); 
-    };
-
     
     const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
 
@@ -321,6 +388,7 @@ function Educational(){
         });
       };
 
+      
     const EducationAttainment = ({ attainment, data, required = false, optional = false, disabled = false, end_date }) => {
         const [option, setOption] = useState(false);
     
@@ -406,9 +474,6 @@ function Educational(){
             </MDBox>
         );
     }
-    // useEffect(() => {
-    //     console.log("Fetched Education Data:", education);
-    // }, [education]);
 
     const EduFinder = (edu, key) => education[Object.keys(education).findIndex(item => education[item][edu.key] == edu.value)]?.[key] ?? undefined
 

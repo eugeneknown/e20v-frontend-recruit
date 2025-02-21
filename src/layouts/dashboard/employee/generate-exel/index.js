@@ -111,7 +111,7 @@ function GenerateExel({
                 console.log('debug generate experience result', result);
                 result = result.data['experience'][0]
                 setExperience(result)
-                if (Object.keys(result['details']).lengt >= 3) {
+                if (Object.keys(result['details']).length >= 3) {
                     setRelevantCell(44)
                     setDetailsCell(46)
                     setExpCount(3)
