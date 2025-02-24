@@ -101,10 +101,6 @@ function ReferenceForm({id}){
 
     return (
         <MDBox>
-            <MDTypography sx={{ mt: 3 }} variant='h3'>
-                {ref && ref?.id ? 'Edit Reference' : 'Add Reference'}
-            </MDTypography>
-            <Divider />
             {ref && (
                 <Formik
                     initialValues={ref}

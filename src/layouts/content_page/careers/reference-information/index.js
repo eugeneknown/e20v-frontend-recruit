@@ -167,10 +167,35 @@ function ReferenceInformation(){
         setDialog(dispatch, {
             open: true,
             props: { fullWidth: true, maxWidth: 'sm' },
+            title: (
+                <MDBox
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        position: "relative",
+                    }}
+                >
+                    <Typography
+                        variant="h3"
+                    >
+                        {id ? 'Edit Reference' : 'Add Reference'}
+                    </Typography>
+                    <IconButton
+                        onClick={() => setDialog(dispatch, { ...dialog, open: false })} // Close modal on close button click
+                        sx={{
+                            position: "absolute",
+                            top: "0px",
+                            right: "0px",
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 30 }}>close</Icon>
+                    </IconButton>
+                </MDBox>
+            ),
             content: (
                 <MDBox p={2}><ReferenceForm id={id} /></MDBox>
             ),
-            action: (<></>)
         });
     };
 
