@@ -217,7 +217,7 @@ function ReferenceInformation(){
 
     return (
         <MDBox>
-            <MDTypography sx={{ mt: 3 }} variant='h3'>CHARACTER REFERENCES</MDTypography>
+            <MDTypography sx={{ mt: 3 }} variant='h4' color='primary'>CHARACTER REFERENCES</MDTypography>
             <MDTypography variant='button' color='error'>(Please exclude relatives/friends; kindly provide previous employment head, colleague, and HR)</MDTypography>
             <Divider />
             {ref && Object.keys(ref).map((item, index) => (

@@ -226,7 +226,7 @@ function CareerQuestionsForm(){
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
                 I hereby release all persons, companies, or corporations who provide such information from any liability or responsibility. I also 
-                agree to submit any future examination that Eighty20 Virtual may require of me, and that the foregoing examination questions and answers may be 
+                agree to submit any future examination that Eighty20 Virtual may require of me and that the foregoing examination questions and answers may be 
                 used in any way that the company desires.
             </MDTypography>
             <MDTypography variant="overline" gutterBottom sx={{ display: 'block', textIndent: '30px', textAlign: 'justify', textJustify: 'inter-word' }}>
