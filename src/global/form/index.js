@@ -259,22 +259,22 @@ export const generateFormInput = (props) => {
                 );
             
         case 'check':
-            props['sx'] = [{ py: '0.75rem' }];
-            props['value'] =
-                props['value'] && typeof props['value'] === 'string'
-                    ? props['value'].split(', ')
-                    : props['value'] || [];
-            const handleChange = (e) => {
-                const {
-                    target: { value },
-                } = e;
-                props.setFieldValue(
-                    props.id,
-                    typeof value === 'string' ? value.split(', ') : value.join(', '),
-                    props.required
-                );
-            };
-            return <CheckboxField props={props} sx={sx} handleChange={handleChange} />;
+            // props['sx'] = [{ py: '0.75rem' }];
+            // props['value'] =
+            //     props['value'] && typeof props['value'] === 'string'
+            //         ? props['value'].split(', ')
+            //         : props['value'] || [];
+            // const handleChange = (e) => {
+            //     const {
+            //         target: { value },
+            //     } = e;
+            //     props.setFieldValue(
+            //         props.id,
+            //         typeof value === 'string' ? value.split(', ') : value.join(', '),
+            //         props.required
+            //     );
+            // };
+            // return <CheckboxField props={props} sx={sx} handleChange={handleChange} />;
         case 'file':
             props['value'] = props['value'] || null;
             return (
