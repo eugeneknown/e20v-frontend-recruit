@@ -31,54 +31,31 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToHTML } from 'layouts/dashboard/positions/rte/html-converter';
 const CheckboxField = ({ props, sx, handleChange }) => {
-    const [open, setOpen] = useState(false); // Dropdown open/close state
-    const [selectedValues, setSelectedValues] = useState(
-        props.value && Array.isArray(props.value) ? props.value : []
-    );
-    const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
-    const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
+const [open, setOpen] = useState(false); 
+const [selectedValues, setSelectedValues] = useState(
+props.value && Array.isArray(props.value) ? props.value : []
+);
+const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
+const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
 
-    const handleDropdownToggle = () => {
-        setOpen((prevOpen) => !prevOpen); // Toggle dropdown open/close state
-    };
-
-    const handleSelectionChange = (event) => {
-        const { value } = event.target;
-        let newValues = typeof value === 'string' ? value.split(', ') : value;
-    
-        // If "None of the Above" is selected, deselect all other options
-        if (newValues.includes("None of the Above")) {
-            newValues = ["None of the Above"];
-        } else {
-            // If "None of the Above" is not selected, ensure it's unchecked
-            newValues = newValues.filter(item => item !== "None of the Above");
-        }
-    
+        // For filtering Dropdown values
+        const handleSelectionChange = (event) => {
+        let { value } = event.target;
+        let newValues = typeof value === "string" ? value.split(",") : [...value];  
         setSelectedValues(newValues);
-        handleChange({ ...event, target: { ...event.target, value: newValues } });
-    };        
-    
-    const handleSaveCheckedFields = () => {
-        console.log('Checked Fields:', selectedValues);
-        setOpen(false); // Close dropdown only when "OK" is clicked
-    };
+        };
 
-    const handleFilter = (event) => {
+        const handleFilter = (event) => {
         const typedChar = event.key.toLowerCase();
         const newSearchTerm = searchTerm + typedChar;
         setSearchTerm(newSearchTerm);
-
-        // Filter options based on the current search term
-        const filtered = props.options.filter((option) =>
-            option.toLowerCase().includes(newSearchTerm)
-        );
-        setFilteredOptions(filtered);
-    };
-
-    const clearSearchOnClose = () => {
-        setSearchTerm(''); // Clear the search term when the dropdown closes
-        setFilteredOptions(props.options); // Reset options to the original list
-    };
+        };
+        
+        const clearSearchOnClose = () => {
+        setSearchTerm(''); 
+        setFilteredOptions(props.options);
+        };
+        
 
     return (
         <FormControl sx={sx} fullWidth={props.fullWidth} error={props.error}>
@@ -111,7 +88,7 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                     clearSearchOnClose();
                 }}
                 onChange={handleSelectionChange}
-                onKeyDown={handleFilter} // Dynamically filter on typing
+                onKeyDown={handleFilter} 
                 MenuProps={{
                     PaperProps: {
                         style: {
@@ -165,7 +142,6 @@ export const generateFormInput = (props) => {
             return <TextField {...props} {...props?.options} />;
         case 'radio':
         case 'select':
-            // props['sx'] = [{ py: '0.75rem' }];
             return (
                 <FormControl sx={sx} required={props.required} fullWidth={props.fullWidth} error={props?.error}>
                     <InputLabel>{props.label}</InputLabel>
@@ -252,7 +228,6 @@ export const generateFormInput = (props) => {
                     props.required
                 );
             };
-            return <CheckboxField props={props} sx={sx} handleChange={handleChange} />;
         case 'file':
             props['value'] = props['value'] || null;
             return (
