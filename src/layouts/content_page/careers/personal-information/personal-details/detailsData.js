@@ -14,7 +14,7 @@ export default [
     },
     {
         id: 'work_in_office',
-        label: 'Amenable to work in the office (Juna Subd. Matina Davao, Davao)',
+        label: 'Amenable to work in the office (Juna Subd. Matina, Davao City)',
         type: 'select',
         required: true,
         options: ['Yes', 'No'],
@@ -46,7 +46,7 @@ export default [
     },
     {
         id: 'travel',
-        label: 'Any planned/booked travel for the next 30 days? (pls. specify the date/where)',
+        label: 'Any planned/booked travel for the next 30 days? (please specify the date and where)',
         type: 'text',
         required: true,
     },

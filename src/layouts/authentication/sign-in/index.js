@@ -24,6 +24,8 @@ import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
+import { InputAdornment } from "@mui/material";
+
 
 // @mui icons
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -40,7 +42,7 @@ import MDButton from "components/MDButton";
 import BasicLayout from "layouts/authentication/components/BasicLayout";
 
 // Images
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import bgImage from "assets/images/E20_logo.jpg";
 
 import axios from "api/axios";
 import useAuth from "hooks/useAuth";
@@ -173,7 +175,7 @@ function Basic() {
   return (
     <BasicLayout image={bgImage}>
       <Card>
-        <MDBox
+          <MDBox
           variant="gradient"
           bgColor="info"
           borderRadius="lg"
@@ -183,52 +185,65 @@ function Basic() {
           p={2}
           mb={1}
           textAlign="center"
-        >
-          <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Sign in
-          </MDTypography>
-          <MDTypography display="block" variant="button" color="white" my={1}>
-            Enter your email and password to sign in
-          </MDTypography>
-        </MDBox>
+          sx={{
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: "114%", 
+            backgroundPosition: "center",
+            height: "100px", 
+          }}
+        />
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form">
-            <MDBox mb={2}>
-              <MDInput 
-                type="text" 
-                label="Email" 
-                fullWidth
-                id="email"
-                ref={userRef}
-                autoComplete="off"
-                onChange={(e) => setUser(e.target.value)}
-                value={user}
-                required
-               />
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput 
-              type={visible ? 'text' : 'password'} 
-              label="Password" 
-              fullWidth 
-              id="password"
-              onChange={(e) => setPwd(e.target.value)}
-              value={pwd}
-              required
-              InputProps={{
-                endAdornment: <IconButton size="small" onClick={e => setVisible(!visible)}><Icon>{visible ? 'visibility' : 'visibility_off'}</Icon></IconButton>,
-              }}
-              />
-            </MDBox>
+          <MDBox mb={2}>
+          <MDInput 
+            type="text" 
+            label={
+              <span style={{ display: "flex", alignItems: "center" }}>
+                <Icon style={{ marginLeft: 1, color: "#1976D2" }}>email</Icon> &nbsp;Email 
+              </span>
+            }
+            fullWidth
+            id="email"
+            ref={userRef}
+            autoComplete="off"
+            onChange={(e) => setUser(e.target.value)}
+            value={user}
+            required
+          />
+        </MDBox>
+
+        <MDBox mb={2}>
+          <MDInput 
+            type={visible ? 'text' : 'password'} 
+            label={
+              <span style={{ display: "flex", alignItems: "center" }}>
+                <Icon style={{ marginLeft: 1, color: "#D32F2F"}}>lock</Icon> &nbsp;Password 
+              </span>
+            }
+            fullWidth 
+            id="password"
+            onChange={(e) => setPwd(e.target.value)}
+            value={pwd}
+            required
+            InputProps={{
+              endAdornment: (
+                <IconButton size="small" onClick={() => setVisible(!visible)}>
+                  <Icon>{visible ? 'visibility' : 'visibility_off'}</Icon>
+                </IconButton>
+              ),
+            }}
+          />
+        </MDBox>
+
             <MDBox display="flex" justifyContent="space-between" ml={-1}>
               <MDBox display="flex" alignItems="center">
-                <Switch checked={rememberMe} onChange={handleSetRememberMe} />
+                <Switch checked={rememberMe} onChange={handleSetRememberMe} gap={1} sx={{ cursor: "pointer" }} />
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
                   color="text"
                   onClick={handleSetRememberMe}
-                  sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+                  sx={{ cursor: "pointer", userSelect: "none", color: "#333333",  ml: -1 }}
                 >
                   &nbsp;&nbsp;Remember me
                 </MDTypography>
@@ -246,11 +261,37 @@ function Basic() {
                 </MDTypography>
               </MDBox>
             </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
-                sign in
+              <MDBox mt={4} mb={1}>
+              <MDButton 
+                variant="contained" 
+                color="info" 
+                fullWidth 
+                onClick={handleSubmit} 
+                sx={{
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  fontSize: "0.875rem", 
+                  fontWeight: "regular", 
+                  textTransform: "none", 
+                  gap: 1.5, 
+                  py: 1.2, 
+                  borderRadius: "8px",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
+                  "&:hover": {
+                    backgroundColor: "#0179b6", 
+                    boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)", 
+                    color: "#000", 
+                  }
+                }}
+              >
+                <Icon sx={{ fontSize: "1.2rem",transition: "color 0.3s ease-in-out","&:hover": { color: "#D32F2F" }}}>login</Icon>
+                <MDTypography variant="button" fontWeight="regular" color="inherit" sx={{transition: "color 0.3s ease-in-out"}}>
+                  Sign in
+                </MDTypography>
               </MDButton>
             </MDBox>
+
             <MDBox my={1} display='flex' justifyContent='center'><MDTypography variant='button'>or</MDTypography></MDBox>
             <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
               <GoogleLogin

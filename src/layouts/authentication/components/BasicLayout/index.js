@@ -29,34 +29,26 @@ import PageLayout from "examples/LayoutContainers/PageLayout";
 // Authentication pages components
 import Footer from "layouts/authentication/components/Footer";
 
-function BasicLayout({ image, children }) {
+function BasicLayout({ children }) {
   return (
     <PageLayout>
-      {/* <DefaultNavbar
-        action={{
-          type: "external",
-          route: "https://creative-tim.com/product/material-dashboard-react",
-          label: "free download",
-          color: "dark",
-        }}
-      /> */}
       <MDBox
         position="absolute"
         width="100%"
         minHeight="100vh"
         sx={{
-          backgroundImage: ({ functions: { linearGradient, rgba }, palette: { gradients } }) =>
-            image &&
-            `${linearGradient(
-              rgba(gradients.dark.main, 0.6),
-              rgba(gradients.dark.state, 0.6)
-            )}, url(${image})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          background: "linear-gradient(135deg, rgb(100, 140, 255) 30%, rgb(89, 50, 190) 100%)", 
+          backgroundSize: "300% 300%",
+          animation: "gradientAnimation 2.3s ease-in-out infinite alternate",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          "@keyframes gradientAnimation": {
+            "0%": { backgroundPosition: "0% 50%" },
+            "100%": { backgroundPosition: "100% 50%" },
+          },
         }}
-      />
-      <MDBox px={1} width="100%" height="100vh" mx="auto">
+      >
         <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%">
           <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
             {children}
@@ -68,9 +60,7 @@ function BasicLayout({ image, children }) {
   );
 }
 
-// Typechecking props for the BasicLayout
 BasicLayout.propTypes = {
-  image: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
 

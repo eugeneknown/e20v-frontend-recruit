@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import {
-    Checkbox,
-    Chip,
-    Divider,
-    FormControl,
-    FormControlLabel,
-    FormHelperText,
-    Icon,
-    IconButton,
-    InputLabel,
-    Link,
-    ListItemText,
-    MenuItem,
-    OutlinedInput,
-    Select,
-    Switch,
-    TextField,
-    Button,
+Checkbox,
+Chip,
+Divider,
+FormControl,
+FormControlLabel,
+FormHelperText,
+Icon,
+IconButton,
+InputLabel,
+Link,
+ListItemText,
+MenuItem,
+OutlinedInput,
+Select,
+Switch,
+TextField,
+Button,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { MobileDatePicker } from '@mui/x-date-pickers';
@@ -30,55 +30,67 @@ import MDTypography from 'components/MDTypography';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToHTML } from 'layouts/dashboard/positions/rte/html-converter';
+
 const CheckboxField = ({ props, sx, handleChange }) => {
-    const [open, setOpen] = useState(false); // Dropdown open/close state
-    const [selectedValues, setSelectedValues] = useState(
-        props.value && Array.isArray(props.value) ? props.value : []
-    );
-    const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
-    const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
+const [open, setOpen] = useState(false); // Dropdown open/close state
+const [selectedValues, setSelectedValues] = useState(
+props.value && Array.isArray(props.value) ? props.value : []
+);
+const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
+const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
+
 
     const handleDropdownToggle = () => {
         setOpen((prevOpen) => !prevOpen); // Toggle dropdown open/close state
-    };
-
-    const handleSelectionChange = (event) => {
-        const { value } = event.target;
-        let newValues = typeof value === 'string' ? value.split(', ') : value;
-    
-        // If "None of the Above" is selected, deselect all other options
+        };
+        
+        const handleSelectionChange = (event) => {
+        let { value } = event.target;
+        let newValues = typeof value === "string" ? value.split(",") : [...value];
         if (newValues.includes("None of the Above")) {
-            newValues = ["None of the Above"];
+        if (!selectedValues.includes("None of the Above")) {
+        // If "None of the Above" is selected, clear other selections
+        newValues = ["None of the Above"];
         } else {
-            // If "None of the Above" is not selected, ensure it's unchecked
-            newValues = newValues.filter(item => item !== "None of the Above");
+        // If "None of the Above" was unchecked, allow normal selection
+        newValues = newValues.filter((item) => item !== "None of the Above");
         }
-    
+        } else {
+        // Remove "None of the Above" if other selections are made
+        newValues = newValues.filter((item) => item !== "None of the Above");
+        }
         setSelectedValues(newValues);
-        handleChange({ ...event, target: { ...event.target, value: newValues } });
-    };        
-    
-    const handleSaveCheckedFields = () => {
-        console.log('Checked Fields:', selectedValues);
-        setOpen(false); // Close dropdown only when "OK" is clicked
-    };
-
-    const handleFilter = (event) => {
+        };
+        const handleSaveCheckedFields = () => {
+        setSelectedValues((prevValues) => {
+        let finalSelectedValues = prevValues.length === 0 ? ["None of the Above"] : prevValues;
+        if (finalSelectedValues.includes("None of the Above")) {
+        finalSelectedValues = ["None of the Above"];
+        }
+        // Save the selected values properly
+        handleChange({
+        target: { name: props.name, value: finalSelectedValues },
+        });
+        return finalSelectedValues;
+        });
+        setTimeout(() => setOpen(false), 0);
+        };
+        const handleFilter = (event) => {
         const typedChar = event.key.toLowerCase();
         const newSearchTerm = searchTerm + typedChar;
         setSearchTerm(newSearchTerm);
-
-        // Filter options based on the current search term
+        
         const filtered = props.options.filter((option) =>
-            option.toLowerCase().includes(newSearchTerm)
+        option.toLowerCase().includes(newSearchTerm) || option === "None of the Above"
         );
         setFilteredOptions(filtered);
-    };
-
-    const clearSearchOnClose = () => {
+        };
+        
+        const clearSearchOnClose = () => {
         setSearchTerm(''); // Clear the search term when the dropdown closes
         setFilteredOptions(props.options); // Reset options to the original list
-    };
+        };
+        
 
     return (
         <FormControl sx={sx} fullWidth={props.fullWidth} error={props.error}>
@@ -87,7 +99,7 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                 {...props}
                 multiple
                 open={open}
-                value={props.value || selectedValues}
+                value={selectedValues}
                 input={<OutlinedInput notched label={props.label} />}
                 renderValue={(selected) => {
                     if (selected.length === 0) {
@@ -133,21 +145,31 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                     </MenuItem>
                 )}
                 <Divider />
-                <MenuItem disableRipple sx={{ justifyContent: "end" }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<CheckCircleIcon />}
-                        sx={{
-                            color: "#fff", 
-                            backgroundColor: "primary.main", 
-                            fontSize: "0.8rem",
-                        }}
-                        onClick={handleSaveCheckedFields}
-                    >
-                        OK
-                    </Button>
+                <MenuItem disableRipple disableTouchRipple sx={{ justifyContent: "end", pointerEvents: "none", backgroundColor: "transparent", "&:hover": {backgroundColor: "transparent"}}}>
+                    <div style={{ pointerEvents: "auto" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<CheckCircleIcon />}
+                            sx={{
+                                color: "#fff",
+                                backgroundColor: "primary.main",
+                                fontSize: "0.8rem",
+                                "&:hover": {
+                                    backgroundColor: "primary.main", // Ensures no hover color change
+                                    boxShadow: "none", // Prevents any shadow on hover
+                                },
+                            }}
+                            onClick={(event) => {
+                                event.stopPropagation(); // Prevents unchecking "None of the Above"
+                                handleSaveCheckedFields();
+                            }}
+                        >
+                            OK
+                        </Button>
+                    </div>
                 </MenuItem>
+
 
             </Select>
             {props.helperText && <FormHelperText>{props.helperText}</FormHelperText>}

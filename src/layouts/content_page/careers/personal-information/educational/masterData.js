@@ -47,36 +47,45 @@ export default [
         ],
     },
     {
-        id: 'end_date',
-        label: 'Year Graduated',
-        type: 'date',
-        required: true,
-        options: {
-          views: ['year'],
-          disableFuture: true,
-        },
-        validations: [
-          {
-            type: 'when',
-            params: [['present', 'undergrad'], {
-              is: (present, undergrad) => !present && !undergrad,
-              then: (schema) =>
-                schema
-                  .min(yup.ref('start_date'), 'Year graduated cannot be earlier than year attended.')
-                  .test(
-                    'min-2-years',
-                    'Year graduated must be at least 2 years after the year attended for master’s programs.',
-                    function (value) {
-                      const { start_date } = this.parent;
-                      if (!start_date || !value) return true; 
-                      const startYear = new Date(start_date).getFullYear();
-                      const endYear = new Date(value).getFullYear();
-                      return endYear >= startYear + 2; 
+      id: 'end_date',
+      label: 'Year Graduated',
+      type: 'date',
+      required: true,
+      options: {
+        views: ['year'],
+        disableFuture: true,
+      },
+      validations: [
+        {
+          type: 'when',
+          params: [['present', 'undergrad', 'course'], {
+            is: (present, undergrad, course) => !present && !undergrad,
+            then: (schema) =>
+              schema
+                .min(yup.ref('start_date'), 'Year graduated cannot be earlier than year attended.')
+                .test(
+                  'min-years',
+                  function (value) {
+                    const { start_date, course } = this.parent;
+                    if (!start_date || !value) return true;
+  
+                    const startYear = new Date(start_date).getFullYear();
+                    const endYear = new Date(value).getFullYear();
+                    const isDoctorate = /Doctor/i.test(course); // Check if course includes "Doctor"
+                    const requiredYears = isDoctorate ? 3 : 2; // Doctorate: 3 years, Master’s: 2 years
+  
+                    if (endYear < startYear + requiredYears) {
+                      return this.createError({
+                        message: `Year graduated must be at least ${requiredYears} years after the year attended for ${isDoctorate ? 'doctoral' : 'master’s'} course.`
+                      });
                     }
-                  ),
-              otherwise: (schema) => schema.notRequired(),
-            }],
-          },
-        ],
-    },
+                    return true;
+                  }
+                ),
+            otherwise: (schema) => schema.notRequired(),
+          }],
+        },
+      ],
+   },
+  
 ];
