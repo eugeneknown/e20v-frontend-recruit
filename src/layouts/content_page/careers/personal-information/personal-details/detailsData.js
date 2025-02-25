@@ -46,7 +46,7 @@ export default [
     },
     {
         id: 'travel',
-        label: 'Any plan/booked travel for the next 30 days? (please specify the date and where)',
+        label: 'Any planned/booked travel for the next 30 days? (pls. specify the date/where)',
         type: 'text',
         required: true,
     },
