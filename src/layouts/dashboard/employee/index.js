@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { Fade, FormControl, Typography, InputLabel, Menu, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
+import { Fade, FormControl, Typography, InputLabel, MenuItem, Modal, Select, Backdrop, Divider, Tooltip, Icon, FormLabel, 
     FormGroup, FormControlLabel, Checkbox, RadioGroup, Radio, Popover, Dialog, DialogContent, DialogActions, DialogTitle, IconButton, CardContent, CardHeader, Chip, 
     Link,
     Popper,
@@ -69,13 +69,7 @@ import { isSameDay, startOfDay } from "date-fns";
 import entityData from "./entityData";
 import { DateRangeFilterColumnFN, DateRangeFilterFN } from "./filter-fn";
 import PopupState, { bindPopper, bindToggle } from "material-ui-popup-state";
-//Icon
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import DownloadIcon from "@mui/icons-material/Download";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/Delete";
+
 
 function Employee() {
     const [controller, dispatch] = useMaterialUIController()
@@ -119,10 +113,6 @@ function Employee() {
     const [idDelete, setIdDelete] = useState()
     const [confirmContent, setConfirmContent] = useState()
     const [contentURL, setContentURL] = useState()
-
-    // career question modal 
-    const [openQuestionsModal, setOpenQuestionsModal] = useState(false);
-    const [careerQuestions, setCareerQuestions] = useState([]);
 
     const handlePopOpen = (e, data) => {
         setRecruitID(data)
@@ -268,139 +258,6 @@ function Employee() {
         })
 
     }
-
-    const handlePersonalInfo = (entity_id) => {
-        console.log('Fetching personal info:', entity_id);
-    
-        dataServicePrivate('POST', 'entity/entities/all', {
-            filter: [{ operator: '=', target: 'id', value: entity_id }],
-        }).then((_result) => {
-            console.log('Personal info result:', _result);
-            _result = _result.data['entity'][0];
-    
-            setContent((
-                <Grid container>
-                    <Grid item xs={12} style={{ maxHeight: '100vh', overflow: 'auto' }}>
-                        {entityData.map((key) => renderInfo(key.label, _result[key.id]))}
-                    </Grid>
-                </Grid>
-            ));
-    
-            handleOpen();
-        }).catch((error) => {
-            console.error('Error fetching personal info:', error);
-            enqueueSnackbar(error.message, {
-                variant: 'error',
-                preventDuplicate: true,
-                anchorOrigin: { horizontal: 'right', vertical: 'top' }
-            });
-        });
-    };
-
-    const handleQuestions = async (entity_id, careers_id) => {
-        console.log("Fetching Career Questions for:", entity_id, careers_id);
-    
-        try {
-            // Fetch career answers
-            const result = await dataServicePrivate("POST", "hr/careers/answers/all", {
-                filter: [
-                    { operator: "=", target: "entity_id", value: entity_id },
-                    { operator: "=", target: "careers_id", value: careers_id },
-                ],
-                relations: ["question", "files"],
-            });
-    
-            console.log("Career Questions Result:", result.data);
-            const careerAnswers = result.data.career_answers;
-    
-            // Construct UI for the modal (Career Questions & Answers Only)
-            setContent(
-                <Grid container spacing={2}>
-                    {Object.keys(careerAnswers).map((item, key) => {
-                        const question = careerAnswers[item]["question"];
-                        const answerValue = careerAnswers[item]["value"];
-                        const fileData = careerAnswers[item]["files"];
-    
-                        return (
-                            <Grid item xs={12} key={key}>
-                                {/* Question Number */}
-                                <MDTypography variant="h6" fontWeight="bold">
-                                    Question {key + 1}
-                                </MDTypography>
-    
-                                {/* Question Title */}
-                                <MDTypography variant="h5" sx={{ mt: 1 }}>
-                                    {question.title}
-                                </MDTypography>
-    
-                                <Divider sx={{ my: 1 }} />
-    
-                                {/* Handle Input-Type Questions */}
-                                {question.type === "input" && (
-                                    <MDTypography variant="body1" sx={{ mt: 1 }}>
-                                        {answerValue}
-                                    </MDTypography>
-                                )}
-    
-                                {/* Handle File Uploads */}
-                                {fileData && (
-                                    <MDBox display="flex" justifyContent="center" sx={{ mt: 1 }}>
-                                        {fileData.file_type.includes("pdf") && (
-                                            <Link href={fileData.files_url} target="_blank">
-                                                Open File
-                                            </Link>
-                                        )}
-                                        {fileData.file_type.includes("image") && (
-                                            <ImageView data={fileData} />
-                                        )}
-                                        {fileData.file_type.includes("audio") && (
-                                            <MDBox width="100%">
-                                                <AudioPlayer src={[fileData.files_url]} />
-                                                <Link href={fileData.files_url} target="_blank">
-                                                    <MDButton sx={{ width: "100%", borderRadius: 0, marginTop: "15px" }}>
-                                                        Download
-                                                    </MDButton>
-                                                </Link>
-                                            </MDBox>
-                                        )}
-                                    </MDBox>
-                                )}
-    
-                                {/* Handle Multiple-Choice Answers */}
-                                {!fileData &&
-                                    question.value.split(", ").map((_key) => {
-                                        if (answerValue.split(", ").includes(_key)) {
-                                            return (
-                                                <MDTypography variant="body1" sx={{ mt: 1 }} key={_key}>
-                                                    {_key}
-                                                </MDTypography>
-                                            );
-                                        }
-                                    })}
-    
-                                {/* Space between questions */}
-                                <MDBox sx={{ mb: 3 }} />
-                            </Grid>
-                        );
-                    })}
-                </Grid>
-            );
-    
-            // Ensure modal opens after setting content
-            setTimeout(() => handleOpen(), 200);
-        } catch (err) {
-            console.error("Error fetching career questions:", err);
-            enqueueSnackbar(err.message, {
-                variant: "error",
-                preventDuplicate: true,
-                anchorOrigin: { horizontal: "right", vertical: "top" },
-            });
-        }
-    };
-    
-    
-    
-    
 
     const renderInfo = (title, value) => (
         <MDBox display="flex" py={1} pr={2}>
@@ -576,41 +433,14 @@ function Employee() {
                         <MDBox>
                             <Grid container spacing={.5}>
                                 <Grid item>
-                                    {/* <MDButton onClick={() => formHandle(recruit[key]['entity'].id, recruit[key]['careers'].id)} color='secondary'>View</MDButton> */}
-                                    <IconButton
-                                        // onClick={() => formHandle(recruit[key]["entity"].id, recruit[key]["careers"].id)}
-                                        onClick={() => handlePersonalInfo(recruit[key]["entity"].id)}
-                                        color="primary"
-                                    >
-                                        <VisibilityIcon fontSize="large" />
-                                    </IconButton>
+                                    <MDButton onClick={() => formHandle(recruit[key]['entity'].id, recruit[key]['careers'].id)} color='secondary'>View</MDButton>
                                 </Grid> 
                                 {/* <Grid item>
                                     <MDButton color='primary'>Download</MDButton>
                                 </Grid>  */}
                                 <Grid item>
-                                    {/* <Icon onClick={() => handleDeleteRecruit(recruit[key].id)} color='error' fontSize='large' cursor='pointer'>delete</Icon> */}
-                                    <IconButton onClick={() => handleDeleteRecruit(recruit[key].id)} color="error">
-                                        <DeleteIcon fontSize="large" />
-                                    </IconButton>
+                                    <MDButton onClick={() => handleDeleteRecruit(recruit[key].id)} color='error'>Delete</MDButton>
                                 </Grid> 
-                                <Grid item>
-                                    <IconButton>
-                                        <MoreVertIcon fontSize="large" sx={{ color: "green" }}  onClick={() => handleQuestions(recruit[key]["entity"].id, recruit[key]["careers"].id)} />
-                                    </IconButton>   
-                                    {/* <Menu
-                                    >
-                                        <MenuItem onClick={() => console.log("Questions Clicked")}>
-                                            <HelpOutlineIcon sx={{ marginRight: 1 }} /> Questions
-                                        </MenuItem>
-                                        <MenuItem onClick={() => console.log("Download Clicked")}>
-                                            <DownloadIcon sx={{ marginRight: 1 }} /> Download
-                                        </MenuItem>
-                                        <MenuItem onClick={() => handleMenuClose(recruit[key].id)}>
-                                            <CloseIcon sx={{ marginRight: 1 }} /> Close
-                                        </MenuItem>
-                                    </Menu> */}
-                                </Grid>
                             </Grid>
                         </MDBox>
                     )
@@ -857,6 +687,7 @@ function Employee() {
     const handleDebugPicker = (e) => {
         console.log('debug color picker:', e);
     }
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -900,7 +731,7 @@ function Employee() {
                 fullWidth
             >
                 <DialogTitle textAlign='center' sx={{ m: 0, p: 2 }}>
-                    Application (Personal Information)
+                    Application
                 </DialogTitle>
                 <IconButton
                 onClick={handleClose}
@@ -917,7 +748,7 @@ function Employee() {
                     {content}
                 </DialogContent>
             </Dialog>
-                
+
             {/* { confirmModal && <ConfirmDialog closeModal={() => setConfirmModal(false)} title='Confirm Delete' content={confirmContent} data={handleDeleteData} /> } */}
             {confirmModal && (
             <Dialog
