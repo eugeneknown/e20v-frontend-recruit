@@ -228,6 +228,7 @@ export const generateFormInput = (props) => {
                     props.required
                 );
             };
+            return <CheckboxField props={props} sx={sx} handleChange={handleChange} />;
         case 'file':
             props['value'] = props['value'] || null;
             return (
@@ -310,4 +311,4 @@ generateFormInput.propTypes = {
     props: {
         type: propTypes.string.isRequired,
     },
-};
+}; 
