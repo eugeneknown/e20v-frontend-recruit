@@ -31,31 +31,45 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToHTML } from 'layouts/dashboard/positions/rte/html-converter';
 const CheckboxField = ({ props, sx, handleChange }) => {
-const [open, setOpen] = useState(false); 
-const [selectedValues, setSelectedValues] = useState(
-props.value && Array.isArray(props.value) ? props.value : []
-);
-const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
-const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
+    const [open, setOpen] = useState(false); // Dropdown open/close state
+    const [selectedValues, setSelectedValues] = useState(
+        props.value && Array.isArray(props.value) ? props.value : []
+    );
+    const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
+    const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
 
-        // For filtering Dropdown values
-        const handleSelectionChange = (event) => {
-        let { value } = event.target;
-        let newValues = typeof value === "string" ? value.split(",") : [...value];  
-        setSelectedValues(newValues);
-        };
+    const handleDropdownToggle = () => {
+        setOpen((prevOpen) => !prevOpen); 
+    };
 
-        const handleFilter = (event) => {
+    const handleSelectionChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        const newValues = typeof value === 'string' ? value.split(', ') : value;
+        setSelectedValues(newValues); 
+        handleChange(event); 
+    };
+
+    const handleSaveCheckedFields = () => {
+        console.log('Checked Fields:', selectedValues);
+        setOpen(false); 
+    };
+
+    const handleFilter = (event) => {
         const typedChar = event.key.toLowerCase();
         const newSearchTerm = searchTerm + typedChar;
         setSearchTerm(newSearchTerm);
-        };
-        
-        const clearSearchOnClose = () => {
+        const filtered = props.options.filter((option) =>
+            option.toLowerCase().includes(newSearchTerm)
+        );
+        setFilteredOptions(filtered);
+    };
+
+    const clearSearchOnClose = () => {
         setSearchTerm(''); 
-        setFilteredOptions(props.options);
-        };
-        
+        setFilteredOptions(props.options); 
+    };
 
     return (
         <FormControl sx={sx} fullWidth={props.fullWidth} error={props.error}>
@@ -142,6 +156,7 @@ export const generateFormInput = (props) => {
             return <TextField {...props} {...props?.options} />;
         case 'radio':
         case 'select':
+            // props['sx'] = [{ py: '0.75rem' }];
             return (
                 <FormControl sx={sx} required={props.required} fullWidth={props.fullWidth} error={props?.error}>
                     <InputLabel>{props.label}</InputLabel>
@@ -311,4 +326,4 @@ generateFormInput.propTypes = {
     props: {
         type: propTypes.string.isRequired,
     },
-}; 
+};
