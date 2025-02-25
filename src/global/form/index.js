@@ -39,36 +39,27 @@ const CheckboxField = ({ props, sx, handleChange }) => {
     const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
 
     const handleDropdownToggle = () => {
-        setOpen((prevOpen) => !prevOpen); // Toggle dropdown open/close state
+        setOpen((prevOpen) => !prevOpen); 
     };
 
     const handleSelectionChange = (event) => {
-        const { value } = event.target;
-        let newValues = typeof value === 'string' ? value.split(', ') : value;
-    
-        // If "None of the Above" is selected, deselect all other options
-        if (newValues.includes("None of the Above")) {
-            newValues = ["None of the Above"];
-        } else {
-            // If "None of the Above" is not selected, ensure it's unchecked
-            newValues = newValues.filter(item => item !== "None of the Above");
-        }
-    
-        setSelectedValues(newValues);
-        handleChange({ ...event, target: { ...event.target, value: newValues } });
-    };        
-    
+        const {
+            target: { value },
+        } = event;
+        const newValues = typeof value === 'string' ? value.split(', ') : value;
+        setSelectedValues(newValues); 
+        handleChange(event); 
+    };
+
     const handleSaveCheckedFields = () => {
         console.log('Checked Fields:', selectedValues);
-        setOpen(false); // Close dropdown only when "OK" is clicked
+        setOpen(false); 
     };
 
     const handleFilter = (event) => {
         const typedChar = event.key.toLowerCase();
         const newSearchTerm = searchTerm + typedChar;
         setSearchTerm(newSearchTerm);
-
-        // Filter options based on the current search term
         const filtered = props.options.filter((option) =>
             option.toLowerCase().includes(newSearchTerm)
         );
@@ -76,8 +67,8 @@ const CheckboxField = ({ props, sx, handleChange }) => {
     };
 
     const clearSearchOnClose = () => {
-        setSearchTerm(''); // Clear the search term when the dropdown closes
-        setFilteredOptions(props.options); // Reset options to the original list
+        setSearchTerm(''); 
+        setFilteredOptions(props.options); 
     };
 
     return (
@@ -111,7 +102,7 @@ const CheckboxField = ({ props, sx, handleChange }) => {
                     clearSearchOnClose();
                 }}
                 onChange={handleSelectionChange}
-                onKeyDown={handleFilter} // Dynamically filter on typing
+                onKeyDown={handleFilter} 
                 MenuProps={{
                     PaperProps: {
                         style: {
