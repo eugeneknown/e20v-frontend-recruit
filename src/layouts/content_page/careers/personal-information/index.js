@@ -319,7 +319,7 @@ function PersonalInformation(){
                         key={index} 
                         color={data[item]?.color ? data[item].color : 'inherit'}
                         variant={data[item]?.variant ? data[item].variant : ''}
-                        sx={{ textTransform: 'math-auto' }}
+                        sx={{ color: '#000 !important', WebkitTextFillColor: '#000 !important', display: 'block',}}
                         >{data[item].title}{Object.keys(data).length == index+1 && '...'}</MDTypography>
                     )) 
                     : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
@@ -328,14 +328,14 @@ function PersonalInformation(){
                 onClick={() => toPage(url)} 
                 sx={{ 
                     mt: 2, 
-                    borderColor: 'secondary.main', // Default border color
-                    color: 'secondary.main', // Default text color
-                    transition: 'all 0.3s ease', // Smooth transition for hover effect
-                    '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
+                    borderColor: 'secondary.main', 
+                    color: 'secondary.main', 
+                    transition: 'all 0.3s ease', 
+                    '& .MuiSvgIcon-root': { color: 'inherit' }, 
                     '&:hover': {
-                    borderColor: 'red', // Border turns red
-                    color: 'red', // Text turns red
-                    '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
+                    borderColor: 'red', 
+                    color: 'red', 
+                    '& .MuiSvgIcon-root': { color: 'red' }, 
                     }
                 }} 
                 variant='outlined' 
@@ -349,7 +349,7 @@ function PersonalInformation(){
         </Card>
     )
 
-    const WorkExpContent = ({title, data, url}) => (
+    const WorkExpContent = ({ title, data, url }) => (
         <Card sx={{ mx: 5, my: 3 }}>
             <CardContent>
                 <MDTypography variant='h6' color='info'>{title}</MDTypography>
@@ -357,45 +357,60 @@ function PersonalInformation(){
                 {
                     data ? Object.keys(data).map((item, index) => {
                         return (
-                            <MDBox>
-                                {Object.keys(data[item]).map((_item, _index) => (
-                                    <MDTypography 
-                                    key={index} 
-                                    color={data[item][_item]?.color ? data[item][_item].color : 'inherit'}
-                                    variant={data[item][_item]?.variant ? data[item][_item].variant : ''}
-                                    sx={{ textTransform: 'math-auto' }}
-                                    >{data[item][_item].title}</MDTypography>
-                                ))}
+                            <MDBox key={index}>
+                                {Object.keys(data[item]).map((_item, _index) => {
+                                    const value = data[item][_item];
+                                    const textValue = typeof value === "object" && value !== null ? value.title : value;
+    
+                                    return (
+                                        <MDTypography 
+                                            key={`${index}-${_index}`} 
+                                            variant={value?.variant || 'body1'}
+                                            sx={{ 
+                                                color: "#000 !important", 
+                                                textTransform: 'none',
+                                                WebkitTextFillColor: '#000 !important', 
+                                                display: 'block', 
+                                            }}
+                                        >
+                                            {textValue}
+                                        </MDTypography>
+                                    );
+                                })}
                                 <Divider />
                             </MDBox>
-                        )
+                        );
                     })
-                    : <MDBox display='flex' justifyContent='center'><MDTypography color='secondary' variant='button' >Add your information here</MDTypography></MDBox>
+                    : <MDBox display='flex' justifyContent='center'>
+                        <MDTypography color='secondary' variant='button'>Add your information here</MDTypography>
+                      </MDBox>
                 }
-              <MDButton   
-                onClick={() => toPage(url)} 
-                sx={{ 
-                    mt: 2, 
-                    borderColor: 'secondary.main', // Default border color
-                    color: 'secondary.main', // Default text color
-                    transition: 'all 0.3s ease', // Smooth transition effect
-                    '& .MuiSvgIcon-root': { color: 'inherit' }, // Ensure the icon inherits the text color
-                    '&:hover': {
-                    borderColor: 'red', // Border turns red
-                    color: 'red', // Text turns red
-                    '& .MuiSvgIcon-root': { color: 'red' }, // Icon turns red
-                    }
-                }} 
-                variant='outlined' 
-                fullWidth 
-                color='secondary' 
-                startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
+                <MDButton   
+                    onClick={() => toPage(url)} 
+                    sx={{ 
+                        mt: 2, 
+                        borderColor: 'secondary.main', 
+                        color: 'secondary.main', 
+                        transition: 'all 0.3s ease', 
+                        '& .MuiSvgIcon-root': { color: 'inherit' }, 
+                        '&:hover': {
+                            borderColor: 'red', 
+                            color: 'red', 
+                            '& .MuiSvgIcon-root': { color: 'red' },
+                        }
+                    }} 
+                    variant='outlined' 
+                    fullWidth 
+                    color='secondary' 
+                    startIcon={<Icon>{data ? `edit` : `add`}</Icon>}
                 >
-                {`${data ? 'Edit' : 'Add'} ${title}`}
+                    {`${data ? 'Edit' : 'Add'} ${title}`}
                 </MDButton>
             </CardContent>
         </Card>
-    )
+    );
+    
+
     const [missingInfo, setMissingInfo] = useState([]);
 
     useEffect(() => {
@@ -474,7 +489,7 @@ function PersonalInformation(){
                     <MDBox maxWidth="sm" mx={{ xs: 3, md: 'auto', lg: 3, xl: 'auto' }} pt="5rem">
                         <Card variant="outlined">
                             <CardHeader 
-                                title={<MDTypography variant='h3'>INFORMATION</MDTypography>} 
+                                title={<MDTypography variant='h3' >INFORMATION</MDTypography>} 
                                 subheader='Add personal information'
                                 avatar={<Icon fontSize="large">person_outline</Icon>} 
                             />
@@ -484,7 +499,7 @@ function PersonalInformation(){
                                 <WorkExpContent title='EDUCATIONAL BACKGROUND' data={educations} url='/careers/personalinfo/educational' />
                                 <WorkExpContent title='WORK EXPERIENCE' data={experience} url={'/careers/personalinfo/workexperienceform'} />
                                 <InformationContent title='OTHER DETAILS' data={details} url='/careers/personalinfo/detailsform' />
-                                <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled || loading} startIcon={<Icon>check</Icon>} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ px: 5 }}> {loading ? 'Loading...' : 'Continue'} </MDButton>
+                                <MDButton onClick={() => toPage('/careers/questions')} disabled={disabled || loading} startIcon={<Icon>check</Icon>} fullWidth color={disabled ? 'secondary' : 'info'} sx={{ marginLeft:{ xs: '0', sm: '5%', md: '7%' }, width: { xs: '100%', sm: '90%', md: '86%' }, maxWidth: '100%', boxSizing: 'border-box', px: 5 }}> {loading ? 'Loading...' : 'Continue'} </MDButton>
                             </CardContent>
                         </Card>
                     </MDBox>
