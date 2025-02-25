@@ -1,5 +1,5 @@
-import { DialogActions, DialogContent, DialogTitle, Dialog } from "@mui/material"
-import MDButton from "components/MDButton"
+import { DialogActions, DialogContent, DialogTitle, Dialog, Icon, IconButton } from "@mui/material"
+import MDBox from "components/MDBox"
 import { useMaterialUIController, setDialog } from "context"
 
 
@@ -27,7 +27,7 @@ const DynamicDialog = () => {
         >
             {title && <DialogTitle>{title}</DialogTitle>}
             {content && <DialogContent>{content}</DialogContent>}
-            <DialogActions sx={{ display: 'block' }}>{action ?? <MDButton color='error' onClick={handleClose}>Close</MDButton>}</DialogActions>
+            {action && <DialogActions sx={{ display: 'block' }}>{action}</DialogActions>}
         </Dialog>
     )
 

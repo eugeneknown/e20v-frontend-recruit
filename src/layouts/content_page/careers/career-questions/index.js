@@ -1,4 +1,4 @@
-import {Card, CardContent, Checkbox, Chip, Container, Dialog, DialogActions, DialogContent, Divider, Icon, IconButton, Link, Step, StepLabel, Stepper, TextField} from "@mui/material";
+import {Card, CardContent, CardHeader, Checkbox, Chip, Container, Dialog, DialogActions, DialogContent, Divider, Icon, IconButton, Link, Step, StepLabel, Stepper, TextField} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import PageLayout from "examples/LayoutContainers/PageLayout";
@@ -382,7 +382,7 @@ function CareerQuestionsForm(){
                                 >
                                     <CardContent>
                                         <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
-                                        { questions && answers && 
+                                        {/* { questions && answers && 
                                         <Stepper activeStep={step} alternativeLabel>
                                             {Object.keys(questions).map((item, index) => (
                                                 <Step key={index}>
@@ -390,7 +390,7 @@ function CareerQuestionsForm(){
                                                 </Step>
                                             ))}
                                         </Stepper>}
-                                        <Divider />
+                                        <Divider /> */}
                                         <Formik
                                             initialValues={answers}
                                             validationSchema={validationSchema(questions[step])}
@@ -408,12 +408,13 @@ function CareerQuestionsForm(){
                                                                 render={arrayHelper => (
                                                                 <MDBox>
                                                                     {/* {console.log('values', values)} */}
-                                                                    {SwipeHeightChange()}
                                                                     {setAnswers(values)}
                                                                     {Object.keys(questions[item]).map((_item, index) => {
                                                                         var data = questions[item][_item]
                                                                         // console.log('data', data);
                                                                         // universal format
+                                                                        {data.type == 'check' && SwipeHeightChange()}
+
                                                                         var touch = data.type == 'date' ? typeof touched[data.id] == 'undefined' ? true : touched[data.id] : touched[data.id]
                                                                         var error = data.type == 'date' ? data.required && errors[data.id] : errors[data.id]
                                                                         return (generateFormInput({
@@ -471,7 +472,7 @@ function CareerQuestionsForm(){
                                     </CardContent>
                                     <CardContent>
                                         <IconButton onClick={()=>setPageStep(pageStep-1)}><Icon>keyboard_backspace</Icon></IconButton>
-                                        <ReferenceInformation OnHeightChange={PageSwipeHeightChange} />
+                                        <ReferenceInformation />
                                         <Divider />
                                         <form onSubmit={handleSubmit}>
                                         <AuthLetter />
