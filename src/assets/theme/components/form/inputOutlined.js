@@ -49,7 +49,7 @@ const inputOutlined = {
 
     input: {
       color: grey[700],
-      padding: pxToRem(12),
+      // padding: pxToRem(12),
       backgroundColor: transparent.main,
     },
 
@@ -60,7 +60,7 @@ const inputOutlined = {
 
     multiline: {
       color: grey[700],
-      padding: 0,
+      // padding: 0,
     },
   },
 };
