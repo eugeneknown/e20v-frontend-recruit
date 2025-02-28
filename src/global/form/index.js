@@ -112,6 +112,7 @@ export const generateFormInput = (props) => {
                     typeof value === 'string' ? value.split(', ') : value.join(', '),
                     props.required
                 );
+                props.heightChange()
             };
             return <CheckboxField props={props} sx={sx} handleChange={handleChange} />;
         case 'file':
@@ -119,6 +120,7 @@ export const generateFormInput = (props) => {
             return (
                 <MuiFileInput
                     {...props}
+                    sx={sx}
                     onChange={(e) => props.setFieldValue(props.id, e, props.required)}
                     InputProps={{
                         inputProps: {
