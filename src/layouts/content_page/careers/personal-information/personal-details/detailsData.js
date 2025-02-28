@@ -14,7 +14,7 @@ export default [
     },
     {
         id: 'work_in_office',
-        label: 'Amenable to work in the office (Juna Subd. Matina Davao, Davao)',
+        label: 'Amenable to work in the office (Juna Subd. Matina, Davao)',
         type: 'select',
         required: true,
         options: ['Yes', 'No'],

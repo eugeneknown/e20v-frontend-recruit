@@ -13,9 +13,7 @@ import {
     ListItemText,
     MenuItem,
     OutlinedInput,
-    Select,
     Switch,
-    TextField,
     Button,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -30,153 +28,25 @@ import MDTypography from 'components/MDTypography';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToHTML } from 'layouts/dashboard/positions/rte/html-converter';
-const CheckboxField = ({ props, sx, handleChange }) => {
-    const [open, setOpen] = useState(false); // Dropdown open/close state
-    const [selectedValues, setSelectedValues] = useState(
-        props.value && Array.isArray(props.value) ? props.value : []
-    );
-    const [filteredOptions, setFilteredOptions] = useState(props.options || []); // Filtered options
-    const [searchTerm, setSearchTerm] = useState(''); // Term for filtering
+import TextField from './components/text-field';
+import { CheckboxField } from './components/check-box';
+import Select from './components/select';
 
-    const handleDropdownToggle = () => {
-        setOpen((prevOpen) => !prevOpen); 
-    };
 
-    const handleSelectionChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        const newValues = typeof value === 'string' ? value.split(', ') : value;
-        setSelectedValues(newValues); 
-        handleChange(event); 
-    };
-
-    const handleSaveCheckedFields = () => {
-        console.log('Checked Fields:', selectedValues);
-        setOpen(false); 
-    };
-
-    const handleFilter = (event) => {
-        const typedChar = event.key.toLowerCase();
-        const newSearchTerm = searchTerm + typedChar;
-        setSearchTerm(newSearchTerm);
-        const filtered = props.options.filter((option) =>
-            option.toLowerCase().includes(newSearchTerm)
-        );
-        setFilteredOptions(filtered);
-    };
-
-    const clearSearchOnClose = () => {
-        setSearchTerm(''); 
-        setFilteredOptions(props.options); 
-    };
-
-    return (
-        <FormControl sx={sx} fullWidth={props.fullWidth} error={props.error}>
-            <InputLabel shrink>{props.label}</InputLabel>
-            <Select
-                {...props}
-                multiple
-                open={open}
-                value={props.value || selectedValues}
-                input={<OutlinedInput notched label={props.label} />}
-                renderValue={(selected) => {
-                    if (selected.length === 0) {
-                        return (
-                            <em style={{ color: '#9E9E9E' }}>
-                                {props.placeholder || 'Select options'}
-                            </em>
-                        );
-                    }
-                    return (
-                        <div>
-                            {selected.map((value, index) => (
-                                <div key={index}>{value}</div>
-                            ))}
-                        </div>
-                    );
-                }}
-                onOpen={() => setOpen(true)}
-                onClose={() => {
-                    setOpen(false);
-                    clearSearchOnClose();
-                }}
-                onChange={handleSelectionChange}
-                onKeyDown={handleFilter} 
-                MenuProps={{
-                    PaperProps: {
-                        style: {
-                            maxHeight: 48 * 4.5 + 8,
-                        },
-                    },
-                }}
-            >
-                {filteredOptions.length > 0 ? (
-                    filteredOptions.map((item, index) => (
-                        <MenuItem key={index} value={item}>
-                            <Checkbox checked={selectedValues.includes(item)} />
-                            <ListItemText primary={item} />
-                        </MenuItem>
-                    ))
-                ) : (
-                    <MenuItem disabled>
-                        <em>No options available</em>
-                    </MenuItem>
-                )}
-                <Divider />
-                <MenuItem disableRipple sx={{ justifyContent: "end" }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<CheckCircleIcon />}
-                        sx={{
-                            color: "#fff", 
-                            backgroundColor: "primary.main", 
-                            fontSize: "0.8rem",
-                        }}
-                        onClick={handleSaveCheckedFields}
-                    >
-                        OK
-                    </Button>
-                </MenuItem>
-
-            </Select>
-            {props.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
-        </FormControl>
-    );
-};
 export const generateFormInput = (props) => {
     const sx = { my: 2, display: props?.hidden ? 'none' : 'block' };
-    if (typeof props.sx === 'undefined') props['sx'] = [sx];
+    // if (typeof props.sx === 'undefined') props['sx'] = [sx];
+    
     switch (props.type) {
         case 'text':
         case 'number':
         case 'tel':
         case 'email':
-            return <TextField {...props} {...props?.options} />;
+            return <TextField props={{...props}} sx={sx} />;
         case 'radio':
         case 'select':
-            // props['sx'] = [{ py: '0.75rem' }];
-            return (
-                <FormControl sx={sx} required={props.required} fullWidth={props.fullWidth} error={props?.error}>
-                    <InputLabel>{props.label}</InputLabel>
-                    <Select {...props}>
-                        {props?.options &&
-                            props.options.map((item, index) =>
-                                typeof item === 'object' ? (
-                                    <MenuItem key={index} value={item.id}>
-                                        {item.title}
-                                    </MenuItem>
-                                ) : (
-                                    <MenuItem key={item} value={item}>
-                                        {item}
-                                    </MenuItem>
-                                )
-                            )}
-                    </Select>
-                    {props?.helperText && <FormHelperText>{props.helperText}</FormHelperText>}
-                </FormControl>
-            )
+            props['sx'] = [{ p: '16.5px 14px' }];
+            return (<Select props={{...props}} sx={sx} />)
 
         case 'date':
             let valueProps = {}
@@ -190,7 +60,7 @@ export const generateFormInput = (props) => {
                     {...valueProps}
                     label={props.label}
                     name={props.name}
-                    sx={props.sx}
+                    sx={{...sx, ...props.sx}}
                     disabled={props?.disabled ? props.disabled : false}
                     slotProps={{
                         textField: {
@@ -228,7 +98,7 @@ export const generateFormInput = (props) => {
                 );
             
         case 'check':
-            props['sx'] = [{ py: '0.75rem' }];
+            props['sx'] = [{ p: '16.5px 14px' }];
             props['value'] =
                 props['value'] && typeof props['value'] === 'string'
                     ? props['value'].split(', ')
@@ -242,6 +112,7 @@ export const generateFormInput = (props) => {
                     typeof value === 'string' ? value.split(', ') : value.join(', '),
                     props.required
                 );
+                props.heightChange()
             };
             return <CheckboxField props={props} sx={sx} handleChange={handleChange} />;
         case 'file':
@@ -249,6 +120,7 @@ export const generateFormInput = (props) => {
             return (
                 <MuiFileInput
                     {...props}
+                    sx={sx}
                     onChange={(e) => props.setFieldValue(props.id, e, props.required)}
                     InputProps={{
                         inputProps: {

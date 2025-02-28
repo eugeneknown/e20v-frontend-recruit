@@ -23,7 +23,7 @@ import { generateFormInput } from "global/form";
 import Footer from "examples/Footer";
 import SwipeableViews from "react-swipeable-views";
 import CareersStepper from "../careers-stepper";
-import { useMaterialUIController, setLoading } from "context";
+import { useMaterialUIController, setLoading, setDialog } from "context";
 import ReferenceInformation from "../reference-information";
 
 
@@ -31,7 +31,7 @@ function CareerQuestionsForm(){
 
     // controller
     const [controller, dispatch] = useMaterialUIController()
-    const { loading } = controller
+    const { loading, dialog } = controller
 
     // local
     const local = localStorage.getItem('answers')
@@ -367,6 +367,99 @@ function CareerQuestionsForm(){
         }, 500);
     }
 
+    const handleDialogClose = () => setDialog(dispatch, {...dialog, open: false})
+
+    const handlePrevPageDialog = () => {
+        setDialog(dispatch, {
+            open: true,
+            title: (
+                <MDBox
+                    sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#2E5B6F",
+                    padding: "12px 20px",
+                    borderTopLeftRadius: "8px",
+                    borderTopRightRadius: "8px",
+                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                    position: "relative",
+                    }}
+                >
+                    <MDTypography
+                    variant="h6"
+                    color="white"
+                    sx={{
+                        fontWeight: "600",
+                        fontSize: "1.25rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                    }}
+                    >
+                        <Icon sx={{ color: "#FF9800", fontSize: 30 }}>info</Icon>
+                        Confirm and Proceed to Personal Information
+                    </MDTypography>
+                </MDBox>
+            ),
+            content: (
+                <MDBox p={2}>
+                    <MDTypography variant="body1" color="textSecondary">
+                        This page will be reset once you proceed to Personal Information Page
+                    </MDTypography>
+                </MDBox>
+            ),
+            action: (
+                <MDBox p={2} display="flex" justifyContent="flex-end" gap={2}>
+                    <MDButton
+                        onClick={handleDialogClose}
+                        color="secondary"
+                        variant="outlined"
+                        sx={{
+                            padding: "8px 16px",
+                            borderColor: "#F44336",
+                            color: "#F44336",
+                            fontWeight: "bold",
+                            "&:hover": {
+                            backgroundColor: "#FFC5C5",
+                            borderColor: "#F44336",
+                            },
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 20 }}>cancel</Icon>
+                        Cancel
+                    </MDButton>
+                    <MDButton
+                        color="primary"
+                        variant="contained"
+                        sx={{
+                            padding: "8px 16px",
+                            backgroundColor: "#4CAF50",
+                            "&:hover": {
+                            backgroundColor: "#388E3C",
+                            },
+                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                        }}
+                        autoFocus
+                        onClick={() => {
+                            prevPage();
+                            handleDialogClose();
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 20 }}>delete</Icon>
+                        Confirm
+                    </MDButton>
+                </MDBox>
+            ),
+        });
+    }
+
     return (
         <PageLayout>
             <NavBar position='absolute' />
@@ -381,7 +474,7 @@ function CareerQuestionsForm(){
                                     ref={pageSwipeRef}
                                 >
                                     <CardContent>
-                                        <IconButton onClick={prevPage}><Icon>keyboard_backspace</Icon></IconButton>
+                                        <IconButton onClick={handlePrevPageDialog}><Icon>keyboard_backspace</Icon></IconButton>
                                         {/* { questions && answers && 
                                         <Stepper activeStep={step} alternativeLabel>
                                             {Object.keys(questions).map((item, index) => (
@@ -413,7 +506,7 @@ function CareerQuestionsForm(){
                                                                         var data = questions[item][_item]
                                                                         // console.log('data', data);
                                                                         // universal format
-                                                                        {data.type == 'check' && SwipeHeightChange()}
+                                                                        // {data.type == 'check' && SwipeHeightChange()}
 
                                                                         var touch = data.type == 'date' ? typeof touched[data.id] == 'undefined' ? true : touched[data.id] : touched[data.id]
                                                                         var error = data.type == 'date' ? data.required && errors[data.id] : errors[data.id]
@@ -432,7 +525,8 @@ function CareerQuestionsForm(){
                                                                             setFieldTouched,
                                                                             error: touch && Boolean(error),
                                                                             helperText: touch && error,
-                                                                            options: data.options ? data.options : undefined
+                                                                            options: data.options ? data.options : undefined,
+                                                                            heightChange: SwipeHeightChange,
                                                                         }))
                                                                     })}
                                                                     <Divider />

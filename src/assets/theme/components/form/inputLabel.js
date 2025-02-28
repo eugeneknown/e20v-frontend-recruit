@@ -25,8 +25,8 @@ const inputLabel = {
     root: {
       fontSize: size.sm,
       color: black.main,
-      lineHeight: 0.9,
-      overflow: `visible`,
+      // lineHeight: 0.9,
+      // overflow: `visible`,
 
       ".MuiInputLabel-asterisk": {
         display: 'none'
@@ -48,10 +48,10 @@ const inputLabel = {
 
     sizeSmall: {
       fontSize: size.xs,
-      lineHeight: 1.625,
+      // lineHeight: 1.625,
 
       "&.MuiInputLabel-shrink": {
-        lineHeight: 1.6,
+        // lineHeight: 1.6,
         fontSize: size.sm,
 
         "~ .MuiInputBase-root .MuiOutlinedInput-notchedOutline legend": {

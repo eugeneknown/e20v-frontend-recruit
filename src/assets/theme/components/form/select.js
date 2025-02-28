@@ -24,8 +24,8 @@ const { transparent } = colors;
 const select = {
   styleOverrides: {
     root: {
-      paddingTop: `${pxToRem(12)}`,
-      paddingBottom: `${pxToRem(12)}`,
+      // paddingTop: `${pxToRem(12)}`,
+      // paddingBottom: `${pxToRem(12)}`,
       display: `inline-flex!important`,
       marginTop: `0!important`,
       marginBottom: `0!important`,
@@ -34,7 +34,8 @@ const select = {
     select: {
       display: "grid",
       alignItems: "center",
-      padding: `0 ${pxToRem(12)} !important`,
+      // padding: `0 ${pxToRem(12)} !important`,
+      padding: 0,
 
       "& .Mui-selected": {
         backgroundColor: transparent.main,
